@@ -11,7 +11,7 @@ const cates = [
 ];
 
 const Categories = () => (
-  <div className="flex flex-grow justify-start items-center space-x-8 text-white font-light text-sm">
+  <div className="flex flex-grow justify-start items-center space-x-8 text-white text-sm">
     {cates.map((cate, i) => (
       <Link key={i} href={cate.href}>
         {cate.name}
@@ -39,7 +39,7 @@ const Search = () => (
 );
 
 const User = () => (
-  <div className="flex flex-grow justify-end items-center space-x-8 text-white font-light text-sm">
+  <div className="flex flex-grow justify-end items-center space-x-8 text-white text-sm">
     <Search />
     <button>登录</button>
     <button
