@@ -61,7 +61,7 @@ const AssetCard = ({
 
 const AssertWall = () => (
   <div className="grid grid-cols-4 gap-4 w-full max-w-7xl mx-auto">
-    {Array.from({ length: 20 }, (_, i) => (
+    {Array.from({ length: 12 }, (_, i) => (
       <AssetCard
         key={i}
         title="Door Hub - 家庭服务应用 Flutter UI"
@@ -72,12 +72,22 @@ const AssertWall = () => (
   </div>
 );
 
+const ViewMore = () => (
+  <button
+    type="button"
+    className="font-bold rounded-full bg-violet-600 px-9 py-3 text-white"
+  >
+    查看更多
+  </button>
+);
+
 const Landing = () => (
   <div className="w-full flex flex-col justify-center items-center py-36 space-y-12 bg-[#f2f7ff]">
     <Title />
     <Search />
     <HotSearch />
     <AssertWall />
+    <ViewMore />
   </div>
 );
 

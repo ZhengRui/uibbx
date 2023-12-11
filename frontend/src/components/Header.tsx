@@ -20,7 +20,7 @@ const Categories = () => (
   </div>
 );
 
-const Logo = () => (
+export const Logo = () => (
   <div className="relative flex justify-center items-center h-8 w-32">
     <Image
       src="/logo.png"
