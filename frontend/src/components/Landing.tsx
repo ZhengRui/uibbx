@@ -75,7 +75,7 @@ const AssertWall = () => (
 const ViewMore = () => (
   <button
     type="button"
-    className="font-bold rounded-full bg-violet-600 px-9 py-3 text-white"
+    className="rounded-full bg-violet-600 px-9 py-3 text-white"
   >
     查看更多
   </button>

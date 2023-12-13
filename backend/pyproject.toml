@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "backend"
+version = "0.1.0"
+description = "uibbx backend api service"
+authors = ["Rui <rzhengphy@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+uvicorn = "^0.24.0.post1"
+fastapi = "^0.104.1"
+alembic = "^1.13.0"
+loguru = "^0.7.2"
+databases = "^0.8.0"
+asyncpg = "^0.29.0"
+psycopg2-binary = "^2.9.9"
+passlib = "^1.7.4"
+httpx = "^0.25.2"
+python-jose = "^3.3.0"
+python-multipart = "^0.0.6"
+aliyun-python-sdk-core-v3 = "^2.13.33"
+
+
+[tool.poetry.group.dev.dependencies]
+ipdb = "^0.13.13"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

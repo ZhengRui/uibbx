@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "mailing-service"
+version = "0.1.0"
+description = "Mailing Service of ZitySpace"
+authors = ["Rui Zheng <rui@zityspace.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.103.0"
+fastapi-mail = "^1.4.1"
+python-jose = "^3.3.0"
+uvicorn = "^0.23.2"
+
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.15.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

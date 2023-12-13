@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body style="background-color: #f1f5f9; font-family: Arial, sans-serif; margin: 0 auto; padding: 40px 10px;">
+    <div style="margin: 0 auto; max-width:540px; min-width: 300px">
+        <!-- Company logo -->
+        <div style="padding-bottom: 40px; padding-left: 30px">
+            <img src="https://zityspace.cn/favicon.png" alt="ZitySpace" style="display: block; width: 50px;">
+        </div>
+
+        <!-- White content block with shadow -->
+        <div style="background-color: #ffffff; color: #242a34; margin: 0 auto; padding: 40px 30px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); border-radius: 8px;">
+            <h1 style="font-size: 28px; margin: 0 0 16px 0;">Welcome to ZitySpace!</h1>
+            <p style="margin: 0 0 12px 0; font-size: 14px; line-height: 200%;">
+                {% if username %}
+                    Hi {{ username }},
+                {% else %}
+                    Hi,
+                {% endif %}
+                 we are excited to have you onboard! Our platform offers shareable formulas, interactive visualizations, and plug-and-play features designed to complement your existing workflow.
+            </p>
+            <p style="margin: 0 0 12px 0; font-size: 14px; line-height: 200%;">
+                we recommend taking a few moments to explore our <a href="https://zityspace.cn/docs">documentation</a>. It's filled with helpful guides and tips to get you up and running. And, of course, if you have any questions or feedbacks, we'll be more than happy to hear from you. Simply hit reply to this email and let us know what’s on your mind.
+            </p>
+
+            <p style="margin: 0 0 12px 0; font-size: 14px; line-height: 200%; font-style: italic;">
+                Have a great day,<br>
+                ZitySpace Team
+            </p>
+        </div>
+    </div>
+</body>
+</html>
