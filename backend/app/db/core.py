@@ -49,6 +49,14 @@ async def create_user(db: Database, user: UserInDB) -> User:
 
     user.uid = rnd_uid
 
+    while True:
+        rnd_username = f"user-{random.randint(1, 1e9):09d}"
+        exist = await get_user_by_field(db, "username", rnd_username, only_check_existence=True)
+        if not exist:
+            break
+
+    user.username = rnd_username
+
     try:
         query = insert(UsersTable).values(**user.dict())
         await db.execute(query)

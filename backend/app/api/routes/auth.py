@@ -13,14 +13,20 @@ from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import EmailStr
 
-from ...config import ALGORITHM, MAILING_ENDPOINT, SECRET_KEY
+from ...config import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    ALGORITHM,
+    MAILING_ENDPOINT,
+    SECRET_KEY,
+)
 from ...db.connect import get_db
 from ...db.core import (
+    create_user,
     get_and_del_verification_code,
     get_user_by_field,
     save_verification_code,
 )
-from ...models import User
+from ...models import User, UserInDB
 from ...utils.sms import send_sms
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -145,6 +151,66 @@ async def send_email(recipients: List[EmailStr], message_type: str, message_data
             print(r.text)
 
 
+async def sign_up_new_user(
+    db: Database,
+    usertype: str,
+    cellnum: str,
+    email: str,
+    wxid: str,
+    username: str,
+    name: str,
+    password: str,
+    avatar: str,
+):
+    err = False
+
+    if usertype == "cellnum":
+        user = await get_user_by_field(db, field_name="cellnum", field_value=cellnum, only_check_existence=True)
+        if user:
+            err = True
+            err_msg = "Cell number already registered"
+
+    elif usertype == "wechat":
+        user = await get_user_by_field(db, field_name="wxid", field_value=wxid, only_check_existence=True)
+        if user:
+            err = True
+            err_msg = "WeChat account already registered"
+
+    else:
+        user = await get_user_by_field(db, field_name="email", field_value=email, only_check_existence=True)
+        if user:
+            err = True
+            err_msg = "Email already registered"
+
+    if err:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=err_msg,
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # all verifications happen before arriving here
+    verified = True
+
+    new_user = await create_user(
+        db,
+        UserInDB(
+            cellnum=cellnum,
+            email=email,
+            wxid=wxid,
+            username=username,
+            hashed_password=get_password_hash(password) if password else "",
+            disabled=False,
+            verified=verified,
+            avatar=avatar,
+            created_at=datetime.now().replace(microsecond=0),
+            username_confirmed=False,
+        ),
+    )
+
+    return new_user
+
+
 @r.get("/verification/email")
 async def request_verification_email(
     email: str,
@@ -207,6 +273,36 @@ async def verify_email(
     return {"verificationPassed": True}
 
 
+@r.post("/signup/email")
+async def signup_by_email(
+    email: str = Form(...),
+    password: str = Form(...),
+    code: str = Form(...),
+    token: str = Form(...),
+    db: Database = Depends(get_db),
+):
+    await verify_email(email, code, token, db)
+    check_password_format(password)
+
+    user = await sign_up_new_user(
+        db,
+        usertype="email",
+        cellnum="",
+        email=email,
+        wxid="",
+        username="",
+        name="",
+        password=password,
+        avatar="",
+    )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.uid},
+        expires_delta=access_token_expires,
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
 @r.get("/verification/cellnum")
 async def request_verification_cellnum(
     cellnum: str,
@@ -267,3 +363,33 @@ async def verify_cellnum(
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Inconsistent cellnum with code")
 
     return {"verificationPassed": True}
+
+
+@r.post("/signup/cellnum")
+async def signup_by_cellnum(
+    cellnum: str = Form(...),
+    password: str = Form(...),
+    code: str = Form(...),
+    token: str = Form(...),
+    db: Database = Depends(get_db),
+):
+    await verify_cellnum(cellnum, code, token, db)
+    check_password_format(password)
+
+    user = await sign_up_new_user(
+        db,
+        usertype="cellnum",
+        cellnum=cellnum,
+        email="",
+        wxid="",
+        username="",
+        name="",
+        password=password,
+        avatar="",
+    )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.uid},
+        expires_delta=access_token_expires,
+    )
+    return {"access_token": access_token, "token_type": "bearer"}

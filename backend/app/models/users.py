@@ -10,7 +10,7 @@ class Token(BaseModel):
 
 
 class User(BaseModel):
-    uid: Optional[int]
+    uid: Optional[str] = None
     cellnum: Optional[str] = ""
     email: Optional[str] = ""
     wxid: Optional[str] = ""

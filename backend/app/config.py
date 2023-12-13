@@ -6,8 +6,9 @@ config = Config(environ.get("DOTENV_PATH", ".env"))
 
 DATABASE_URL = config("DATABASE_URL", cast=str)
 
-SECRET_KEY = config('SECRET_KEY', cast=str)
-ALGORITHM = config('ALGORITHM', cast=str)
+SECRET_KEY = config("SECRET_KEY", cast=str)
+ALGORITHM = config("ALGORITHM", cast=str)
+ACCESS_TOKEN_EXPIRE_MINUTES = config("ACCESS_TOKEN_EXPIRE_MINUTES", cast=int, default=600)
 
 MAILING_ENDPOINT = config("MAILING_ENDPOINT", cast=str)
 
