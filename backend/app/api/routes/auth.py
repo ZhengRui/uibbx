@@ -49,7 +49,7 @@ def check_password_format(password: str):
 
     ok = pattern.match(password)
     if not ok:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Incorrect password format")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="密码格式错误")
     return True
 
 
@@ -67,13 +67,13 @@ def create_access_token(data: dict, expires_delta: timedelta = None, encrypt_key
 def verify_access_token(token: str, encrypt_key: str = SECRET_KEY):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid verification credentials",
+        detail="无效token",
         headers={"WWW-Authenticate": "Bearer"},
     )
 
     expired_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Credential expired",
+        detail="token已过期",
         headers={"WWW-Authenticate": "Bearer"},
     )
 
@@ -92,7 +92,7 @@ async def authenticate_user_with_field_password(db: Database, field_name: str, f
     if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Incorrect {field_name} or password",
+            detail=f"{field_name}或密码错误",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -145,6 +145,7 @@ async def send_email(recipients: List[EmailStr], message_type: str, message_data
             MAILING_ENDPOINT,
             headers={"Authorization": f"Bearer {mail_token}"},
             json={"recipients": recipients, "message_type": message_type, "message_data": message_data},
+            timeout=None,
         )
 
         if r.status_code != 200:
@@ -168,19 +169,19 @@ async def sign_up_new_user(
         user = await get_user_by_field(db, field_name="cellnum", field_value=cellnum, only_check_existence=True)
         if user:
             err = True
-            err_msg = "Cell number already registered"
+            err_msg = "手机号已注册"
 
     elif usertype == "wechat":
         user = await get_user_by_field(db, field_name="wxid", field_value=wxid, only_check_existence=True)
         if user:
             err = True
-            err_msg = "WeChat account already registered"
+            err_msg = "微信号已注册"
 
     else:
         user = await get_user_by_field(db, field_name="email", field_value=email, only_check_existence=True)
         if user:
             err = True
-            err_msg = "Email already registered"
+            err_msg = "邮箱已注册"
 
     if err:
         raise HTTPException(
@@ -223,14 +224,14 @@ async def request_verification_email(
         if user and not expect_registered:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="The email already registered",
+                detail="邮箱已注册",
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
         if not user and expect_registered:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="The email not registered yet",
+                detail="邮箱未注册",
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
@@ -265,10 +266,10 @@ async def verify_email(
     code_gt = dict(code_record).get("code")
 
     if code != code_gt:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid verification code")
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="验证码错误")
 
     if email != payload["email"]:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Inconsistent email with code")
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="验证码与邮箱不匹配")
 
     return {"verificationPassed": True}
 
@@ -303,6 +304,18 @@ async def signup_by_email(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+@r.post("/token/email")
+async def signin_by_email(email: str = Form(...), password: str = Form(...), db: Database = Depends(get_db)):
+    user = await authenticate_user_with_field_password(db, field_name="email", field_value=email, password=password)
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.uid},
+        expires_delta=access_token_expires,
+    )
+
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
 @r.get("/verification/cellnum")
 async def request_verification_cellnum(
     cellnum: str,
@@ -315,14 +328,14 @@ async def request_verification_cellnum(
         if user and not expect_registered:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="The cell number already registered",
+                detail="手机号已注册",
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
         if not user and expect_registered:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="The cell number not registered yet",
+                detail="手机号未注册",
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
@@ -357,10 +370,10 @@ async def verify_cellnum(
     code_gt = dict(code_record).get("code")
 
     if code != code_gt:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid verification code")
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="验证码错误")
 
     if cellnum != payload["cellnum"]:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Inconsistent cellnum with code")
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="验证码与手机号不匹配")
 
     return {"verificationPassed": True}
 
@@ -393,3 +406,20 @@ async def signup_by_cellnum(
         expires_delta=access_token_expires,
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@r.post("/token/cellnum")
+async def signin_by_cellnum(cellnum: str = Form(...), password: str = Form(...), db: Database = Depends(get_db)):
+    user = await authenticate_user_with_field_password(db, field_name="cellnum", field_value=cellnum, password=password)
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.uid},
+        expires_delta=access_token_expires,
+    )
+
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@r.get("/whoami", response_model=User)
+async def whoami(current_user: User = Depends(get_current_enabled_user)):
+    return current_user

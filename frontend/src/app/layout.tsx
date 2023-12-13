@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "UIBBX",
+  title: "UIBBX - UI百宝箱",
   description: "UI百宝箱",
 };
 

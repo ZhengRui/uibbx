@@ -1,6 +1,10 @@
+"use client";
+
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import Image from "next/image";
+import { authPanelOpenAtom } from "@/atoms";
+import { useSetAtom } from "jotai";
 
 const cates = [
   { name: "UI套件", href: "/ui" },
@@ -38,18 +42,22 @@ const Search = () => (
   </div>
 );
 
-const User = () => (
-  <div className="flex flex-grow justify-end items-center space-x-8 text-white text-sm">
-    <Search />
-    <button>登录</button>
-    <button
-      type="button"
-      className="font-bold rounded-full bg-violet-600 px-7 py-3"
-    >
-      升级VIP
-    </button>
-  </div>
-);
+const User = () => {
+  const setAuthPanelOpen = useSetAtom(authPanelOpenAtom);
+
+  return (
+    <div className="flex flex-grow justify-end items-center space-x-8 text-white text-sm">
+      <Search />
+      <button onClick={() => setAuthPanelOpen(true)}>登录</button>
+      <button
+        type="button"
+        className="font-bold rounded-full bg-violet-600 px-7 py-3"
+      >
+        升级VIP
+      </button>
+    </div>
+  );
+};
 
 const Header = () => {
   return (

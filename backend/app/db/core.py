@@ -7,7 +7,7 @@ from databases import Database
 from fastapi import HTTPException, status
 from sqlalchemy import delete, insert, select, update
 
-from ..models import User, UserInDB
+from ..models import UserInDB
 from .schemas import UsersTable, VerificationCodesTable
 
 
@@ -16,7 +16,7 @@ async def get_user_by_field(
     field_name: str,
     field_value: Union[str, int],
     only_check_existence: Optional[bool] = False,
-) -> Union[User, bool]:
+) -> Union[UserInDB, bool]:
     query = select([UsersTable]).where(getattr(UsersTable, field_name) == field_value)
     user = await db.fetch_one(query)
 
@@ -26,19 +26,19 @@ async def get_user_by_field(
 
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with {field_name}={field_value} not found",
+            detail=f"用户: {field_name}={field_value} 不存在",
         )
 
-    return User(**user)
+    return UserInDB(**user)
 
 
-async def create_user(db: Database, user: UserInDB) -> User:
+async def create_user(db: Database, user: UserInDB) -> UserInDB:
     if user.uid is not None:
         exist = await get_user_by_field(db, "uid", user.uid, only_check_existence=True)
         if exist:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"User with uid={user.uid} already exists",
+                detail=f"用户: uid={user.uid} 已存在",
             )
 
     while True:
@@ -64,10 +64,10 @@ async def create_user(db: Database, user: UserInDB) -> User:
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Cannot create user: {e}",
+            detail=f"创建用户失败: {e}",
         )
 
-    return User(**user.dict())
+    return user
 
 
 async def save_verification_code(db: Database, codeId: str, code: str, secondlife: Optional[bool] = False):
@@ -85,7 +85,7 @@ async def save_verification_code(db: Database, codeId: str, code: str, secondlif
     except UniqueViolationError:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Failed to generate verification code, please regenerate again",
+            detail="验证码生成失败，请重新生成",
         )
 
 
@@ -95,7 +95,7 @@ async def get_and_del_verification_code(db: Database, codeId: str, code: Optiona
     record = await db.fetch_one(query=query)
 
     if record is None:
-        raise HTTPException(status.HTTP_409_CONFLICT, detail="Verification code already used, please regenerate again")
+        raise HTTPException(status.HTTP_409_CONFLICT, detail="验证码已使用，请重新生成")
 
     if code is None or code == dict(record).get("code"):
         life = dict(record).get("life")
