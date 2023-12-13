@@ -69,7 +69,7 @@ async def mail_in_background(
     else:
         if message_type == 'verification_code':
             verify_code = message_data.get('verify_code')
-            body = f'<h4>请用如下验证码完成验证步骤: <br /><br />                     <span>{verify_code}</span></h4>'
+            body = f'<h4>请用如下验证码完成邮箱验证: <br /><br /><span>{verify_code}</span></h4>'
 
         message = MessageSchema(
             recipients=recipients, subject=subject_map.get(message_type, subject), body=body, subtype='html'
