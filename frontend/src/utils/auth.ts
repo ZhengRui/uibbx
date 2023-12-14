@@ -76,6 +76,22 @@ export const signinByEmail = requestTemplate(
   }
 );
 
+export const verifyEmail = requestTemplate(
+  (email: string, code: string, token: string) => ({
+    url: authEndpoint + "/verification/email",
+    method: "POST",
+    body: formConstructor({ email, code, token }),
+  })
+);
+
+export const resetPasswdByEmail = requestTemplate(
+  (email: string, code: string, password: string, token: string) => ({
+    url: authEndpoint + "/reset/password/email",
+    method: "POST",
+    body: formConstructor({ email, code, password, token }),
+  })
+);
+
 export const requestCellVerify = requestTemplate(
   (
     cell: string,
@@ -121,19 +137,19 @@ export const signinByCell = requestTemplate(
   }
 );
 
-export const verifyEmail = requestTemplate(
-  (email: string, code: string, token: string) => ({
-    url: authEndpoint + "/verification/email",
+export const verifyCell = requestTemplate(
+  (cell: string, code: string, token: string) => ({
+    url: authEndpoint + "/verification/cellnum",
     method: "POST",
-    body: formConstructor({ email, code, token }),
+    body: formConstructor({ cellnum: cell, code, token }),
   })
 );
 
-export const resetPasswdByEmail = requestTemplate(
-  (email: string, code: string, password: string, token: string) => ({
-    url: authEndpoint + "/reset/password/email",
+export const resetPasswdByCell = requestTemplate(
+  (cell: string, code: string, password: string, token: string) => ({
+    url: authEndpoint + "/reset/password/cellnum",
     method: "POST",
-    body: formConstructor({ email, code, password, token }),
+    body: formConstructor({ cellnum: cell, code, password, token }),
   })
 );
 

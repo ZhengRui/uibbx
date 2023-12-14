@@ -13,9 +13,13 @@ import {
   signupByCell,
   signinByEmail,
   signinByCell,
-  whoami,
+  verifyEmail,
+  resetPasswdByEmail,
+  verifyCell,
+  resetPasswdByCell,
 } from "@/utils/auth";
 import toast from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 import Image from "next/image";
 
@@ -26,6 +30,8 @@ const passwordFmt = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*_=+-]).{8,12}$/;
 
 const Login = () => {
   const setMode = useSetAtom(authModeAtom);
+  const setAuthPanelOpen = useSetAtom(authPanelOpenAtom);
+  const queryClient = useQueryClient();
 
   const handleLogin = async (evt: React.FormEvent) => {
     evt.preventDefault();
@@ -49,7 +55,11 @@ const Login = () => {
         : null;
 
       if (data) {
-        const user = await whoami(data["access_token"]);
+        toast.success("用户登录成功");
+        setAuthPanelOpen(false);
+        queryClient.invalidateQueries({
+          queryKey: ["whoami"],
+        });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : (err as string));
@@ -123,6 +133,9 @@ const Login = () => {
 
 const Signup = () => {
   const setMode = useSetAtom(authModeAtom);
+  const setAuthPanelOpen = useSetAtom(authPanelOpenAtom);
+  const queryClient = useQueryClient();
+
   const [counterLife, setCounterLife] = useState(0);
   const [token, setToken] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
@@ -187,11 +200,20 @@ const Signup = () => {
     }
 
     try {
-      isCell
+      const data = isCell
         ? await signupByCell(cellOrEmail, password, code, token)
         : isEmail
         ? await signupByEmail(cellOrEmail, password, code, token)
         : null;
+
+      if (data) {
+        toast.success("用户注册成功");
+        setAuthPanelOpen(false);
+        setMode("login");
+        queryClient.invalidateQueries({
+          queryKey: ["whoami"],
+        });
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : (err as string));
     }
@@ -300,11 +322,131 @@ const Signup = () => {
 
 const Reset = () => {
   const setMode = useSetAtom(authModeAtom);
+  const setAuthPanelOpen = useSetAtom(authPanelOpenAtom);
+
+  const [counterLife, setCounterLife] = useState(0);
+  const [token, setToken] = useState("");
+  const [verificationPassed, setVerificationPassed] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const handleVerification = async () => {
+    const cellOrEmail = formRef.current?.cellOrEmail.value;
+    const isCell = cellOrEmail.match(cellFmt);
+    const isEmail = cellOrEmail.match(emailFmt);
+
+    if (!isCell && !isEmail) {
+      toast.error("手机号/邮箱格式不正确");
+      return;
+    }
+
+    try {
+      setCounterLife(119);
+      const tokenData = isCell
+        ? await requestCellVerify(cellOrEmail, true, true)
+        : isEmail
+        ? await requestEmailVerify(cellOrEmail, true, true)
+        : null;
+
+      if (tokenData) {
+        setToken(tokenData.token);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : (err as string));
+    }
+  };
+
+  const handleContinue = async (evt: React.FormEvent) => {
+    evt.preventDefault();
+    const target = evt.target as HTMLFormElement;
+    const cellOrEmail = target.cellOrEmail.value;
+    const code = target.code.value;
+
+    const isCell = cellOrEmail.match(cellFmt);
+    const isEmail = cellOrEmail.match(emailFmt);
+
+    if (!code) {
+      toast.error("验证码不能为空");
+      return;
+    }
+
+    if (!token) {
+      toast.error("请先获取验证码");
+      return;
+    }
+
+    try {
+      const data = isCell
+        ? await verifyCell(cellOrEmail, code, token)
+        : isEmail
+        ? await verifyEmail(cellOrEmail, code, token)
+        : null;
+
+      if (data && data.verificationPassed) {
+        setVerificationPassed(true);
+      } else {
+        toast.error("验证失败");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : (err as string));
+    }
+  };
+
+  const handleReset = async (evt: React.FormEvent) => {
+    evt.preventDefault();
+    const target = evt.target as HTMLFormElement;
+    const cellOrEmail = target.cellOrEmail.value;
+    const password = target.password.value;
+    const repeat = target.repeat.value;
+    const code = target.code.value;
+
+    const isCell = cellOrEmail.match(cellFmt);
+    const isEmail = cellOrEmail.match(emailFmt);
+
+    const correctRepeat = password === repeat;
+    if (!correctRepeat) {
+      toast.error("重复密码不一致");
+      return;
+    }
+
+    const correctPassword = password.match(passwordFmt);
+    if (!correctPassword) {
+      toast.error(
+        "密码格式错误，要求8-12个字符，数字、字母、特殊字符至少各有一个。"
+      );
+      return;
+    }
+
+    try {
+      const data = isCell
+        ? await resetPasswdByCell(cellOrEmail, code, password, token)
+        : isEmail
+        ? await resetPasswdByEmail(cellOrEmail, code, password, token)
+        : null;
+
+      if (data && data["message"] === "success") {
+        toast.success("密码修改成功");
+        setAuthPanelOpen(false);
+        setMode("login");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : (err as string));
+    }
+  };
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (counterLife > 0) setCounterLife(counterLife - 1);
+    }, 1000);
+  }, [counterLife]);
 
   return (
     <div className="flex flex-col justify-end items-center w-full h-full space-y-16">
-      <form className="flex flex-col justify-between items-center w-full">
-        <div className="w-full">
+      <form
+        className="flex flex-col justify-between items-center w-full"
+        onSubmit={verificationPassed ? handleReset : handleContinue}
+        ref={formRef}
+      >
+        <div className={`w-full ${verificationPassed ? "hidden" : ""}`}>
           <label className="hidden" htmlFor="cellOrEmail">
             手机号/邮箱
           </label>
@@ -313,12 +455,16 @@ const Reset = () => {
             name="cellOrEmail"
             type="text"
             placeholder="手机号/邮箱"
-            required
+            required={!verificationPassed}
             className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
           />
         </div>
 
-        <div className="mt-3 w-full">
+        <div
+          className={`mt-3 w-full relative ${
+            verificationPassed ? "hidden" : ""
+          }`}
+        >
           <label className="hidden" htmlFor="code">
             验证码
           </label>
@@ -327,7 +473,58 @@ const Reset = () => {
             name="code"
             type="text"
             placeholder="验证码"
-            required
+            required={!verificationPassed}
+            className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
+          />
+
+          {counterLife ? (
+            <div className="absolute top-0 right-1 h-full py-1">
+              <button
+                className="px-8 h-full bg-[#936efe] rounded-full text-sm text-white"
+                type="button"
+              >
+                {counterLife}s
+              </button>
+            </div>
+          ) : (
+            <div className="absolute top-0 right-1 h-full py-1">
+              <button
+                className="px-8 h-full bg-[#936efe] rounded-full text-sm text-white"
+                type="button"
+                onClick={handleVerification}
+              >
+                <span>发送</span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className={`w-full ${verificationPassed ? "block" : "hidden"}`}>
+          <label className="hidden" htmlFor="password">
+            新密码
+          </label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="新密码"
+            required={verificationPassed}
+            className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
+          />
+        </div>
+
+        <div
+          className={`mt-3 w-full ${verificationPassed ? "block" : "hidden"}`}
+        >
+          <label className="hidden" htmlFor="repeat">
+            重复新密码
+          </label>
+          <input
+            id="repeat"
+            name="repeat"
+            type="password"
+            placeholder="重复新密码"
+            required={verificationPassed}
             className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
           />
         </div>
@@ -342,7 +539,7 @@ const Reset = () => {
         </div>
 
         <button className="mt-10 w-full bg-[#936efe] py-2 rounded-full text-white">
-          继续
+          {verificationPassed ? "重置" : "继续"}
         </button>
       </form>
       <div className="flex flex-col justify-between items-center w-full">

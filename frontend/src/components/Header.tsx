@@ -5,6 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { authPanelOpenAtom } from "@/atoms";
 import { useSetAtom } from "jotai";
+import { useAuth } from "@/hooks/useAuth";
+import { UserCircleIcon } from "@heroicons/react/24/solid";
+import { Menu, Transition } from "@headlessui/react";
+import { Fragment } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const cates = [
   { name: "UI套件", href: "/ui" },
@@ -45,10 +50,72 @@ const Search = () => (
 const User = () => {
   const setAuthPanelOpen = useSetAtom(authPanelOpenAtom);
 
+  const { isPending, data: user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const logout = () => {
+    localStorage.removeItem("token");
+
+    queryClient.invalidateQueries({
+      queryKey: ["whoami"],
+    });
+  };
+
   return (
     <div className="flex flex-grow justify-end items-center space-x-8 text-white text-sm">
       <Search />
-      <button onClick={() => setAuthPanelOpen(true)}>登录</button>
+      {isPending ? (
+        <div className="w-8 h-8 rounded-full bg-gray-400 opacity-30"></div>
+      ) : user ? (
+        <Menu as="div" className="relative">
+          {({ open }) => (
+            <>
+              <div className="h-full flex items-center">
+                <Menu.Button>
+                  <UserCircleIcon className="w-8 h-8" />
+                </Menu.Button>
+              </div>
+              <Transition
+                show={open}
+                as={Fragment}
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95"
+              >
+                <Menu.Items
+                  static
+                  className="origin-top-right absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none divide-y overflow-clip"
+                >
+                  <div className="w-full">
+                    <Menu.Item>
+                      <span className="block px-4 py-2 w-full text-right text-gray-700 hover:text-white hover:bg-violet-600">
+                        账户
+                      </span>
+                    </Menu.Item>
+                  </div>
+                  <div className="w-full">
+                    <Menu.Item>
+                      <button
+                        className="block px-4 py-2 w-full text-right text-gray-700 hover:text-white hover:bg-violet-600"
+                        onClick={logout}
+                      >
+                        退出
+                      </button>
+                    </Menu.Item>
+                  </div>
+                </Menu.Items>
+              </Transition>
+            </>
+          )}
+        </Menu>
+      ) : (
+        <button onClick={() => setAuthPanelOpen(true)} className="w-8">
+          登录
+        </button>
+      )}
       <button
         type="button"
         className="font-bold rounded-full bg-violet-600 px-7 py-3"

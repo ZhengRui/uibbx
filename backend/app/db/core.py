@@ -108,3 +108,8 @@ async def get_and_del_verification_code(db: Database, codeId: str, code: Optiona
         await db.execute(query)
 
     return record
+
+
+async def update_user_field_by_uid(db: Database, uid: str, value: dict):
+    query = update(UsersTable).where(UsersTable.uid == uid).values(value)
+    await db.execute(query=query)

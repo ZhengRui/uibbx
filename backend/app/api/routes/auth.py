@@ -25,6 +25,7 @@ from ...db.core import (
     get_and_del_verification_code,
     get_user_by_field,
     save_verification_code,
+    update_user_field_by_uid,
 )
 from ...models import User, UserInDB
 from ...utils.sms import send_sms
@@ -92,7 +93,7 @@ async def authenticate_user_with_field_password(db: Database, field_name: str, f
     if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"{field_name}或密码错误",
+            detail="用户不存在或密码错误",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -316,6 +317,29 @@ async def signin_by_email(email: str = Form(...), password: str = Form(...), db:
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+@r.post("/reset/password/email")
+async def reset_password_via_email(
+    email: str = Form(...),
+    password: str = Form(...),
+    code: str = Form(...),
+    token: str = Form(...),
+    db: Database = Depends(get_db),
+):
+    await verify_email(email, code, token, db)
+    check_password_format(password)
+
+    user = await get_user_by_field(db, field_name="email", field_value=email, only_check_existence=True)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="邮箱未注册",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    await update_user_field_by_uid(db, user.uid, {"hashed_password": get_password_hash(password)})
+    return JSONResponse(content={"message": "success"})
+
+
 @r.get("/verification/cellnum")
 async def request_verification_cellnum(
     cellnum: str,
@@ -418,6 +442,28 @@ async def signin_by_cellnum(cellnum: str = Form(...), password: str = Form(...),
     )
 
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@r.post("/reset/password/cellnum")
+async def reset_password_via_cellnum(
+    cellnum: str = Form(...),
+    password: str = Form(...),
+    code: str = Form(...),
+    token: str = Form(...),
+    db: Database = Depends(get_db),
+):
+    await verify_cellnum(cellnum, code, token, db)
+    check_password_format(password)
+
+    user = await get_user_by_field(db, field_name="cellnum", field_value=cellnum, only_check_existence=True)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="手机号未注册",
+        )
+
+    await update_user_field_by_uid(db, user.uid, {"hashed_password": get_password_hash(password)})
+    return JSONResponse(content={"message": "success"})
 
 
 @r.get("/whoami", response_model=User)
