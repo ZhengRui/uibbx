@@ -1,20 +1,47 @@
 "use client";
 
-import { PhotoIcon, UserCircleIcon } from "@heroicons/react/24/solid";
+import { PhotoIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
+import ImageStack from "./ImageStack";
 
 const BundleUploader = () => {
   const [tags, setTags] = useState<string[]>([]);
-  const [bundle, setBundle] = useState<File | null>(null);
+  const [images, setImages] = useState<{ url: string; file: File }[]>([]);
 
-  const selectBundleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const [bundle, setBundle] = useState<File | null>(null);
+  //   const selectBundleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //     const fs = e.target.files;
+
+  //     if (!fs || fs.length === 0) {
+  //       setBundle(null);
+  //     } else {
+  //       setBundle(fs[0]);
+  //     }
+  //   };
+
+  const selectImageFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fs = e.target.files;
 
     if (!fs || fs.length === 0) {
-      setBundle(null);
+      setImages([]);
     } else {
-      setBundle(fs[0]);
+      setImages(
+        Array.from(fs).map((f) => ({ url: URL.createObjectURL(f), file: f }))
+      );
     }
+  };
+
+  const appendImageFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fs = e.target.files;
+
+    if (!fs || fs.length === 0) {
+      return;
+    }
+
+    setImages((images) => [
+      ...images,
+      ...Array.from(fs).map((f) => ({ url: URL.createObjectURL(f), file: f })),
+    ]);
   };
 
   return (
@@ -110,38 +137,74 @@ const BundleUploader = () => {
               htmlFor="images-label"
               className="text-sm font-medium leading-6"
             >
-              预览图片
+              预览图片 <span className="text-gray-400">(首张为封面图)</span>
             </label>
             <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-              <div className="text-center">
-                <PhotoIcon
-                  className="mx-auto h-12 w-12 text-gray-300"
-                  aria-hidden="true"
-                />
-                <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                  <label
-                    htmlFor="images"
-                    className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                  >
-                    <span>上传预览图</span>
-                    <input
-                      id="images"
-                      name="image"
-                      type="file"
-                      className="sr-only"
-                    />
-                  </label>
-                  <p className="pl-1">或者拖放图片至此框</p>
+              {images.length ? (
+                <div className="w-full flex flex-col">
+                  <div className="pb-5 border-b">
+                    <ImageStack images={images} setImages={setImages} />
+                  </div>
+                  <div className="flex justify-end items-center pt-4 space-x-4">
+                    <div>
+                      <label
+                        htmlFor="images-append"
+                        className="cursor-pointer rounded-md bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+                      >
+                        <span>继续添加</span>
+
+                        <input
+                          id="images-append"
+                          name="images-append"
+                          type="file"
+                          multiple
+                          className="sr-only"
+                          onChange={appendImageFiles}
+                          accept="image/*"
+                        />
+                      </label>
+                    </div>
+                    <button
+                      className="rounded-md bg-orange-700 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600"
+                      onClick={() => setImages([])}
+                    >
+                      清空
+                    </button>
+                  </div>
                 </div>
-                <p className="text-xs leading-5 text-gray-600">
-                  PNG, JPG, JPEG
-                </p>
-              </div>
+              ) : (
+                <div className="text-center">
+                  <PhotoIcon
+                    className="mx-auto h-12 w-12 text-gray-300"
+                    aria-hidden="true"
+                  />
+                  <div className="mt-4 flex justify-center text-sm leading-6 text-gray-600">
+                    <label
+                      htmlFor="images"
+                      className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-500"
+                    >
+                      <span>上传预览图</span>
+                      <input
+                        id="images"
+                        name="images"
+                        type="file"
+                        multiple
+                        className="sr-only"
+                        onChange={selectImageFiles}
+                        accept="image/*"
+                      />
+                    </label>
+                  </div>
+                  <p className="text-xs leading-5 text-gray-600">
+                    PNG, JPG, JPEG
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="col-span-full">
-            <label
+            {/* <label
               htmlFor="bundle-label"
               className="text-sm font-medium leading-6"
             >
@@ -165,6 +228,22 @@ const BundleUploader = () => {
               <span className="text-xs text-gray-600">
                 {bundle ? bundle.name : "未选择文件"}
               </span>
+            </div> */}
+
+            <label
+              htmlFor="bundleUrl"
+              className="text-sm font-medium leading-6"
+            >
+              网盘链接 <span className="text-gray-400">(带密码)</span>
+            </label>
+
+            <div className="mt-2">
+              <input
+                id="bundleUrl"
+                name="bundleUrl"
+                type="url"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+              />
             </div>
           </div>
 
@@ -229,7 +308,7 @@ const BundleUploader = () => {
         </button> */}
         <button
           type="submit"
-          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          className="rounded-md bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
         >
           发布
         </button>
