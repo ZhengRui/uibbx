@@ -4,7 +4,7 @@ import { Popover, Transition } from "@headlessui/react";
 import { authPanelOpenAtom, authModeAtom } from "@/atoms";
 import { useAtom, useSetAtom } from "jotai";
 import { Fragment, useRef } from "react";
-import { WechatIcon } from "./icons";
+import { WechatIcon } from "@/components/icons";
 import { useState, useEffect } from "react";
 import {
   requestEmailVerify,
@@ -256,6 +256,7 @@ const Signup = () => {
             type="password"
             placeholder="密码"
             required
+            autoComplete="new-password"
             className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
           />
         </div>

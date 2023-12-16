@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import QueryProvider from "./QueryProvider";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import AuthPanel from "@/components/AuthPanel";
+import Header from "@/app/Header";
+import Footer from "@/app/Footer";
+import AuthPanel from "@/app/AuthPanel";
 import { Toaster } from "react-hot-toast";
 import { Provider } from "jotai";
 
