@@ -30,18 +30,21 @@ const Categories = () => (
 );
 
 export const Logo = () => (
-  <div className="relative flex justify-center items-center h-8 w-32">
-    <Image
-      src="/logo.png"
-      alt="uibbix"
-      fill={true}
-      className="object-contain"
-    />
-  </div>
+  <Link href="/">
+    <div className="relative flex justify-center items-center h-8 w-32">
+      <Image
+        src="/logo.png"
+        alt="uibbix"
+        fill={true}
+        className="object-contain"
+        priority
+      />
+    </div>
+  </Link>
 );
 
 const Search = () => (
-  <div className="rounded-full bg-[#2f3e55] p-2 w-48 flex justify-start items-center space-x-2 text-gray-400">
+  <div className="rounded-full bg-[#2f3e55] p-2 w-32 lg:w-48 flex justify-start items-center space-x-2 text-gray-400">
     <MagnifyingGlassIcon className="w-[18px] h-[18px] stroke-1" />
     <span>搜索</span>
   </div>
@@ -64,6 +67,14 @@ const User = () => {
   return (
     <div className="flex flex-grow justify-end items-center space-x-8 text-white text-sm">
       <Search />
+
+      <button
+        type="button"
+        className="font-bold rounded-full bg-violet-600 px-7 py-3"
+      >
+        升级VIP
+      </button>
+
       {isPending ? (
         <div className="w-8 h-8 rounded-full bg-gray-400 opacity-30"></div>
       ) : user ? (
@@ -72,7 +83,7 @@ const User = () => {
             <>
               <div className="h-full flex items-center">
                 <Menu.Button>
-                  <UserCircleIcon className="w-8 h-8" />
+                  <UserCircleIcon className="w-11 h-11" />
                 </Menu.Button>
               </div>
               <Transition
@@ -91,9 +102,12 @@ const User = () => {
                 >
                   <div className="w-full">
                     <Menu.Item>
-                      <span className="block px-4 py-2 w-full text-right text-gray-700 hover:text-white hover:bg-violet-600">
+                      <Link
+                        href="/account"
+                        className="block px-4 py-2 w-full text-right text-gray-700 hover:text-white hover:bg-violet-600"
+                      >
                         账户
-                      </span>
+                      </Link>
                     </Menu.Item>
                   </div>
                   <div className="w-full">
@@ -112,16 +126,10 @@ const User = () => {
           )}
         </Menu>
       ) : (
-        <button onClick={() => setAuthPanelOpen(true)} className="w-8">
+        <button onClick={() => setAuthPanelOpen(true)} className="w-11">
           登录
         </button>
       )}
-      <button
-        type="button"
-        className="font-bold rounded-full bg-violet-600 px-7 py-3"
-      >
-        升级VIP
-      </button>
     </div>
   );
 };

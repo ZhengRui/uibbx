@@ -48,7 +48,13 @@ export const requestTemplate =
 export const formConstructor = (data: any) => {
   const formData = new FormData();
   Object.keys(data).forEach((key) => {
-    formData.append(key, data[key]);
+    if (Array.isArray(data[key])) {
+      // Handle array values (like multiple files)
+      data[key].forEach((item: any) => formData.append(key, item));
+    } else {
+      // Handle non-array values
+      formData.append(key, data[key]);
+    }
   });
 
   return formData;

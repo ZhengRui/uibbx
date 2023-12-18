@@ -12,7 +12,7 @@ const ImageStack = ({
   images,
   setImages,
 }: {
-  images: { url: string; file: File }[];
+  images: { url: string; file: File | null }[];
   setImages: Function;
 }) => {
   const onDragEnd: OnDragEndResponder = (result) => {
@@ -54,9 +54,10 @@ const ImageStack = ({
                   >
                     <Image
                       src={image.url}
-                      alt={image.file.name}
+                      alt={image.url}
                       fill={true}
                       className="object-cover"
+                      priority
                     />
 
                     <div

@@ -4,7 +4,7 @@ import {
   formConstructor,
 } from "./requestTemplate";
 
-const authEndpoint = process.env.NEXT_PUBLIC_AUTH_ENDPOINT;
+const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT;
 
 export const whoami = async (token?: string) => {
   const token_ = token || localStorage.getItem("token");
@@ -16,7 +16,7 @@ export const whoami = async (token?: string) => {
   const headers = new Headers({ Accept: "application/json" });
   headers.set("Authorization", `Bearer ${token_}`);
 
-  const request = new Request(authEndpoint + "/whoami", {
+  const request = new Request(apiEndpoint + "/whoami", {
     method: "GET",
     headers: headers,
   });
@@ -38,7 +38,7 @@ export const requestEmailVerify = requestTemplate(
     expectSecondLife: boolean = false
   ) => ({
     url:
-      authEndpoint +
+      apiEndpoint +
       "/verification/email?email=" +
       email +
       "&expect_registered=" +
@@ -52,7 +52,7 @@ export const requestEmailVerify = requestTemplate(
 
 export const signupByEmail = requestTemplate(
   (email: string, password: string, code: string, token: string) => ({
-    url: authEndpoint + "/signup/email",
+    url: apiEndpoint + "/signup/email",
     method: "POST",
     body: formConstructor({ email, password, code, token }),
   }),
@@ -65,7 +65,7 @@ export const signupByEmail = requestTemplate(
 
 export const signinByEmail = requestTemplate(
   (email: string, password: string) => ({
-    url: authEndpoint + "/token/email",
+    url: apiEndpoint + "/token/email",
     method: "POST",
     body: formConstructor({ email, password }),
   }),
@@ -78,7 +78,7 @@ export const signinByEmail = requestTemplate(
 
 export const verifyEmail = requestTemplate(
   (email: string, code: string, token: string) => ({
-    url: authEndpoint + "/verification/email",
+    url: apiEndpoint + "/verification/email",
     method: "POST",
     body: formConstructor({ email, code, token }),
   })
@@ -86,7 +86,7 @@ export const verifyEmail = requestTemplate(
 
 export const resetPasswdByEmail = requestTemplate(
   (email: string, code: string, password: string, token: string) => ({
-    url: authEndpoint + "/reset/password/email",
+    url: apiEndpoint + "/reset/password/email",
     method: "POST",
     body: formConstructor({ email, code, password, token }),
   })
@@ -99,7 +99,7 @@ export const requestCellVerify = requestTemplate(
     expectSecondLife: boolean = false
   ) => ({
     url:
-      authEndpoint +
+      apiEndpoint +
       "/verification/cellnum?cellnum=" +
       cell +
       "&expect_registered=" +
@@ -113,7 +113,7 @@ export const requestCellVerify = requestTemplate(
 
 export const signupByCell = requestTemplate(
   (cell: string, password: string, code: string, token: string) => ({
-    url: authEndpoint + "/signup/cellnum",
+    url: apiEndpoint + "/signup/cellnum",
     method: "POST",
     body: formConstructor({ cellnum: cell, password, code, token }),
   }),
@@ -126,7 +126,7 @@ export const signupByCell = requestTemplate(
 
 export const signinByCell = requestTemplate(
   (cell: string, password: string) => ({
-    url: authEndpoint + "/token/cellnum",
+    url: apiEndpoint + "/token/cellnum",
     method: "POST",
     body: formConstructor({ cellnum: cell, password }),
   }),
@@ -139,7 +139,7 @@ export const signinByCell = requestTemplate(
 
 export const verifyCell = requestTemplate(
   (cell: string, code: string, token: string) => ({
-    url: authEndpoint + "/verification/cellnum",
+    url: apiEndpoint + "/verification/cellnum",
     method: "POST",
     body: formConstructor({ cellnum: cell, code, token }),
   })
@@ -147,7 +147,7 @@ export const verifyCell = requestTemplate(
 
 export const resetPasswdByCell = requestTemplate(
   (cell: string, code: string, password: string, token: string) => ({
-    url: authEndpoint + "/reset/password/cellnum",
+    url: apiEndpoint + "/reset/password/cellnum",
     method: "POST",
     body: formConstructor({ cellnum: cell, code, password, token }),
   })
@@ -155,7 +155,7 @@ export const resetPasswdByCell = requestTemplate(
 
 export const setUsername = requestTemplate(
   (username: string) => ({
-    url: authEndpoint + "/username",
+    url: apiEndpoint + "/username",
     method: "POST",
     body: formConstructor({ username }),
   }),
