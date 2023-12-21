@@ -15,7 +15,7 @@ databases = "^0.8.0"
 asyncpg = "^0.29.0"
 psycopg2-binary = "^2.9.9"
 passlib = "^1.7.4"
-httpx = "^0.25.2"
+httpx = {extras = ["socks"], version = "^0.25.2"}
 python-jose = "^3.3.0"
 python-multipart = "^0.0.6"
 aliyun-python-sdk-core-v3 = "^2.13.33"

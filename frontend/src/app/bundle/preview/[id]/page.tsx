@@ -2,6 +2,12 @@
 
 import { useBundlePublic } from "@/hooks/useBundle";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  useNumOfLikes,
+  useLikedByMe,
+  useLike,
+  useUnlike,
+} from "@/hooks/useLike";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -13,6 +19,7 @@ import {
   ShareIcon,
   QQIcon,
 } from "@/components/icons";
+import { use } from "react";
 
 export default function BundlePreviewPage({
   params,
@@ -32,10 +39,31 @@ export default function BundlePreviewPage({
     data: bundle,
     isError: isErrorBundle,
   } = useBundlePublic(id);
+  const {
+    isPending: isPendingNumOfLikes,
+    data: numOfLikes,
+    isError: isErrorNumOfLikes,
+  } = useNumOfLikes(id);
+  const {
+    isPending: isPendingLikedByMe,
+    data: likedByMe,
+    isError: isErrorLikedByMe,
+  } = useLikedByMe(id);
 
-  if (isPendingAuth || isPendingBundle || !bundle) return null;
+  const like = useLike();
+  const unlike = useUnlike();
 
-  if (isErrorAuth || isErrorBundle) router.push("/");
+  if (
+    isPendingAuth ||
+    isPendingBundle ||
+    isPendingNumOfLikes ||
+    isPendingLikedByMe ||
+    !bundle
+  )
+    return null;
+
+  if (isErrorAuth || isErrorBundle || isErrorNumOfLikes || isErrorLikedByMe)
+    router.push("/");
 
   return (
     <>
@@ -101,9 +129,26 @@ export default function BundlePreviewPage({
             <span className="text-xs text-gray-400">分享</span>
           </div>
           <div className="mt-5 flex flex-col justify-start items-center space-y-2">
-            <span className="w-14 h-14 rounded-full bg-[#e3eeff] flex flex-col justify-center items-center space-y-1">
-              <LikeIcon className="mt-[6px] w-5 h-5 text-[#25314C]" />
-              <span className="text-[#25314c] text-[10px]">0</span>
+            <span
+              className={`w-14 h-14 rounded-full ${
+                likedByMe ? "bg-[#936efe]" : "bg-[#e3eeff]"
+              } flex flex-col justify-center items-center space-y-1 cursor-pointer`}
+              onClick={() =>
+                !user ? alert("login first") : likedByMe ? unlike(id) : like(id)
+              }
+            >
+              <LikeIcon
+                className={`mt-[6px] w-5 h-5 ${
+                  likedByMe ? "text-white" : "text-[#25314C]"
+                }`}
+              />
+              <span
+                className={`${
+                  likedByMe ? "text-white" : "text-[#25314c]"
+                } text-[10px]`}
+              >
+                {numOfLikes || 0}
+              </span>
             </span>
             <span className="text-xs text-gray-400">喜欢</span>
           </div>

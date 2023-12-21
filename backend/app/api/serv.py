@@ -2,9 +2,11 @@ from typing import Callable
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from ..db.connect import close_db_connection, connect_to_db
 from .routes.auth import auth_router
+from .routes.bundle import bundle_router
 
 
 def create_start_app_handler(app: FastAPI) -> Callable:
@@ -35,7 +37,10 @@ def get_application():
     app.add_event_handler("startup", create_start_app_handler(app))
     app.add_event_handler("shutdown", create_stop_app_handler(app))
 
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+
     app.include_router(auth_router)
+    app.include_router(bundle_router)
 
     return app
 

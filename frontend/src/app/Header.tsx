@@ -62,6 +62,9 @@ const User = () => {
     queryClient.invalidateQueries({
       queryKey: ["whoami"],
     });
+    queryClient.invalidateQueries({
+      queryKey: ["liked"],
+    });
   };
 
   return (
@@ -98,7 +101,7 @@ const User = () => {
               >
                 <Menu.Items
                   static
-                  className="origin-top-right absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none divide-y overflow-clip"
+                  className="origin-top-right z-40 absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none divide-y overflow-clip"
                 >
                   <div className="w-full">
                     <Menu.Item>

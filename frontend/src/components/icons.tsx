@@ -28,7 +28,7 @@ export const FigmaIcon = (props: React.ComponentProps<"svg">) => {
       fill="currentColor"
       {...props}
     >
-      <g clip-path="url(#clip0_3_23)">
+      <g clipPath="url(#clip0_3_23)">
         <path
           d="M45.5 129C57.4 129 67 119.4 67 107.5V86H45.5C33.6 86 24 95.6 24 107.5C24 119.4 33.6 129 45.5 129Z"
           fill="#0ACF83"
@@ -67,7 +67,7 @@ export const SketchIcon = (props: React.ComponentProps<"svg">) => {
       fill="currentColor"
       {...props}
     >
-      <g clip-path="url(#clip0_4_29)">
+      <g clipPath="url(#clip0_4_29)">
         <mask
           id="mask0_4_29"
           style={{ maskType: "luminance" }}
