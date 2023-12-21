@@ -20,6 +20,7 @@ import {
 } from "@/utils/auth";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 
 import Image from "next/image";
 
@@ -32,6 +33,8 @@ const Login = () => {
   const setMode = useSetAtom(authModeAtom);
   const setAuthPanelOpen = useSetAtom(authPanelOpenAtom);
   const queryClient = useQueryClient();
+
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const handleLogin = async (evt: React.FormEvent) => {
     evt.preventDefault();
@@ -89,18 +92,31 @@ const Login = () => {
           />
         </div>
 
-        <div className="mt-3 w-full">
+        <div className="mt-3 w-full relative">
           <label className="hidden" htmlFor="password">
             密码
           </label>
           <input
             id="password"
             name="password"
-            type="password"
+            type={passwordVisible ? "text" : "password"}
             placeholder="密码"
+            title="8-12个字符，数字、字母、特殊字符至少各有一个"
             required
             className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
           />
+          {
+            <div
+              className="absolute top-0 right-4 h-full flex items-center cursor-pointer"
+              onClick={() => setPasswordVisible(!passwordVisible)}
+            >
+              {passwordVisible ? (
+                <EyeSlashIcon className="w-6 h-6 text-gray-400" />
+              ) : (
+                <EyeIcon className="w-6 h-6 text-gray-400" />
+              )}
+            </div>
+          }
         </div>
 
         <div className="mt-6 w-full flex justify-end items-center space-x-10 text-gray-500">
@@ -142,6 +158,8 @@ const Signup = () => {
   const [counterLife, setCounterLife] = useState(0);
   const [token, setToken] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
+
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const handleVerification = async () => {
     const cellOrEmail = formRef.current?.cellOrEmail.value;
@@ -249,19 +267,32 @@ const Signup = () => {
           />
         </div>
 
-        <div className="mt-3 w-full">
+        <div className="mt-3 w-full relative">
           <label className="hidden" htmlFor="password">
             密码
           </label>
           <input
             id="password"
             name="password"
-            type="password"
+            type={passwordVisible ? "text" : "password"}
             placeholder="密码"
+            title="8-12个字符，数字、字母、特殊字符至少各有一个"
             required
             autoComplete="new-password"
             className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
           />
+          {
+            <div
+              className="absolute top-0 right-4 h-full flex items-center cursor-pointer"
+              onClick={() => setPasswordVisible(!passwordVisible)}
+            >
+              {passwordVisible ? (
+                <EyeSlashIcon className="w-6 h-6 text-gray-400" />
+              ) : (
+                <EyeIcon className="w-6 h-6 text-gray-400" />
+              )}
+            </div>
+          }
         </div>
 
         <div className="mt-3 w-full relative">
@@ -332,6 +363,8 @@ const Reset = () => {
   const [token, setToken] = useState("");
   const [verificationPassed, setVerificationPassed] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const handleVerification = async () => {
     const cellOrEmail = formRef.current?.cellOrEmail.value;
@@ -503,22 +536,41 @@ const Reset = () => {
           )}
         </div>
 
-        <div className={`w-full ${verificationPassed ? "block" : "hidden"}`}>
+        <div
+          className={`relative w-full ${
+            verificationPassed ? "block" : "hidden"
+          }`}
+        >
           <label className="hidden" htmlFor="password">
             新密码
           </label>
           <input
             id="password"
             name="password"
-            type="password"
+            type={passwordVisible ? "text" : "password"}
             placeholder="新密码"
+            title="8-12个字符，数字、字母、特殊字符至少各有一个"
             required={verificationPassed}
             className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
           />
+          {
+            <div
+              className="absolute top-0 right-4 h-full flex items-center cursor-pointer"
+              onClick={() => setPasswordVisible(!passwordVisible)}
+            >
+              {passwordVisible ? (
+                <EyeSlashIcon className="w-6 h-6 text-gray-400" />
+              ) : (
+                <EyeIcon className="w-6 h-6 text-gray-400" />
+              )}
+            </div>
+          }
         </div>
 
         <div
-          className={`mt-3 w-full ${verificationPassed ? "block" : "hidden"}`}
+          className={`relative mt-3 w-full ${
+            verificationPassed ? "block" : "hidden"
+          }`}
         >
           <label className="hidden" htmlFor="repeat">
             重复新密码
@@ -526,11 +578,24 @@ const Reset = () => {
           <input
             id="repeat"
             name="repeat"
-            type="password"
+            type={passwordVisible ? "text" : "password"}
             placeholder="重复新密码"
+            title="与上面密码相同"
             required={verificationPassed}
             className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
           />
+          {
+            <div
+              className="absolute top-0 right-4 h-full flex items-center cursor-pointer"
+              onClick={() => setPasswordVisible(!passwordVisible)}
+            >
+              {passwordVisible ? (
+                <EyeSlashIcon className="w-6 h-6 text-gray-400" />
+              ) : (
+                <EyeIcon className="w-6 h-6 text-gray-400" />
+              )}
+            </div>
+          }
         </div>
 
         <div className="mt-6 w-full flex justify-end items-center space-x-10 text-gray-500">
