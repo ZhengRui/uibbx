@@ -116,7 +116,7 @@ async def update_user_field_by_uid(db: Database, uid: str, value: dict):
 
 
 async def create_bundle(db: Database, bundle: BundleInDB) -> BundleInDB:
-    query = insert(BundlesTable).values(**bundle.dict())
+    query = insert(BundlesTable).values(**bundle.dict(exclude={'creator_username'}))
     await db.execute(query)
     return bundle
 
