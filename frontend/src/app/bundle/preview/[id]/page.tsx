@@ -19,6 +19,8 @@ import {
   ShareIcon,
   QQIcon,
 } from "@/components/icons";
+import { authPanelOpenAtom } from "@/atoms";
+import { useSetAtom } from "jotai";
 
 export default function BundlePreviewPage({
   params,
@@ -51,6 +53,8 @@ export default function BundlePreviewPage({
 
   const like = useLike();
   const unlike = useUnlike();
+
+  const setAuthPanelOpen = useSetAtom(authPanelOpenAtom);
 
   if (
     isPendingAuth ||
@@ -133,7 +137,11 @@ export default function BundlePreviewPage({
                 likedByMe ? "bg-[#936efe]" : "bg-[#e3eeff]"
               } flex flex-col justify-center items-center space-y-1 cursor-pointer`}
               onClick={() =>
-                !user ? alert("login first") : likedByMe ? unlike(id) : like(id)
+                !user
+                  ? setAuthPanelOpen(true)
+                  : likedByMe
+                  ? unlike(id)
+                  : like(id)
               }
             >
               <LikeIcon
