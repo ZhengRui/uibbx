@@ -9,8 +9,18 @@ import {
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
-    onError: (error, query) =>
-      toast.error(`错误: ${query.meta?.errorMessage || error.message}`),
+    onError: (error: string | Error | { msg: string }[], query) => {
+      toast.error(
+        `错误: ${
+          query.meta?.errorMessage ||
+          (error instanceof Error
+            ? error.message
+            : typeof error === "string"
+            ? error
+            : error[0].msg)
+        }`
+      );
+    },
   }),
 });
 

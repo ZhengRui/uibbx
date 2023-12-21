@@ -36,7 +36,9 @@ export const updateBundle = requestTemplate(
       subtitle: bundle.subtitle,
       description: bundle.description,
       tags: bundle.tags,
-      images: bundle.images,
+      images: bundle.images.map((img) =>
+        typeof img === "string" ? img.split("/").slice(-1)[0] : img
+      ),
       bundle_url: bundle.bundle_url,
       bundle_format: bundle.format,
     }),
@@ -44,6 +46,29 @@ export const updateBundle = requestTemplate(
   responseHandlerTemplate,
   null,
   true
+);
+
+export const getBundlePublic = requestTemplate(
+  (id: string) => ({
+    url: apiEndpoint + "/bundle/public?id=" + id,
+    method: "GET",
+  }),
+  responseHandlerTemplate,
+  (data: any) => ({
+    id: data.id,
+    creator_uid: data.creator_uid,
+    created_at: data.created_at,
+    title: data.title,
+    subtitle: data.subtitle,
+    description: data.description,
+    tags: data.tags,
+    images: [data.cover, ...data.carousel].map(
+      (img: string) => `${apiEndpoint}/static/bundles/${data.id}/${img}`
+    ),
+    bundle_url: data.bundle_url,
+    format: data.format,
+    creator_username: data.creator_username,
+  })
 );
 
 export const getBundle = requestTemplate(
@@ -60,8 +85,12 @@ export const getBundle = requestTemplate(
     subtitle: data.subtitle,
     description: data.description,
     tags: data.tags,
-    images: [data.cover, ...data.carousel],
+    images: [data.cover, ...data.carousel].map(
+      (img: string) => `${apiEndpoint}/static/bundles/${data.id}/${img}`
+    ),
     bundle_url: data.bundle_url,
     format: data.format,
-  })
+    creator_username: data.creator_username,
+  }),
+  true
 );

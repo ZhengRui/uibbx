@@ -17,6 +17,7 @@ export interface BundleIF {
   description: string;
   tags: string[];
   images: (File | string)[];
-  bundle_url: string;
+  bundle_url?: string;
   format: string;
+  creator_username?: string;
 }
