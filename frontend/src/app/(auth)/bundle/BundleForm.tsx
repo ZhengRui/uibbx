@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { uploadBundle, updateBundle } from "@/utils/bundle";
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import { BundleIF } from "@/interfaces";
+import { useRouter } from "next/navigation";
 
 const BundleForm = ({
   init,
@@ -31,6 +32,7 @@ const BundleForm = ({
       : []
   );
   const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
 
   //   const [bundle, setBundle] = useState<File | null>(null);
   //   const selectBundleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,15 +88,18 @@ const BundleForm = ({
       return;
     }
 
-    await okCallback({
-      title,
-      subtitle,
-      description,
-      tags,
-      images: images.map((i) => i.file || i.url),
-      bundle_url,
-      format,
-    });
+    await okCallback(
+      {
+        title,
+        subtitle,
+        description,
+        tags,
+        images: images.map((i) => i.file || i.url),
+        bundle_url,
+        format,
+      },
+      router
+    );
   };
 
   useEffect(() => {
@@ -388,11 +393,12 @@ export const NewBundleForm = () =>
     formTitle: "发布素材",
     okBtnName: "发布",
     cancelBtnName: "取消",
-    okCallback: async (bundle: BundleIF) => {
+    okCallback: async (bundle: BundleIF, router: any) => {
       try {
-        await uploadBundle(bundle);
+        const new_bundle = await uploadBundle(bundle);
 
         toast.success("发布成功");
+        router.push(`/bundle/preview/${new_bundle.id}`);
       } catch (err) {
         toast.error(err instanceof Error ? err.message : (err as string));
       }
@@ -405,11 +411,12 @@ export const UpdateBundleForm = ({ init }: { init: BundleIF }) =>
     formTitle: "更新素材",
     okBtnName: "更新",
     cancelBtnName: "取消",
-    okCallback: async (bundle: BundleIF) => {
+    okCallback: async (bundle: BundleIF, router: any) => {
       try {
-        await updateBundle(bundle);
+        const new_bundle = await updateBundle(bundle);
 
         toast.success("更新成功");
+        router.push(`/bundle/preview/${new_bundle.id}`);
       } catch (err) {
         toast.error(err instanceof Error ? err.message : (err as string));
       }

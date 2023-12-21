@@ -19,7 +19,6 @@ import {
   ShareIcon,
   QQIcon,
 } from "@/components/icons";
-import { use } from "react";
 
 export default function BundlePreviewPage({
   params,
