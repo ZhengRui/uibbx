@@ -11,14 +11,18 @@ from fastapi.responses import JSONResponse
 
 from ...db.connect import get_db
 from ...db.core import (
+    bookmark_bundle,
     create_bundle,
+    get_bundle_bookmarked_by_user,
     get_bundle_by_id,
     get_bundle_liked_by_user,
     get_bundle_likes_count,
+    get_bundles_bookmarked_by_user,
     get_bundles_liked_by_user,
     get_bundles_published_by_user,
     get_user_by_field,
     like_bundle,
+    unbookmark_bundle,
     unlike_bundle,
 )
 from ...models import Bundle, BundleInDB, User
@@ -222,4 +226,45 @@ async def get_bundles_liked(
     current_user: User = Depends(get_current_enabled_user),
 ):
     bundles = await get_bundles_liked_by_user(db, current_user.uid, offset, limit)
+    return bundles
+
+
+@r.post("/bundle/bookmark")
+async def bookmark_bundle_r(
+    id: uuid.UUID,
+    db: Database = Depends(get_db),
+    current_user: User = Depends(get_current_enabled_user),
+):
+    await bookmark_bundle(db, id, current_user.uid)
+    return JSONResponse(status_code=200, content={"detail": "收藏成功"})
+
+
+@r.delete("/bundle/unbookmark")
+async def unbookmark_bundle_r(
+    id: uuid.UUID,
+    db: Database = Depends(get_db),
+    current_user: User = Depends(get_current_enabled_user),
+):
+    await unbookmark_bundle(db, id, current_user.uid)
+    return JSONResponse(status_code=200, content={"detail": "取消收藏成功"})
+
+
+@r.get("/bundle/bookmarked")
+async def get_bundle_bookmarked(
+    id: uuid.UUID,
+    db: Database = Depends(get_db),
+    current_user: User = Depends(get_current_enabled_user),
+):
+    bookmarked = await get_bundle_bookmarked_by_user(db, id, current_user.uid)
+    return True if bookmarked else False
+
+
+@r.get("/bundle/all_bookmarked")
+async def get_bundles_bookmarked(
+    offset: int = 0,
+    limit: int = 10,
+    db: Database = Depends(get_db),
+    current_user: User = Depends(get_current_enabled_user),
+):
+    bundles = await get_bundles_bookmarked_by_user(db, current_user.uid, offset, limit)
     return bundles

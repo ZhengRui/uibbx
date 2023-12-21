@@ -8,6 +8,11 @@ import {
   useLike,
   useUnlike,
 } from "@/hooks/useLike";
+import {
+  useBookmark,
+  useUnbookmark,
+  useBookmarkedByMe,
+} from "@/hooks/useBookmark";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -50,9 +55,16 @@ export default function BundlePreviewPage({
     data: likedByMe,
     isError: isErrorLikedByMe,
   } = useLikedByMe(id);
+  const {
+    isPending: isPendingBookmarkedByMe,
+    data: bookmarkedByMe,
+    isError: isErrorBookmarkedByMe,
+  } = useBookmarkedByMe(id);
 
   const like = useLike();
   const unlike = useUnlike();
+  const bookmark = useBookmark();
+  const unbookmark = useUnbookmark();
 
   const setAuthPanelOpen = useSetAtom(authPanelOpenAtom);
 
@@ -61,11 +73,18 @@ export default function BundlePreviewPage({
     isPendingBundle ||
     isPendingNumOfLikes ||
     isPendingLikedByMe ||
+    isPendingBookmarkedByMe ||
     !bundle
   )
     return null;
 
-  if (isErrorAuth || isErrorBundle || isErrorNumOfLikes || isErrorLikedByMe)
+  if (
+    isErrorAuth ||
+    isErrorBundle ||
+    isErrorNumOfLikes ||
+    isErrorLikedByMe ||
+    isErrorBookmarkedByMe
+  )
     router.push("/");
 
   return (
@@ -160,8 +179,23 @@ export default function BundlePreviewPage({
             <span className="text-xs text-gray-400">喜欢</span>
           </div>
           <div className="mt-5 flex flex-col justify-start items-center space-y-2">
-            <span className="w-14 h-14 rounded-full bg-[#e3eeff] flex justify-center items-center">
-              <BookmarkIcon className="w-5 h-5 text-[#25314C]" />
+            <span
+              className={`w-14 h-14 rounded-full ${
+                bookmarkedByMe ? "bg-[#936efe]" : "bg-[#e3eeff]"
+              } flex justify-center items-center cursor-pointer`}
+              onClick={() =>
+                !user
+                  ? setAuthPanelOpen(true)
+                  : bookmarkedByMe
+                  ? unbookmark(id)
+                  : bookmark(id)
+              }
+            >
+              <BookmarkIcon
+                className={`w-5 h-5 ${
+                  bookmarkedByMe ? "text-white" : "text-[#25314C]"
+                }`}
+              />
             </span>
             <span className="text-xs text-gray-400">收藏</span>
           </div>

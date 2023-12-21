@@ -65,6 +65,9 @@ const User = () => {
     queryClient.invalidateQueries({
       queryKey: ["liked"],
     });
+    queryClient.invalidateQueries({
+      queryKey: ["bookmarked"],
+    });
   };
 
   return (

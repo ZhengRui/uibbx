@@ -8,7 +8,13 @@ from fastapi import HTTPException, status
 from sqlalchemy import delete, insert, select, update
 
 from ..models import BundleInDB, UserInDB
-from .schemas import BundlesTable, LikesTable, UsersTable, VerificationCodesTable
+from .schemas import (
+    BookmarksTable,
+    BundlesTable,
+    LikesTable,
+    UsersTable,
+    VerificationCodesTable,
+)
 
 
 async def get_user_by_field(
@@ -223,6 +229,89 @@ async def get_bundles_published_by_user(db: Database, user_uid: str, offset: int
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"获取所有发布素材失败: {e}",
+        )
+
+    return [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
+
+
+async def bookmark_bundle(db: Database, bundle_id: str, user_uid: str):
+    query = (
+        select([BookmarksTable]).where(BookmarksTable.bundle_id == bundle_id).where(BookmarksTable.user_uid == user_uid)
+    )
+    bookmark = await db.fetch_one(query)
+    if bookmark:
+        return
+
+    try:
+        query = insert(BookmarksTable).values(
+            bookmarked_at=datetime.now().replace(microsecond=0), bundle_id=bundle_id, user_uid=user_uid
+        )
+        await db.execute(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"收藏失败: {e}",
+        )
+
+
+async def unbookmark_bundle(db: Database, bundle_id: str, user_uid: str):
+    try:
+        query = (
+            delete(BookmarksTable)
+            .where(BookmarksTable.bundle_id == bundle_id)
+            .where(BookmarksTable.user_uid == user_uid)
+        )
+        await db.execute(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"取消收藏失败: {e}",
+        )
+
+
+async def get_bundle_bookmarks_count(db: Database, bundle_id: str):
+    try:
+        query = "SELECT COUNT(*) FROM bookmarks WHERE bundle_id = :bundle_id"
+        values = {"bundle_id": bundle_id}
+        count = await db.execute(query=query, values=values)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取收藏数失败: {e}",
+        )
+
+    return count
+
+
+async def get_bundle_bookmarked_by_user(db: Database, bundle_id: str, user_uid: str):
+    try:
+        query = (
+            select([BookmarksTable])
+            .where(BookmarksTable.bundle_id == bundle_id)
+            .where(BookmarksTable.user_uid == user_uid)
+        )
+        bookmarked = await db.fetch_one(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取收藏状态失败: {e}",
+        )
+
+    return bookmarked
+
+
+async def get_bundles_bookmarked_by_user(db: Database, user_uid: str, offset: int = 0, limit: int = 10):
+    try:
+        query = select([BookmarksTable]).where(BookmarksTable.user_uid == user_uid).offset(offset).limit(limit)
+        bookmarked = await db.fetch_all(query)
+
+        query = select([BundlesTable]).where(BundlesTable.id.in_([bookmark.bundle_id for bookmark in bookmarked]))
+        bundles = await db.fetch_all(query)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取所有收藏素材失败: {e}",
         )
 
     return [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
