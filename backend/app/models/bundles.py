@@ -17,6 +17,7 @@ class Bundle(BaseModel):
     created_at: datetime
     creator_uid: str
     creator_username: Optional[str] = ""
+    purchase_price: Optional[float] = 10
 
 
 class BundleInDB(Bundle):

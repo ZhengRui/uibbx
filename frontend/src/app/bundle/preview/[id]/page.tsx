@@ -123,7 +123,10 @@ export default function BundlePreviewPage({
 
       <div className="w-full flex justify-center max-w-7xl fixed top-28">
         <div className="absolute w-48 -right-2 flex flex-col justify-start items-start">
-          <button className="bg-gray-800 py-2.5 px-6 rounded-full text-gray-200 text-sm font-light">
+          <button
+            onClick={() => (!user ? setAuthPanelOpen(true) : null)}
+            className="bg-gray-800 py-2.5 px-6 rounded-full text-gray-200 text-sm font-light"
+          >
             下载
           </button>
           <div className="mt-16 flex justify-start items-center space-x-2">

@@ -18,3 +18,6 @@ class UsersTable(Base):
     avatar = Column("avatar", Text)
     created_at = Column("created_at", DateTime(timezone=True), nullable=False)
     username_confirmed = Column("username_confirmed", Boolean, nullable=False)
+
+    subscription = Column("subscription", String(16), nullable=True)
+    next_billing_at = Column("next_billing_at", DateTime(timezone=True), nullable=True)

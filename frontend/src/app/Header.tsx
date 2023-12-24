@@ -77,6 +77,7 @@ const User = () => {
       <button
         type="button"
         className="font-bold rounded-full bg-violet-600 px-7 py-3"
+        onClick={() => (!user ? setAuthPanelOpen(true) : null)}
       >
         升级VIP
       </button>

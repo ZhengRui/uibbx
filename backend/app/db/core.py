@@ -1,4 +1,5 @@
 import random
+import uuid
 from datetime import datetime
 from typing import Optional, Union
 
@@ -7,11 +8,23 @@ from databases import Database
 from fastapi import HTTPException, status
 from sqlalchemy import delete, insert, select, update
 
-from ..models import BundleInDB, UserInDB
+from ..models import (
+    Bundle,
+    BundleInDB,
+    Purchase,
+    PurchaseOrder,
+    Subscription,
+    SubscriptionOrder,
+    UserInDB,
+)
 from .schemas import (
     BookmarksTable,
     BundlesTable,
     LikesTable,
+    PurchaseOrdersTable,
+    PurchasesTable,
+    SubscriptionOrdersTable,
+    SubscriptionsTable,
     UsersTable,
     VerificationCodesTable,
 )
@@ -122,14 +135,14 @@ async def update_user_field_by_uid(db: Database, uid: str, value: dict):
 
 
 async def create_bundle(db: Database, bundle: BundleInDB) -> BundleInDB:
-    query = insert(BundlesTable).values(**bundle.dict(exclude={'creator_username'}))
+    query = insert(BundlesTable).values(**bundle.dict(exclude={'creator_username', 'purchase_price'}))
     await db.execute(query)
     return bundle
 
 
 async def get_bundle_by_id(
-    db: Database, id: str, only_check_existence: Optional[bool] = False
-) -> Union[BundleInDB, bool]:
+    db: Database, id: uuid.UUID, only_check_existence: Optional[bool] = False
+) -> Union[Bundle, bool]:
     query = select([BundlesTable]).where(BundlesTable.id == id)
     bundle = await db.fetch_one(query)
 
@@ -145,10 +158,12 @@ async def get_bundle_by_id(
     # stupid encode/databses return a Record but not a Mapping
     # causing lots of stupid issues
 
-    return BundleInDB(**dict(zip(bundle.keys(), bundle.values())))
+    user = await get_user_by_field(db, field_name="uid", field_value=bundle.creator_uid)
+
+    return Bundle(**dict(zip(bundle.keys(), bundle.values())), creator_username=user.username)
 
 
-async def like_bundle(db: Database, bundle_id: str, user_uid: str):
+async def like_bundle(db: Database, bundle_id: uuid.UUID, user_uid: str):
     query = select([LikesTable]).where(LikesTable.bundle_id == bundle_id).where(LikesTable.user_uid == user_uid)
     like = await db.fetch_one(query)
     if like:
@@ -166,7 +181,7 @@ async def like_bundle(db: Database, bundle_id: str, user_uid: str):
         )
 
 
-async def unlike_bundle(db: Database, bundle_id: str, user_uid: str):
+async def unlike_bundle(db: Database, bundle_id: uuid.UUID, user_uid: str):
     try:
         query = delete(LikesTable).where(LikesTable.bundle_id == bundle_id).where(LikesTable.user_uid == user_uid)
         await db.execute(query)
@@ -177,7 +192,7 @@ async def unlike_bundle(db: Database, bundle_id: str, user_uid: str):
         )
 
 
-async def get_bundle_likes_count(db: Database, bundle_id: str):
+async def get_bundle_likes_count(db: Database, bundle_id: uuid.UUID):
     try:
         query = "SELECT COUNT(*) FROM likes WHERE bundle_id = :bundle_id"
         values = {"bundle_id": bundle_id}
@@ -191,7 +206,7 @@ async def get_bundle_likes_count(db: Database, bundle_id: str):
     return count
 
 
-async def get_bundle_liked_by_user(db: Database, bundle_id: str, user_uid: str):
+async def get_bundle_liked_by_user(db: Database, bundle_id: uuid.UUID, user_uid: str):
     try:
         query = select([LikesTable]).where(LikesTable.bundle_id == bundle_id).where(LikesTable.user_uid == user_uid)
         liked = await db.fetch_one(query)
@@ -234,7 +249,7 @@ async def get_bundles_published_by_user(db: Database, user_uid: str, offset: int
     return [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
 
 
-async def bookmark_bundle(db: Database, bundle_id: str, user_uid: str):
+async def bookmark_bundle(db: Database, bundle_id: uuid.UUID, user_uid: str):
     query = (
         select([BookmarksTable]).where(BookmarksTable.bundle_id == bundle_id).where(BookmarksTable.user_uid == user_uid)
     )
@@ -254,7 +269,7 @@ async def bookmark_bundle(db: Database, bundle_id: str, user_uid: str):
         )
 
 
-async def unbookmark_bundle(db: Database, bundle_id: str, user_uid: str):
+async def unbookmark_bundle(db: Database, bundle_id: uuid.UUID, user_uid: str):
     try:
         query = (
             delete(BookmarksTable)
@@ -269,7 +284,7 @@ async def unbookmark_bundle(db: Database, bundle_id: str, user_uid: str):
         )
 
 
-async def get_bundle_bookmarks_count(db: Database, bundle_id: str):
+async def get_bundle_bookmarks_count(db: Database, bundle_id: uuid.UUID):
     try:
         query = "SELECT COUNT(*) FROM bookmarks WHERE bundle_id = :bundle_id"
         values = {"bundle_id": bundle_id}
@@ -283,7 +298,7 @@ async def get_bundle_bookmarks_count(db: Database, bundle_id: str):
     return count
 
 
-async def get_bundle_bookmarked_by_user(db: Database, bundle_id: str, user_uid: str):
+async def get_bundle_bookmarked_by_user(db: Database, bundle_id: uuid.UUID, user_uid: str):
     try:
         query = (
             select([BookmarksTable])
@@ -315,3 +330,131 @@ async def get_bundles_bookmarked_by_user(db: Database, user_uid: str, offset: in
         )
 
     return [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
+
+
+async def create_subscription_order(db: Database, subscription_order: SubscriptionOrder):
+    try:
+        query = insert(SubscriptionOrdersTable).values(**subscription_order.dict())
+        await db.execute(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"创建订阅订单失败: {e}",
+        )
+
+    return subscription_order
+
+
+async def get_subscription_order(db: Database, order_id: str):
+    try:
+        query = select([SubscriptionOrdersTable]).where(SubscriptionOrdersTable.id == order_id)
+        order = await db.fetch_one(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取订阅订单失败: {e}",
+        )
+
+    return order
+
+
+async def set_subscription_order_status(db: Database, order_id: str, status: str):
+    try:
+        query = update(SubscriptionOrdersTable).where(SubscriptionOrdersTable.id == order_id).values(status=status)
+        await db.execute(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"设置订阅订单状态失败: {e}",
+        )
+
+
+async def create_subscription(db: Database, subscription: Subscription):
+    try:
+        query = insert(SubscriptionsTable).values(**subscription.dict(exclude={'id'}))
+        id = await db.execute(query)
+        subscription.id = id
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"创建订阅失败: {e}",
+        )
+
+    return subscription
+
+
+async def get_subscription_by_order_id(db: Database, order_id: str):
+    try:
+        query = select([SubscriptionsTable]).where(SubscriptionsTable.order_id == order_id)
+        subscription = await db.fetch_one(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取订阅失败: {e}",
+        )
+
+    return subscription
+
+
+async def create_purchase_order(db: Database, purchase_order: PurchaseOrder):
+    try:
+        query = insert(PurchaseOrdersTable).values(**purchase_order.dict())
+        await db.execute(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"创建购买订单失败: {e}",
+        )
+
+    return purchase_order
+
+
+async def get_purchase_order(db: Database, order_id: str):
+    try:
+        query = select([PurchaseOrdersTable]).where(PurchaseOrdersTable.id == order_id)
+        order = await db.fetch_one(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取购买订单失败: {e}",
+        )
+
+    return order
+
+
+async def set_purchase_order_status(db: Database, order_id: str, status: str):
+    try:
+        query = update(PurchaseOrdersTable).where(PurchaseOrdersTable.id == order_id).values(status=status)
+        await db.execute(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"设置购买订单状态失败: {e}",
+        )
+
+
+async def create_purchase(db: Database, purchase: Purchase):
+    try:
+        query = insert(PurchasesTable).values(**purchase.dict(exclude={'id'}))
+        id = await db.execute(query)
+        purchase.id = id
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"创建购买失败: {e}",
+        )
+
+    return purchase
+
+
+async def get_purchase_by_order_id(db: Database, order_id: str):
+    try:
+        query = select([PurchasesTable]).where(PurchasesTable.order_id == order_id)
+        purchase = await db.fetch_one(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取购买失败: {e}",
+        )
+
+    return purchase

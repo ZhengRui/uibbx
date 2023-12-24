@@ -7,6 +7,9 @@ from fastapi.staticfiles import StaticFiles
 from ..db.connect import close_db_connection, connect_to_db
 from .routes.auth import auth_router
 from .routes.bundle import bundle_router
+from .routes.payment_notify import payment_notify_router
+from .routes.purchase import purchase_router
+from .routes.subscription import subscription_router
 
 
 def create_start_app_handler(app: FastAPI) -> Callable:
@@ -41,6 +44,9 @@ def get_application():
 
     app.include_router(auth_router)
     app.include_router(bundle_router)
+    app.include_router(subscription_router)
+    app.include_router(purchase_router)
+    app.include_router(payment_notify_router)
 
     return app
 

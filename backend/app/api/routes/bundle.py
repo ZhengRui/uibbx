@@ -20,12 +20,11 @@ from ...db.core import (
     get_bundles_bookmarked_by_user,
     get_bundles_liked_by_user,
     get_bundles_published_by_user,
-    get_user_by_field,
     like_bundle,
     unbookmark_bundle,
     unlike_bundle,
 )
-from ...models import Bundle, BundleInDB, User
+from ...models import BundleInDB, User
 from .auth import get_current_enabled_user
 
 # from PIL import Image, ImageOps
@@ -113,12 +112,7 @@ async def get_bundle_public(
     id: uuid.UUID,
     db: Database = Depends(get_db),
 ):
-    bundle = await get_bundle_by_id(db, id)
-
-    user = await get_user_by_field(db, field_name="uid", field_value=bundle.creator_uid, only_check_existence=False)
-    bundle.creator_username = user.username
-
-    return Bundle(**bundle.dict())
+    return await get_bundle_by_id(db, id)
 
 
 @r.get('/bundle')

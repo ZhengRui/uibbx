@@ -20,6 +20,8 @@ class User(BaseModel):
     avatar: Optional[str] = ""
     created_at: datetime
     username_confirmed: bool
+    subscription: Optional[str] = None
+    next_billing_at: Optional[datetime] = None
 
 
 class UserInDB(User):
