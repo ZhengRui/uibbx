@@ -16,16 +16,19 @@ tiers = {
         "tier": 1,
         "price": 100,
         "days": 30,
+        "limits": 2,
     },
     "quarter": {
         "tier": 2,
-        "price": 200,
+        "price": 300,
         "days": 90,
+        "limits": 4,
     },
     "ultra": {
         "tier": 3,
-        "price": 300,
+        "price": 1000,
         "days": 100000,
+        "limits": 4,
     },
 }
 

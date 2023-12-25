@@ -1,6 +1,6 @@
 import random
 import uuid
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from typing import Optional, Union
 
 from asyncpg.exceptions import UniqueViolationError
@@ -20,6 +20,7 @@ from ..models import (
 from .schemas import (
     BookmarksTable,
     BundlesTable,
+    DownloadsTable,
     LikesTable,
     PurchaseOrdersTable,
     PurchasesTable,
@@ -141,7 +142,10 @@ async def create_bundle(db: Database, bundle: BundleInDB) -> BundleInDB:
 
 
 async def get_bundle_by_id(
-    db: Database, id: uuid.UUID, only_check_existence: Optional[bool] = False
+    db: Database,
+    id: uuid.UUID,
+    only_check_existence: Optional[bool] = False,
+    return_url: Optional[bool] = False,
 ) -> Union[Bundle, bool]:
     query = select([BundlesTable]).where(BundlesTable.id == id)
     bundle = await db.fetch_one(query)
@@ -160,7 +164,10 @@ async def get_bundle_by_id(
 
     user = await get_user_by_field(db, field_name="uid", field_value=bundle.creator_uid)
 
-    return Bundle(**dict(zip(bundle.keys(), bundle.values())), creator_username=user.username)
+    if return_url:
+        return BundleInDB(**dict(zip(bundle.keys(), bundle.values())), creator_username=user.username)
+    else:
+        return Bundle(**dict(zip(bundle.keys(), bundle.values())), creator_username=user.username)
 
 
 async def like_bundle(db: Database, bundle_id: uuid.UUID, user_uid: str):
@@ -458,3 +465,52 @@ async def get_purchase_by_order_id(db: Database, order_id: str):
         )
 
     return purchase
+
+
+async def get_purchase_by_user_bundle(db: Database, bundle_id: uuid.UUID, user_uid: str):
+    try:
+        query = (
+            select([PurchasesTable])
+            .where(PurchasesTable.bundle_id == bundle_id)
+            .where(PurchasesTable.user_uid == user_uid)
+        )
+        purchase = await db.fetch_one(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取购买失败: {e}",
+        )
+
+    return purchase
+
+
+async def create_download(db: Database, bundle_id: uuid.UUID, user_uid: str):
+    try:
+        query = insert(DownloadsTable).values(
+            downloaded_at=datetime.now().replace(microsecond=0), bundle_id=bundle_id, user_uid=user_uid
+        )
+        await db.execute(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"创建下载记录失败: {e}",
+        )
+
+
+async def get_downloads_today(db: Database, user_uid: str):
+    today = date.today()
+    try:
+        query = (
+            select([DownloadsTable])
+            .where(DownloadsTable.user_uid == user_uid)
+            .where(DownloadsTable.downloaded_at >= today)
+            .where(DownloadsTable.downloaded_at < today + timedelta(days=1))
+        )
+        downloads = await db.fetch_all(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取今日下载失败: {e}",
+        )
+
+    return downloads
