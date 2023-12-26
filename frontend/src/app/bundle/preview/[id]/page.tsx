@@ -24,8 +24,9 @@ import {
   ShareIcon,
   QQIcon,
 } from "@/components/icons";
-import { authPanelOpenAtom } from "@/atoms";
+import { authPanelOpenAtom, downloadPanelOpenAtom } from "@/atoms";
 import { useSetAtom } from "jotai";
+import DownloadPanel from "./DownloadPanel";
 
 export default function BundlePreviewPage({
   params,
@@ -67,6 +68,7 @@ export default function BundlePreviewPage({
   const unbookmark = useUnbookmark();
 
   const setAuthPanelOpen = useSetAtom(authPanelOpenAtom);
+  const setDownloadPanelOpen = useSetAtom(downloadPanelOpenAtom);
 
   if (
     isPendingAuth ||
@@ -124,7 +126,9 @@ export default function BundlePreviewPage({
       <div className="w-full flex justify-center max-w-7xl fixed top-28">
         <div className="absolute w-48 -right-2 flex flex-col justify-start items-start">
           <button
-            onClick={() => (!user ? setAuthPanelOpen(true) : null)}
+            onClick={() =>
+              !user ? setAuthPanelOpen(true) : setDownloadPanelOpen(true)
+            }
             className="bg-gray-800 py-2.5 px-6 rounded-full text-gray-200 text-sm font-light"
           >
             下载
@@ -210,6 +214,8 @@ export default function BundlePreviewPage({
           </div>
         </div>
       </div>
+
+      <DownloadPanel />
     </>
   );
 }

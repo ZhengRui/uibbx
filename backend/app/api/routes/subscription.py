@@ -17,18 +17,36 @@ tiers = {
         "price": 100,
         "days": 30,
         "limits": 2,
+        "detail": {
+            "title": "个人计划",
+            "subtitle": "",
+            "subsubtitle": "包月30天",
+            "features": ["每天可下载10次", "访问所有产品", "访问未来新品", "专属客服，及时响应"],
+        },
     },
     "quarter": {
         "tier": 2,
         "price": 300,
         "days": 90,
         "limits": 4,
+        "detail": {
+            "title": "专业计划",
+            "subtitle": "",
+            "subsubtitle": "包季90天",
+            "features": ["每天可下载20次", "访问所有产品", "访问未来新品", "专属客服，及时响应"],
+        },
     },
     "ultra": {
         "tier": 3,
         "price": 1000,
         "days": 100000,
         "limits": 4,
+        "detail": {
+            "title": "精英计划",
+            "subtitle": "",
+            "subsubtitle": "永久",
+            "features": ["每天可下载30次", "访问所有产品", "访问未来新品", "专属客服，及时响应", "即时开通，终身可用"],
+        },
     },
 }
 
@@ -66,9 +84,10 @@ async def subscribe(
             )
 
         now_offset_aware = now.astimezone(current_user.next_billing_at.tzinfo)
-        amount = (
+        amount = round(
             tiers[tier]['price']
-            - tiers[cur_sub]['price'] * (current_user.next_billing_at - now_offset_aware).days / tiers[cur_sub]['days']
+            - tiers[cur_sub]['price'] * (current_user.next_billing_at - now_offset_aware).days / tiers[cur_sub]['days'],
+            1,
         )
     else:
         amount = tiers[tier]['price']
@@ -92,3 +111,39 @@ async def subscribe(
     )
 
     return order
+
+
+@r.get('/subscription/options')
+async def get_subscription_options(
+    db: Database = Depends(get_db),
+    current_user: User = Depends(get_current_enabled_user),
+):
+    now = datetime.now().replace(microsecond=0)
+    cur_sub = current_user.subscription
+
+    if cur_sub is not None:
+        # last subscription expired
+        now_offset_aware = now.astimezone(current_user.next_billing_at.tzinfo)
+        if current_user.next_billing_at < now_offset_aware:
+            cur_sub = None
+
+    return [
+        {
+            **tiers[tier]['detail'],
+            'price': tiers[tier]['price'],
+            'subscribed': cur_sub == tier,
+            'subscriptable': cur_sub is None or tiers[cur_sub]['tier'] < tiers[tier]['tier'],
+            'subscribe_price': tiers[tier]['price']
+            if cur_sub is None
+            else 0
+            if tiers[cur_sub]['tier'] >= tiers[tier]['tier']
+            else round(
+                tiers[tier]['price']
+                - tiers[cur_sub]['price']
+                * (current_user.next_billing_at - now_offset_aware).days
+                / tiers[cur_sub]['days'],
+                1,
+            ),
+        }
+        for tier in tiers
+    ]

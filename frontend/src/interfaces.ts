@@ -21,3 +21,14 @@ export interface BundleIF {
   format: string;
   creator_username?: string;
 }
+
+export interface SubscriptionOption {
+  title: string;
+  subtitle: string;
+  subsubtitle: string;
+  price: number;
+  subscribed: boolean;
+  subscriptable: boolean;
+  subscribe_price: number;
+  features: string[];
+}
