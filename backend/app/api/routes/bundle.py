@@ -20,6 +20,9 @@ from ...db.core import (
     get_bundles_bookmarked_by_user,
     get_bundles_liked_by_user,
     get_bundles_published_by_user,
+    get_num_of_bundles_bookmarked_by_user,
+    get_num_of_bundles_liked_by_user,
+    get_num_of_bundles_published_by_user,
     like_bundle,
     unbookmark_bundle,
     unlike_bundle,
@@ -173,6 +176,14 @@ async def get_bundles_published(
     return bundles
 
 
+@r.get("/bundle/num_of_all_published")
+async def get_num_of_bundles_published(
+    db: Database = Depends(get_db),
+    current_user: User = Depends(get_current_enabled_user),
+):
+    return await get_num_of_bundles_published_by_user(db, current_user.uid)
+
+
 @r.post("/bundle/like")
 async def like_bundle_r(
     id: uuid.UUID,
@@ -223,6 +234,14 @@ async def get_bundles_liked(
     return bundles
 
 
+@r.get("/bundle/num_of_all_liked")
+async def get_num_of_bundles_liked(
+    db: Database = Depends(get_db),
+    current_user: User = Depends(get_current_enabled_user),
+):
+    return await get_num_of_bundles_liked_by_user(db, current_user.uid)
+
+
 @r.post("/bundle/bookmark")
 async def bookmark_bundle_r(
     id: uuid.UUID,
@@ -262,3 +281,11 @@ async def get_bundles_bookmarked(
 ):
     bundles = await get_bundles_bookmarked_by_user(db, current_user.uid, offset, limit)
     return bundles
+
+
+@r.get("/bundle/num_of_all_bookmarked")
+async def get_num_of_bundles_bookmarked(
+    db: Database = Depends(get_db),
+    current_user: User = Depends(get_current_enabled_user),
+):
+    return await get_num_of_bundles_bookmarked_by_user(db, current_user.uid)

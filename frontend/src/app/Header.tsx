@@ -7,9 +7,7 @@ import { authPanelOpenAtom } from "@/atoms";
 import { useSetAtom } from "jotai";
 import { useAuth } from "@/hooks/useAuth";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
-import { Menu, Transition } from "@headlessui/react";
-import { Fragment } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { usePathname } from "next/navigation";
 
 const cates = [
   { name: "UI套件", href: "/ui" },
@@ -17,6 +15,7 @@ const cates = [
   { name: "图标合集", href: "/icons" },
   { name: "原型", href: "/prototypes" },
   { name: "样机", href: "/apps" },
+  { name: "免费", href: "/free" },
 ];
 
 const Categories = () => (
@@ -54,21 +53,6 @@ const User = () => {
   const setAuthPanelOpen = useSetAtom(authPanelOpenAtom);
 
   const { isPending, data: user } = useAuth();
-  const queryClient = useQueryClient();
-
-  const logout = () => {
-    localStorage.removeItem("token");
-
-    queryClient.invalidateQueries({
-      queryKey: ["whoami"],
-    });
-    queryClient.invalidateQueries({
-      queryKey: ["liked"],
-    });
-    queryClient.invalidateQueries({
-      queryKey: ["bookmarked"],
-    });
-  };
 
   return (
     <div className="flex flex-grow justify-end items-center space-x-8 text-white text-sm">
@@ -85,53 +69,9 @@ const User = () => {
       {isPending ? (
         <div className="w-8 h-8 rounded-full bg-gray-400 opacity-30"></div>
       ) : user ? (
-        <Menu as="div" className="relative">
-          {({ open }) => (
-            <>
-              <div className="h-full flex items-center">
-                <Menu.Button>
-                  <UserCircleIcon className="w-11 h-11" />
-                </Menu.Button>
-              </div>
-              <Transition
-                show={open}
-                as={Fragment}
-                enter="transition ease-out duration-100"
-                enterFrom="transform opacity-0 scale-95"
-                enterTo="transform opacity-100 scale-100"
-                leave="transition ease-in duration-75"
-                leaveFrom="transform opacity-100 scale-100"
-                leaveTo="transform opacity-0 scale-95"
-              >
-                <Menu.Items
-                  static
-                  className="origin-top-right z-40 absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none divide-y overflow-clip"
-                >
-                  <div className="w-full">
-                    <Menu.Item>
-                      <Link
-                        href="/account"
-                        className="block px-4 py-2 w-full text-right text-gray-700 hover:text-white hover:bg-violet-600"
-                      >
-                        账户
-                      </Link>
-                    </Menu.Item>
-                  </div>
-                  <div className="w-full">
-                    <Menu.Item>
-                      <button
-                        className="block px-4 py-2 w-full text-right text-gray-700 hover:text-white hover:bg-violet-600"
-                        onClick={logout}
-                      >
-                        退出
-                      </button>
-                    </Menu.Item>
-                  </div>
-                </Menu.Items>
-              </Transition>
-            </>
-          )}
-        </Menu>
+        <Link href="/account" className="h-full flex items-center">
+          <UserCircleIcon className="w-11 h-11" />
+        </Link>
       ) : (
         <button onClick={() => setAuthPanelOpen(true)} className="w-11">
           登录
@@ -142,9 +82,29 @@ const User = () => {
 };
 
 const Header = () => {
+  const path = usePathname();
+
+  const isAccountPage = path === "/account";
+
   return (
-    <header className="top-0 left-0 w-full bg-[#01102d]">
-      <div className="max-w-screen-2xl mx-auto px-8 lg:px-12 xl:px-16 py-6 flex justify-between items-center">
+    <header className={`w-full ${isAccountPage ? "" : "bg-[#01102d]"}`}>
+      <div className={`w-full ${isAccountPage ? "" : "hidden"}`}>
+        <Image
+          src="/account_header_background.png"
+          alt="account_header_background"
+          width={0}
+          height={0}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="w-full"
+          priority
+        />
+      </div>
+
+      <div
+        className={`${
+          isAccountPage ? "absolute top-0 w-full" : ""
+        } max-w-screen-2xl mx-auto px-8 lg:px-12 xl:px-16 py-6 flex justify-between items-center`}
+      >
         <Categories />
         <Logo />
         <User />

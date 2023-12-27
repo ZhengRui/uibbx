@@ -63,12 +63,6 @@ const Login = () => {
         queryClient.invalidateQueries({
           queryKey: ["whoami"],
         });
-        queryClient.invalidateQueries({
-          queryKey: ["liked"],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["bookmarked"],
-        });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : (err as string));

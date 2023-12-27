@@ -13,7 +13,6 @@ import {
   useUnbookmark,
   useBookmarkedByMe,
 } from "@/hooks/useBookmark";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   FigmaIcon,
@@ -34,33 +33,14 @@ export default function BundlePreviewPage({
   params: { id: string };
 }) {
   const id = params.id;
-  const router = useRouter();
 
-  const {
-    isPending: isPendingAuth,
-    data: user,
-    isError: isErrorAuth,
-  } = useAuth();
-  const {
-    isPending: isPendingBundle,
-    data: bundle,
-    isError: isErrorBundle,
-  } = useBundlePublic(id);
-  const {
-    isPending: isPendingNumOfLikes,
-    data: numOfLikes,
-    isError: isErrorNumOfLikes,
-  } = useNumOfLikes(id);
-  const {
-    isPending: isPendingLikedByMe,
-    data: likedByMe,
-    isError: isErrorLikedByMe,
-  } = useLikedByMe(id);
-  const {
-    isPending: isPendingBookmarkedByMe,
-    data: bookmarkedByMe,
-    isError: isErrorBookmarkedByMe,
-  } = useBookmarkedByMe(id);
+  const { isPending: isPendingAuth, data: user } = useAuth();
+  const { isPending: isPendingBundle, data: bundle } = useBundlePublic(id);
+  const { isPending: isPendingNumOfLikes, data: numOfLikes } =
+    useNumOfLikes(id);
+  const { isPending: isPendingLikedByMe, data: likedByMe } = useLikedByMe(id);
+  const { isPending: isPendingBookmarkedByMe, data: bookmarkedByMe } =
+    useBookmarkedByMe(id);
 
   const like = useLike();
   const unlike = useUnlike();
@@ -79,15 +59,6 @@ export default function BundlePreviewPage({
     !bundle
   )
     return null;
-
-  if (
-    isErrorAuth ||
-    isErrorBundle ||
-    isErrorNumOfLikes ||
-    isErrorLikedByMe ||
-    isErrorBookmarkedByMe
-  )
-    router.push("/");
 
   return (
     <>

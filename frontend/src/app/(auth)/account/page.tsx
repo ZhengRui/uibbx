@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Account from "./Account";
-import Bundle from "./Bundle";
+import Sidebar from "./Sidebar";
 
 export const metadata: Metadata = {
   title: "UIBBX - 账户",
@@ -9,14 +8,9 @@ export const metadata: Metadata = {
 
 export default function AccountPage() {
   return (
-    <div className="w-full h-full max-w-screen-2xl mx-auto px-4 py-20 min-h-screen">
-      <div className="h-full flex flex-col justify-between items-center space-y-8 divide-y">
-        <div className="w-full max-w-2xl">
-          <Account />
-        </div>
-        <div className="w-full max-w-2xl pt-8">
-          <Bundle />
-        </div>
+    <div className="relative w-full h-full max-w-screen-2xl mx-auto  px-8 lg:px-12 xl:px-16 min-h-screen py-20 ">
+      <div className="absolute -top-48 ">
+        <Sidebar />
       </div>
     </div>
   );

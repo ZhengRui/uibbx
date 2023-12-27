@@ -94,3 +94,33 @@ export const getBundle = requestTemplate(
   }),
   true
 );
+
+export const getNumOfBundlesPublished = requestTemplate(
+  () => ({
+    url: apiEndpoint + "/bundle/num_of_all_published",
+    method: "GET",
+  }),
+  responseHandlerTemplate,
+  null,
+  true
+);
+
+export const getNumOfBundlesLiked = requestTemplate(
+  () => ({
+    url: apiEndpoint + "/bundle/num_of_all_liked",
+    method: "GET",
+  }),
+  responseHandlerTemplate,
+  null,
+  true
+);
+
+export const getNumOfBundlesBookmarked = requestTemplate(
+  () => ({
+    url: apiEndpoint + "/bundle/num_of_all_bookmarked",
+    method: "GET",
+  }),
+  responseHandlerTemplate,
+  null,
+  true
+);

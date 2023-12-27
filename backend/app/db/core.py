@@ -237,10 +237,24 @@ async def get_bundles_liked_by_user(db: Database, user_uid: str, offset: int = 0
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"获取所有点赞素材失败: {e}",
+            detail=f"获取用户所有点赞素材失败: {e}",
         )
 
     return [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
+
+
+async def get_num_of_bundles_liked_by_user(db: Database, user_uid: str):
+    try:
+        query = "SELECT COUNT(*) FROM likes WHERE user_uid = :user_uid"
+        values = {"user_uid": user_uid}
+        count = await db.execute(query=query, values=values)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取用户所有点赞素材数失败: {e}",
+        )
+
+    return count
 
 
 async def get_bundles_published_by_user(db: Database, user_uid: str, offset: int = 0, limit: int = 10):
@@ -250,10 +264,24 @@ async def get_bundles_published_by_user(db: Database, user_uid: str, offset: int
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"获取所有发布素材失败: {e}",
+            detail=f"获取用户所有发布素材失败: {e}",
         )
 
     return [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
+
+
+async def get_num_of_bundles_published_by_user(db: Database, user_uid: str):
+    try:
+        query = "SELECT COUNT(*) FROM bundles WHERE creator_uid = :user_uid"
+        values = {"user_uid": user_uid}
+        count = await db.execute(query=query, values=values)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取用户所有发布素材数失败: {e}",
+        )
+
+    return count
 
 
 async def bookmark_bundle(db: Database, bundle_id: uuid.UUID, user_uid: str):
@@ -333,10 +361,24 @@ async def get_bundles_bookmarked_by_user(db: Database, user_uid: str, offset: in
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"获取所有收藏素材失败: {e}",
+            detail=f"获取用户所有收藏素材失败: {e}",
         )
 
     return [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
+
+
+async def get_num_of_bundles_bookmarked_by_user(db: Database, user_uid: str):
+    try:
+        query = "SELECT COUNT(*) FROM bookmarks WHERE user_uid = :user_uid"
+        values = {"user_uid": user_uid}
+        count = await db.execute(query=query, values=values)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取用户所有收藏素材数失败: {e}",
+        )
+
+    return count
 
 
 async def create_subscription_order(db: Database, subscription_order: SubscriptionOrder):

@@ -16,7 +16,7 @@ export const useNumOfLikes = (id: string) =>
 
 export const useLikedByMe = (id: string) =>
   useQuery<boolean>({
-    queryKey: ["liked", id],
+    queryKey: ["whoami", "liked", id],
     queryFn: async () => {
       try {
         return await likedByMe(id);
@@ -34,7 +34,7 @@ export const useLike = () => {
   const likeMutation = useMutation({
     mutationFn: like,
     onSuccess: (data, id) => {
-      queryClient.invalidateQueries({ queryKey: ["liked", id] });
+      queryClient.invalidateQueries({ queryKey: ["whoami", "liked", id] });
       queryClient.invalidateQueries({ queryKey: ["numOfLikes", id] });
     },
   });
@@ -48,7 +48,7 @@ export const useUnlike = () => {
   const unlikeMutation = useMutation({
     mutationFn: unlike,
     onSuccess: (data, id) => {
-      queryClient.invalidateQueries({ queryKey: ["liked", id] });
+      queryClient.invalidateQueries({ queryKey: ["whoami", "liked", id] });
       queryClient.invalidateQueries({ queryKey: ["numOfLikes", id] });
     },
   });

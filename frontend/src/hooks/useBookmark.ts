@@ -8,7 +8,7 @@ import { bookmarkedByMe, bookmark, unbookmark } from "@/utils/bookmark";
 
 export const useBookmarkedByMe = (id: string) =>
   useQuery<boolean>({
-    queryKey: ["bookmarked", id],
+    queryKey: ["whoami", "bookmarked", id],
     queryFn: async () => {
       try {
         return await bookmarkedByMe(id);
@@ -26,7 +26,7 @@ export const useBookmark = () => {
   const bookmarkMutation = useMutation({
     mutationFn: bookmark,
     onSuccess: (data, id) => {
-      queryClient.invalidateQueries({ queryKey: ["bookmarked", id] });
+      queryClient.invalidateQueries({ queryKey: ["whoami", "bookmarked", id] });
     },
   });
 
@@ -39,7 +39,7 @@ export const useUnbookmark = () => {
   const unbookmarkMutation = useMutation({
     mutationFn: unbookmark,
     onSuccess: (data, id) => {
-      queryClient.invalidateQueries({ queryKey: ["bookmarked", id] });
+      queryClient.invalidateQueries({ queryKey: ["whoami", "bookmarked", id] });
     },
   });
 
