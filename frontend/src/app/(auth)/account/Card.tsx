@@ -77,7 +77,7 @@ const Card = ({
           <button
             className={`relative w-8 h-8 rounded-full opacity-50 group-hover:opacity-100 ${
               likedByMe
-                ? "bg-[#9363f3] text-white"
+                ? "bg-[#f27979] text-white"
                 : "bg-[#e3eeff] text-[#25314c]"
             } flex justify-center items-center ${
               likeDisabled ? "cursor-not-allowed" : ""

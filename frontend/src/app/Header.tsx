@@ -6,7 +6,7 @@ import Image from "next/image";
 import { authPanelOpenAtom } from "@/atoms";
 import { useSetAtom } from "jotai";
 import { useAuth } from "@/hooks/useAuth";
-import { UserCircleIcon } from "@heroicons/react/24/solid";
+import { UserCircleIcon } from "@/components/icons";
 import { usePathname } from "next/navigation";
 import AccountSquare from "./AccountSquare";
 
@@ -71,7 +71,23 @@ const User = () => {
         <div className="w-8 h-8 rounded-full bg-gray-400 opacity-30"></div>
       ) : user ? (
         <Link href="/account" className="h-full flex items-center">
-          <UserCircleIcon className="w-11 h-11" />
+          <div className="relative w-11 h-11 rounded-full overflow-clip flex justify-center items-center bg-[#404040]">
+            {user?.avatar ? (
+              <Image
+                src={user.avatar as string}
+                alt="avatar"
+                fill={true}
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            ) : user?.nickname ? (
+              <span className="text-gray-300 text-base">
+                {user.nickname[0]}
+              </span>
+            ) : (
+              <UserCircleIcon className="w-full h-full" />
+            )}
+          </div>
         </Link>
       ) : (
         <button onClick={() => setAuthPanelOpen(true)} className="w-11">

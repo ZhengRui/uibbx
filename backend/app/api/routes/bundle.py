@@ -124,7 +124,7 @@ async def get_bundle(
     db: Database = Depends(get_db),
     current_user: User = Depends(get_current_enabled_user),
 ):
-    bundle = await get_bundle_by_id(db, id)
+    bundle = await get_bundle_by_id(db, id, return_url=True)
 
     if current_user.uid != bundle.creator_uid:
         raise HTTPException(

@@ -15,6 +15,8 @@ class User(BaseModel):
     email: Optional[str] = ""
     wxid: Optional[str] = ""
     username: Optional[str] = ""
+    nickname: Optional[str] = ""
+    description: Optional[str] = ""
     verified: bool
     disabled: bool
     avatar: Optional[str] = ""

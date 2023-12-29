@@ -1,12 +1,13 @@
 import random
 import re
+import shutil
 import uuid
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 import httpx
 from databases import Database
-from fastapi import APIRouter, Depends, Form, HTTPException, status
+from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile, status
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import ExpiredSignatureError, JWTError, jwt
@@ -88,7 +89,9 @@ def verify_access_token(token: str, encrypt_key: str = SECRET_KEY):
 
 
 async def authenticate_user_with_field_password(db: Database, field_name: str, field_value: str, password: str):
-    user = await get_user_by_field(db, field_name=field_name, field_value=field_value, only_check_existence=True)
+    user = await get_user_by_field(
+        db, field_name=field_name, field_value=field_value, only_check_existence=True, with_password=True
+    )
 
     if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(
@@ -469,3 +472,58 @@ async def reset_password_via_cellnum(
 @r.get("/whoami", response_model=User)
 async def whoami(current_user: User = Depends(get_current_enabled_user)):
     return current_user
+
+
+@r.put("/whoami")
+async def update_user(
+    avatar: UploadFile = None,
+    nickname: str = Form(""),
+    description: str = Form(""),
+    username: str = Form(""),
+    db: Database = Depends(get_db),
+    current_user: User = Depends(get_current_enabled_user),
+):
+    user_with_username = await get_user_by_field(
+        db, field_name="username", field_value=username, only_check_existence=True
+    )
+
+    if user_with_username and user_with_username.uid != current_user.uid:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="用户名已存在",
+        )
+
+    updates = {}
+
+    if nickname != current_user.nickname:
+        updates["nickname"] = nickname
+
+    if description != current_user.description:
+        updates["description"] = description
+
+    if username != current_user.username:
+        updates["username"] = username
+
+        if not current_user.username_confirmed:
+            updates["username_confirmed"] = True
+
+    cache_avatar_fd = './static/cache/avatars'
+    avatar_fd = './static/avatars'
+
+    if avatar:
+        content = await avatar.read()
+        ext = avatar.filename.split('.')[-1]
+        avatar_ = f'{current_user.uid}.{ext}'
+        with open(f'{cache_avatar_fd}/{avatar_}', 'wb') as f:
+            f.write(content)
+
+        if avatar_ != current_user.avatar:
+            updates["avatar"] = avatar_
+
+    if updates:
+        await update_user_field_by_uid(db, current_user.uid, updates)
+
+    if avatar:
+        shutil.move(f'{cache_avatar_fd}/{current_user.uid}.{ext}', f'{avatar_fd}/{current_user.uid}.{ext}')
+
+    return User(**(current_user.dict() | updates))

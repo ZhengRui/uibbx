@@ -15,6 +15,7 @@ from ..models import (
     PurchaseOrder,
     Subscription,
     SubscriptionOrder,
+    User,
     UserInDB,
 )
 from .schemas import (
@@ -36,7 +37,8 @@ async def get_user_by_field(
     field_name: str,
     field_value: Union[str, int],
     only_check_existence: Optional[bool] = False,
-) -> Union[UserInDB, bool]:
+    with_password: Optional[bool] = False,
+) -> Union[User, UserInDB, bool]:
     query = select([UsersTable]).where(getattr(UsersTable, field_name) == field_value)
     user = await db.fetch_one(query)
 
@@ -49,7 +51,7 @@ async def get_user_by_field(
             detail=f"用户: {field_name}={field_value} 不存在",
         )
 
-    return UserInDB(**user)
+    return UserInDB(**user) if with_password else User(**user)
 
 
 async def create_user(db: Database, user: UserInDB) -> UserInDB:
@@ -76,6 +78,7 @@ async def create_user(db: Database, user: UserInDB) -> UserInDB:
             break
 
     user.username = rnd_username
+    user.nickname = '设计师小小'
 
     try:
         query = insert(UsersTable).values(**user.dict())

@@ -5,6 +5,8 @@ export interface UserIF {
   email?: string;
   wxid?: string;
   username?: string;
+  nickname?: string;
+  description?: string;
   avatar?: string;
 }
 

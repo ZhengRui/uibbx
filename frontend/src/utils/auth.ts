@@ -26,9 +26,11 @@ export const whoami = async (token?: string) => {
     return null;
   }
 
-  const data = await response.json();
+  const user = await response.json();
 
-  return data;
+  if (user.avatar) user.avatar = `${apiEndpoint}/static/avatars/${user.avatar}`;
+
+  return user;
 };
 
 export const requestEmailVerify = requestTemplate(
@@ -158,6 +160,22 @@ export const setUsername = requestTemplate(
     url: apiEndpoint + "/username",
     method: "POST",
     body: formConstructor({ username }),
+  }),
+  responseHandlerTemplate,
+  null,
+  true
+);
+
+export const updateUserInfo = requestTemplate(
+  (updates: {
+    nickname: string;
+    description: string;
+    username: string;
+    avatar: File;
+  }) => ({
+    url: apiEndpoint + "/whoami",
+    method: "PUT",
+    body: formConstructor(updates),
   }),
   responseHandlerTemplate,
   null,

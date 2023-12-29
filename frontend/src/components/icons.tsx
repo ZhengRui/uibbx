@@ -286,3 +286,21 @@ export const ImageGalleryPlusIcon = (props: React.ComponentProps<"svg">) => {
     </svg>
   );
 };
+
+export const UserCircleIcon = (props: React.ComponentProps<"svg">) => {
+  return (
+    <svg
+      viewBox="0 0 128 128"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      {...props}
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M128 64C128 99.3462 99.3462 128 64 128C28.6538 128 0 99.3462 0 64C0 28.6538 28.6538 0 64 0C99.3462 0 128 28.6538 128 64ZM80 40C80 48.8366 72.8366 56 64 56C55.1634 56 48 48.8366 48 40C48 31.1634 55.1634 24 64 24C72.8366 24 80 31.1634 80 40ZM63.9995 72C47.8591 72 33.9516 81.5596 27.6299 95.3257C36.4322 105.536 49.4612 112 63.9999 112C78.5382 112 91.567 105.537 100.369 95.3264C94.0478 81.5599 80.14 72 63.9995 72Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
