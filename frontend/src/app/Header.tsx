@@ -85,7 +85,9 @@ const User = () => {
 const Header = () => {
   const path = usePathname();
 
-  const isAccountPage = path === "/account";
+  const { data: user } = useAuth();
+
+  const isAccountPage = path === "/account" && user;
 
   return (
     <header

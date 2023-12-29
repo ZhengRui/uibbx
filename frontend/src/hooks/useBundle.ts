@@ -38,7 +38,7 @@ export const useBundle = (id: string) =>
 
 export const useNumOfBundlesPublished = () =>
   useQuery<number>({
-    queryKey: ["whoami", "numOfBundlesPublished"],
+    queryKey: ["user", "numOfBundlesPublished"],
     queryFn: getNumOfBundlesPublished,
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
@@ -46,7 +46,7 @@ export const useNumOfBundlesPublished = () =>
 
 export const useNumOfBundlesLiked = () =>
   useQuery<number>({
-    queryKey: ["whoami", "numOfBundlesLiked"],
+    queryKey: ["user", "numOfBundlesLiked"],
     queryFn: getNumOfBundlesLiked,
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
@@ -54,7 +54,7 @@ export const useNumOfBundlesLiked = () =>
 
 export const useNumOfBundlesBookmarked = () =>
   useQuery<number>({
-    queryKey: ["whoami", "numOfBundlesBookmarked"],
+    queryKey: ["user", "numOfBundlesBookmarked"],
     queryFn: getNumOfBundlesBookmarked,
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
@@ -68,7 +68,7 @@ export const useBundlesPublished = (
 ) =>
   useQuery<BundleIF[]>({
     queryKey: [
-      "whoami",
+      "user",
       "bundlesPublished",
       offset,
       limit,
@@ -87,7 +87,7 @@ export const useBundlesLiked = (
   with_bookmarked: boolean = false
 ) =>
   useQuery<BundleIF[]>({
-    queryKey: ["whoami", "bundlesLiked", offset, limit, with_bookmarked],
+    queryKey: ["user", "bundlesLiked", offset, limit, with_bookmarked],
     queryFn: async () => await getBundlesLiked(offset, limit, with_bookmarked),
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
@@ -99,7 +99,7 @@ export const useBundlesBookmarked = (
   with_liked: boolean = false
 ) =>
   useQuery<BundleIF[]>({
-    queryKey: ["whoami", "bundlesBookmarked", offset, limit, with_liked],
+    queryKey: ["user", "bundlesBookmarked", offset, limit, with_liked],
     queryFn: async () => await getBundlesBookmarked(offset, limit, with_liked),
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
@@ -113,10 +113,10 @@ export const usePublishBundle = () => {
     mutationFn: uploadBundle,
     onSuccess: (data, id) => {
       queryClient.invalidateQueries({
-        queryKey: ["whoami", "numOfBundlesPublished"],
+        queryKey: ["user", "numOfBundlesPublished"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["whoami", "bundlesPublished"],
+        queryKey: ["user", "bundlesPublished"],
       });
 
       toast.success("发布成功");
@@ -135,7 +135,7 @@ export const useUpdateBundle = () => {
     mutationFn: updateBundle,
     onSuccess: (data, id) => {
       queryClient.invalidateQueries({
-        queryKey: ["whoami", "bundlesPublished"],
+        queryKey: ["user", "bundlesPublished"],
       });
 
       toast.success("更新成功");

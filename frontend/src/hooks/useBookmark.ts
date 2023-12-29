@@ -8,7 +8,7 @@ import { bookmarkedByMe, bookmark, unbookmark } from "@/utils/bookmark";
 
 export const useBookmarkedByMe = (id: string) =>
   useQuery<boolean>({
-    queryKey: ["whoami", "bookmarked", id],
+    queryKey: ["user", "bookmarked", id],
     queryFn: async () => {
       try {
         return await bookmarkedByMe(id);
@@ -26,12 +26,12 @@ export const useBookmark = () => {
   const bookmarkMutation = useMutation({
     mutationFn: bookmark,
     onSuccess: (data, id) => {
-      queryClient.invalidateQueries({ queryKey: ["whoami", "bookmarked", id] });
+      queryClient.invalidateQueries({ queryKey: ["user", "bookmarked", id] });
       queryClient.invalidateQueries({
-        queryKey: ["whoami", "numOfBundlesBookmarked"],
+        queryKey: ["user", "numOfBundlesBookmarked"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["whoami", "bundlesBookmarked"],
+        queryKey: ["user", "bundlesBookmarked"],
       });
     },
   });
@@ -45,12 +45,12 @@ export const useUnbookmark = () => {
   const unbookmarkMutation = useMutation({
     mutationFn: unbookmark,
     onSuccess: (data, id) => {
-      queryClient.invalidateQueries({ queryKey: ["whoami", "bookmarked", id] });
+      queryClient.invalidateQueries({ queryKey: ["user", "bookmarked", id] });
       queryClient.invalidateQueries({
-        queryKey: ["whoami", "numOfBundlesBookmarked"],
+        queryKey: ["user", "numOfBundlesBookmarked"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["whoami", "bundlesBookmarked"],
+        queryKey: ["user", "bundlesBookmarked"],
       });
     },
   });
