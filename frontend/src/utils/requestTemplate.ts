@@ -27,6 +27,7 @@ export const requestTemplate =
     if (requireAuthentication) {
       const token = localStorage.getItem("token");
       if (!token) {
+        console.log(url);
         throw new Error("Not Authorized");
       }
 

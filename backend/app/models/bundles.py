@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
 
 class Bundle(BaseModel):
@@ -20,5 +20,5 @@ class Bundle(BaseModel):
     purchase_price: Optional[float] = 10
 
 
-class BundleInDB(Bundle):
+class BundleInDB(Bundle, extra=Extra.allow):
     bundle_url: str

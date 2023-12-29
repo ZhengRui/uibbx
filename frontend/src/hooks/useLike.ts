@@ -36,6 +36,12 @@ export const useLike = () => {
     onSuccess: (data, id) => {
       queryClient.invalidateQueries({ queryKey: ["whoami", "liked", id] });
       queryClient.invalidateQueries({ queryKey: ["numOfLikes", id] });
+      queryClient.invalidateQueries({
+        queryKey: ["whoami", "numOfBundlesLiked"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["whoami", "bundlesLiked"],
+      });
     },
   });
 
@@ -50,6 +56,12 @@ export const useUnlike = () => {
     onSuccess: (data, id) => {
       queryClient.invalidateQueries({ queryKey: ["whoami", "liked", id] });
       queryClient.invalidateQueries({ queryKey: ["numOfLikes", id] });
+      queryClient.invalidateQueries({
+        queryKey: ["whoami", "numOfBundlesLiked"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["whoami", "bundlesLiked"],
+      });
     },
   });
 

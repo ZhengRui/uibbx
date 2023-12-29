@@ -59,7 +59,7 @@ const AssetCard = ({
   </div>
 );
 
-const AssertWall = () => (
+const AssetWall = () => (
   <div className="grid grid-cols-4 gap-4 w-full max-w-7xl mx-auto">
     {Array.from({ length: 12 }, (_, i) => (
       <AssetCard
@@ -86,7 +86,7 @@ const Landing = () => (
     <Title />
     <Search />
     <HotSearch />
-    <AssertWall />
+    <AssetWall />
     <ViewMore />
   </div>
 );

@@ -6,20 +6,20 @@ import React, { useEffect, useRef, useState } from "react";
 import { uploadBundle, updateBundle } from "@/utils/bundle";
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import { BundleIF } from "@/interfaces";
-import { useRouter } from "next/navigation";
+import { usePublishBundle, useUpdateBundle } from "@/hooks/useBundle";
 
 const BundleForm = ({
   init,
   formTitle,
   okBtnName = "确定",
   cancelBtnName = "取消",
-  okCallback,
+  newOrUpdate = "new",
 }: {
   init?: BundleIF;
   formTitle: string;
   okBtnName: string;
   cancelBtnName: string;
-  okCallback: Function;
+  newOrUpdate: string;
 }) => {
   const [tags, setTags] = useState<string[]>(init ? init.tags : []);
   const [images, setImages] = useState<{ url: string; file: File | null }[]>(
@@ -32,7 +32,9 @@ const BundleForm = ({
       : []
   );
   const formRef = useRef<HTMLFormElement>(null);
-  const router = useRouter();
+
+  const publishBundle = usePublishBundle();
+  const updateBundle = useUpdateBundle();
 
   //   const [bundle, setBundle] = useState<File | null>(null);
   //   const selectBundleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,18 +90,15 @@ const BundleForm = ({
       return;
     }
 
-    await okCallback(
-      {
-        title,
-        subtitle,
-        description,
-        tags,
-        images: images.map((i) => i.file || i.url),
-        bundle_url,
-        format,
-      },
-      router
-    );
+    await (newOrUpdate === "new" ? publishBundle : updateBundle)({
+      title,
+      subtitle,
+      description,
+      tags,
+      images: images.map((i) => i.file || i.url),
+      bundle_url,
+      format,
+    });
   };
 
   useEffect(() => {
@@ -351,18 +350,18 @@ const BundleForm = ({
               </div>
               <div className="flex items-center gap-x-2">
                 <input
-                  id="adobe-xd"
+                  id="sketch"
                   name="format"
                   type="radio"
                   className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                  value="adobe-xd"
+                  value="sketch"
                   required
                 />
                 <label
-                  htmlFor="adobe-xd"
+                  htmlFor="sketch"
                   className="block text-sm font-medium leading-6"
                 >
-                  Adobe XD
+                  Sketch
                 </label>
               </div>
             </div>
@@ -393,16 +392,7 @@ export const NewBundleForm = () =>
     formTitle: "发布素材",
     okBtnName: "发布",
     cancelBtnName: "取消",
-    okCallback: async (bundle: BundleIF, router: any) => {
-      try {
-        const new_bundle = await uploadBundle(bundle);
-
-        toast.success("发布成功");
-        router.push(`/bundle/preview/${new_bundle.id}`);
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : (err as string));
-      }
-    },
+    newOrUpdate: "new",
   });
 
 export const UpdateBundleForm = ({ init }: { init: BundleIF }) =>
@@ -411,14 +401,5 @@ export const UpdateBundleForm = ({ init }: { init: BundleIF }) =>
     formTitle: "更新素材",
     okBtnName: "更新",
     cancelBtnName: "取消",
-    okCallback: async (bundle: BundleIF, router: any) => {
-      try {
-        const new_bundle = await updateBundle(bundle);
-
-        toast.success("更新成功");
-        router.push(`/bundle/preview/${new_bundle.id}`);
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : (err as string));
-      }
-    },
+    newOrUpdate: "update",
   });

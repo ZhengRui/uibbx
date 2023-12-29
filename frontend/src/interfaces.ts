@@ -20,6 +20,9 @@ export interface BundleIF {
   bundle_url?: string;
   format: string;
   creator_username?: string;
+  purchase_price?: number;
+  liked?: boolean;
+  bookmarked?: boolean;
 }
 
 export interface SubscriptionOption {

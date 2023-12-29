@@ -105,6 +105,33 @@ export const getNumOfBundlesPublished = requestTemplate(
   true
 );
 
+export const getBundlesPublished = requestTemplate(
+  (
+    offset: number,
+    limit: number,
+    with_liked: boolean = false,
+    with_bookmarked: boolean = false
+  ) => ({
+    url:
+      apiEndpoint +
+      `/bundle/all_published?offset=${offset}&limit=${limit}&with_liked=${with_liked}&with_bookmarked=${with_bookmarked}`,
+    method: "GET",
+  }),
+  responseHandlerTemplate,
+  (data: any) =>
+    data.map((bundle: any) => {
+      const { cover, carousel, ...rest } = bundle;
+
+      return {
+        ...rest,
+        images: [cover, ...carousel].map(
+          (img: string) => `${apiEndpoint}/static/bundles/${bundle.id}/${img}`
+        ),
+      };
+    }),
+  true
+);
+
 export const getNumOfBundlesLiked = requestTemplate(
   () => ({
     url: apiEndpoint + "/bundle/num_of_all_liked",
@@ -115,6 +142,28 @@ export const getNumOfBundlesLiked = requestTemplate(
   true
 );
 
+export const getBundlesLiked = requestTemplate(
+  (offset: number, limit: number, with_bookmarked: boolean = false) => ({
+    url:
+      apiEndpoint +
+      `/bundle/all_liked?offset=${offset}&limit=${limit}&with_bookmarked=${with_bookmarked}`,
+    method: "GET",
+  }),
+  responseHandlerTemplate,
+  (data: any) =>
+    data.map((bundle: any) => {
+      const { cover, carousel, ...rest } = bundle;
+
+      return {
+        ...rest,
+        images: [cover, ...carousel].map(
+          (img: string) => `${apiEndpoint}/static/bundles/${bundle.id}/${img}`
+        ),
+      };
+    }),
+  true
+);
+
 export const getNumOfBundlesBookmarked = requestTemplate(
   () => ({
     url: apiEndpoint + "/bundle/num_of_all_bookmarked",
@@ -122,5 +171,27 @@ export const getNumOfBundlesBookmarked = requestTemplate(
   }),
   responseHandlerTemplate,
   null,
+  true
+);
+
+export const getBundlesBookmarked = requestTemplate(
+  (offset: number, limit: number, with_liked: boolean = false) => ({
+    url:
+      apiEndpoint +
+      `/bundle/all_bookmarked?offset=${offset}&limit=${limit}&with_liked=${with_liked}`,
+    method: "GET",
+  }),
+  responseHandlerTemplate,
+  (data: any) =>
+    data.map((bundle: any) => {
+      const { cover, carousel, ...rest } = bundle;
+
+      return {
+        ...rest,
+        images: [cover, ...carousel].map(
+          (img: string) => `${apiEndpoint}/static/bundles/${bundle.id}/${img}`
+        ),
+      };
+    }),
   true
 );

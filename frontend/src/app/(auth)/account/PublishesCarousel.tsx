@@ -1,0 +1,41 @@
+"use client";
+
+import { useBundlesPublished } from "@/hooks/useBundle";
+import BundleCard from "./Card";
+import Link from "next/link";
+import { ImageGalleryPlusIcon } from "@/components/icons";
+
+const Carousel = () => {
+  const { isPending, isFetching, data: bundles } = useBundlesPublished(0, 20);
+
+  if (isPending || isFetching) return null;
+
+  return (
+    <div className="w-full flex flex-col justify-start items-center">
+      <div className="w-full pl-4 flex justify-between">
+        <div className="text-sm">
+          <span className="bg-gray-700 text-gray-200 rounded-full px-4 py-1.5">
+            项目
+          </span>
+          <span className="ml-4 text-gray-700">草稿</span>
+        </div>
+        <Link
+          className="text-sm bg-white text-gray-700 px-4 py-1.5 rounded-full"
+          href="/bundle/new"
+        >
+          <ImageGalleryPlusIcon className="w-4 h-4 inline-block mr-1" />
+          添加项目
+        </Link>
+      </div>
+      <div className="mt-6 w-full pl-4 grid grid-cols-3 gap-x-4 gap-y-6">
+        {bundles?.map((bundle, i) => (
+          <div key={bundle.id} className="w-full">
+            <BundleCard bundle={bundle} editDisabled={false} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Carousel;

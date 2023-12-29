@@ -27,6 +27,12 @@ export const useBookmark = () => {
     mutationFn: bookmark,
     onSuccess: (data, id) => {
       queryClient.invalidateQueries({ queryKey: ["whoami", "bookmarked", id] });
+      queryClient.invalidateQueries({
+        queryKey: ["whoami", "numOfBundlesBookmarked"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["whoami", "bundlesBookmarked"],
+      });
     },
   });
 
@@ -40,6 +46,12 @@ export const useUnbookmark = () => {
     mutationFn: unbookmark,
     onSuccess: (data, id) => {
       queryClient.invalidateQueries({ queryKey: ["whoami", "bookmarked", id] });
+      queryClient.invalidateQueries({
+        queryKey: ["whoami", "numOfBundlesBookmarked"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["whoami", "bundlesBookmarked"],
+      });
     },
   });
 

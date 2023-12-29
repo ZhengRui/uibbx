@@ -8,6 +8,7 @@ import { useSetAtom } from "jotai";
 import { useAuth } from "@/hooks/useAuth";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 import { usePathname } from "next/navigation";
+import AccountSquare from "./AccountSquare";
 
 const cates = [
   { name: "UI套件", href: "/ui" },
@@ -87,17 +88,23 @@ const Header = () => {
   const isAccountPage = path === "/account";
 
   return (
-    <header className={`w-full ${isAccountPage ? "" : "bg-[#01102d]"}`}>
-      <div className={`w-full ${isAccountPage ? "" : "hidden"}`}>
+    <header
+      className={`sticky top-0 z-30 w-full ${
+        isAccountPage ? "" : "bg-[#01102d]"
+      }`}
+    >
+      <div className={`w-full ${isAccountPage ? "relative h-72" : "hidden"}`}>
         <Image
           src="/account_header_background.png"
           alt="account_header_background"
-          width={0}
-          height={0}
+          fill={true}
+          className="object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="w-full"
-          priority
         />
+
+        <div className="absolute pt-24 ml-8 lg:ml-12 xl:ml-16">
+          <AccountSquare />
+        </div>
       </div>
 
       <div

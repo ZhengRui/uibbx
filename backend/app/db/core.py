@@ -1,7 +1,7 @@
 import random
 import uuid
 from datetime import date, datetime, timedelta
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from asyncpg.exceptions import UniqueViolationError
 from databases import Database
@@ -226,7 +226,32 @@ async def get_bundle_liked_by_user(db: Database, bundle_id: uuid.UUID, user_uid:
     return liked
 
 
-async def get_bundles_liked_by_user(db: Database, user_uid: str, offset: int = 0, limit: int = 10):
+async def check_bundles_liked_by_user(db: Database, bundles: List[BundleInDB], user_uid: str):
+    try:
+        query = (
+            select([LikesTable])
+            .where(LikesTable.user_uid == user_uid)
+            .where(LikesTable.bundle_id.in_([bundle.id for bundle in bundles]))
+        )
+        bundles_liked = await db.fetch_all(query)
+        bundle_ids_liked = set([bundle_liked.bundle_id for bundle_liked in bundles_liked])
+
+        liked = []
+        for bundle in bundles:
+            liked.append(bundle.id in bundle_ids_liked)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取素材列表点赞状态失败: {e}",
+        )
+
+    return liked
+
+
+async def get_bundles_liked_by_user(
+    db: Database, user_uid: str, offset: int = 0, limit: int = 10, with_bookmarked: bool = False
+):
     try:
         query = select([LikesTable]).where(LikesTable.user_uid == user_uid).offset(offset).limit(limit)
         liked = await db.fetch_all(query)
@@ -234,13 +259,20 @@ async def get_bundles_liked_by_user(db: Database, user_uid: str, offset: int = 0
         query = select([BundlesTable]).where(BundlesTable.id.in_([like.bundle_id for like in liked]))
         bundles = await db.fetch_all(query)
 
+        bundles = [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
+
+        if with_bookmarked:
+            bookmarked = await check_bundles_bookmarked_by_user(db, bundles, user_uid)
+            for i in range(len(bundles)):
+                bundles[i].bookmarked = bookmarked[i]
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"获取用户所有点赞素材失败: {e}",
         )
 
-    return [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
+    return bundles
 
 
 async def get_num_of_bundles_liked_by_user(db: Database, user_uid: str):
@@ -257,17 +289,37 @@ async def get_num_of_bundles_liked_by_user(db: Database, user_uid: str):
     return count
 
 
-async def get_bundles_published_by_user(db: Database, user_uid: str, offset: int = 0, limit: int = 10):
+async def get_bundles_published_by_user(
+    db: Database,
+    user_uid: str,
+    offset: int = 0,
+    limit: int = 10,
+    with_liked: bool = False,
+    with_bookmarked: bool = False,
+):
     try:
-        query = select([BundlesTable]).where(BundlesTable.user_uid == user_uid).offset(offset).limit(limit)
+        query = select([BundlesTable]).where(BundlesTable.creator_uid == user_uid).offset(offset).limit(limit)
         bundles = await db.fetch_all(query)
+
+        bundles = [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
+
+        if with_liked:
+            liked = await check_bundles_liked_by_user(db, bundles, user_uid)
+            for i in range(len(bundles)):
+                bundles[i].liked = liked[i]
+
+        if with_bookmarked:
+            bookmarked = await check_bundles_bookmarked_by_user(db, bundles, user_uid)
+            for i in range(len(bundles)):
+                bundles[i].bookmarked = bookmarked[i]
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"获取用户所有发布素材失败: {e}",
         )
 
-    return [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
+    return bundles
 
 
 async def get_num_of_bundles_published_by_user(db: Database, user_uid: str):
@@ -350,7 +402,32 @@ async def get_bundle_bookmarked_by_user(db: Database, bundle_id: uuid.UUID, user
     return bookmarked
 
 
-async def get_bundles_bookmarked_by_user(db: Database, user_uid: str, offset: int = 0, limit: int = 10):
+async def check_bundles_bookmarked_by_user(db: Database, bundles: List[BundleInDB], user_uid: str):
+    try:
+        query = (
+            select([BookmarksTable])
+            .where(BookmarksTable.user_uid == user_uid)
+            .where(BookmarksTable.bundle_id.in_([bundle.id for bundle in bundles]))
+        )
+        bundles_bookmarked = await db.fetch_all(query)
+        bundle_ids_bookmarked = set([bundle_bookmarked.bundle_id for bundle_bookmarked in bundles_bookmarked])
+
+        bookmarked = []
+        for bundle in bundles:
+            bookmarked.append(bundle.id in bundle_ids_bookmarked)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取素材列表点赞状态失败: {e}",
+        )
+
+    return bookmarked
+
+
+async def get_bundles_bookmarked_by_user(
+    db: Database, user_uid: str, offset: int = 0, limit: int = 10, with_liked: bool = False
+):
     try:
         query = select([BookmarksTable]).where(BookmarksTable.user_uid == user_uid).offset(offset).limit(limit)
         bookmarked = await db.fetch_all(query)
@@ -358,13 +435,20 @@ async def get_bundles_bookmarked_by_user(db: Database, user_uid: str, offset: in
         query = select([BundlesTable]).where(BundlesTable.id.in_([bookmark.bundle_id for bookmark in bookmarked]))
         bundles = await db.fetch_all(query)
 
+        bundles = [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
+
+        if with_liked:
+            liked = await check_bundles_liked_by_user(db, bundles, user_uid)
+            for i in range(len(bundles)):
+                bundles[i].liked = liked[i]
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"获取用户所有收藏素材失败: {e}",
         )
 
-    return [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
+    return bundles
 
 
 async def get_num_of_bundles_bookmarked_by_user(db: Database, user_uid: str):
