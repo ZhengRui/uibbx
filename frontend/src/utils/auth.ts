@@ -6,6 +6,12 @@ import {
 
 const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT;
 
+export const cellFmt = /^1[3456789]\d{9}$/;
+export const emailFmt =
+  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+export const passwordFmt =
+  /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*_=+-]).{8,12}$/;
+
 export const whoami = async (token?: string) => {
   const token_ = token || localStorage.getItem("token");
 
@@ -176,6 +182,20 @@ export const updateUserInfo = requestTemplate(
     url: apiEndpoint + "/whoami",
     method: "PUT",
     body: formConstructor(updates),
+  }),
+  responseHandlerTemplate,
+  null,
+  true
+);
+
+export const resetPasswdByOldPasswd = requestTemplate(
+  (oldPassword: string, newPassword: string) => ({
+    url: apiEndpoint + "/reset/password",
+    method: "POST",
+    body: formConstructor({
+      old_password: oldPassword,
+      new_password: newPassword,
+    }),
   }),
   responseHandlerTemplate,
   null,

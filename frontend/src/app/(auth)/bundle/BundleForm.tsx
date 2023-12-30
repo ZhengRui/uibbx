@@ -114,7 +114,7 @@ const BundleForm = ({
 
   return (
     <form className="w-full" onSubmit={uploadBundleCall} ref={formRef}>
-      <h2 className="text-base font-semibold leading-7 text-gray-900">
+      <h2 className="text-2xl font-semibold leading-7 text-gray-900">
         {formTitle}
       </h2>
 

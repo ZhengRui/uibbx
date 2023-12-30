@@ -3,10 +3,15 @@
 import { useEffect, useState, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import { updateUserInfo } from "@/utils/auth";
+import {
+  updateUserInfo,
+  passwordFmt,
+  resetPasswdByOldPasswd,
+} from "@/utils/auth";
 import toast from "react-hot-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { UserCircleIcon } from "@/components/icons";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 
 const EditInfoForm = () => {
   const queryClient = useQueryClient();
@@ -56,7 +61,7 @@ const EditInfoForm = () => {
       });
 
       if (data) {
-        toast.success("更新成功");
+        toast.success("更新个人资料成功");
         queryClient.invalidateQueries({ queryKey: ["whoami"] });
       }
     } catch (err) {
@@ -191,7 +196,166 @@ const EditInfoForm = () => {
 };
 
 const ResetPasswordForm = () => {
-  return <div>resetpasswordform</div>;
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
+  const handleUpdatePassword = async (
+    evt: React.FormEvent<HTMLFormElement>
+  ) => {
+    evt.preventDefault();
+
+    const target = evt.target as HTMLFormElement;
+    const oldPassword = target.oldPassword.value;
+    const password = target.password.value;
+    const repeat = target.repeat.value;
+
+    const correctRepeat = password === repeat;
+    if (!correctRepeat) {
+      toast.error("重复密码不一致");
+      return;
+    }
+
+    const correctPassword = password.match(passwordFmt);
+    if (!correctPassword) {
+      toast.error(
+        "密码格式错误，要求8-12个字符，数字、字母、特殊字符至少各有一个。"
+      );
+      return;
+    }
+
+    try {
+      const data = await resetPasswdByOldPasswd(oldPassword, password);
+
+      if (data && data["message"] === "success") {
+        toast.success("密码修改成功");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : (err as string));
+    }
+  };
+
+  return (
+    <div className="flex flex-col w-full ml-64 mr-32">
+      <span className="text-2xl font-semibold">修改登录密码</span>
+      <span className="mt-4 text-sm">
+        此处可修改登录密码。如您已忘记旧登录密码，可退出登录后再登录时选择“忘记密码”，利用注册邮箱/手机号来重设密码。
+      </span>
+      <span className="mt-2 text-xs text-gray-500">
+        8-12个字符，数字、字母、特殊字符至少各有一个
+      </span>
+
+      <form className="mt-12" onSubmit={handleUpdatePassword}>
+        <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-6">
+          <div className="col-span-full">
+            <label
+              htmlFor="oldPassword"
+              className="text-sm font-medium leading-6"
+            >
+              旧密码
+            </label>
+            <div className="mt-2 relative">
+              <input
+                id="oldPassword"
+                name="oldPassword"
+                type={passwordVisible ? "text" : "password"}
+                placeholder="旧密码"
+                title="8-12个字符，数字、字母、特殊字符至少各有一个"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                required
+              />
+
+              {
+                <div
+                  className="absolute top-0 right-4 h-full flex items-center cursor-pointer"
+                  onClick={() => setPasswordVisible(!passwordVisible)}
+                >
+                  {passwordVisible ? (
+                    <EyeSlashIcon className="w-6 h-6 text-gray-400" />
+                  ) : (
+                    <EyeIcon className="w-6 h-6 text-gray-400" />
+                  )}
+                </div>
+              }
+            </div>
+          </div>
+
+          <div className="col-span-full">
+            <label htmlFor="password" className="text-sm font-medium leading-6">
+              新密码
+            </label>
+            <div className="mt-2 relative">
+              <input
+                id="password"
+                name="password"
+                type={passwordVisible ? "text" : "password"}
+                placeholder="输入新密码"
+                title="8-12个字符，数字、字母、特殊字符至少各有一个"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                required
+              />
+
+              {
+                <div
+                  className="absolute top-0 right-4 h-full flex items-center cursor-pointer"
+                  onClick={() => setPasswordVisible(!passwordVisible)}
+                >
+                  {passwordVisible ? (
+                    <EyeSlashIcon className="w-6 h-6 text-gray-400" />
+                  ) : (
+                    <EyeIcon className="w-6 h-6 text-gray-400" />
+                  )}
+                </div>
+              }
+            </div>
+          </div>
+
+          <div className="col-span-full">
+            <label htmlFor="repeat" className="text-sm font-medium leading-6">
+              确认新密码
+            </label>
+            <div className="mt-2 relative">
+              <input
+                id="repeat"
+                name="repeat"
+                type={passwordVisible ? "text" : "password"}
+                placeholder="再次输入新密码"
+                title="与上面密码相同"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                required
+              />
+
+              {
+                <div
+                  className="absolute top-0 right-4 h-full flex items-center cursor-pointer"
+                  onClick={() => setPasswordVisible(!passwordVisible)}
+                >
+                  {passwordVisible ? (
+                    <EyeSlashIcon className="w-6 h-6 text-gray-400" />
+                  ) : (
+                    <EyeIcon className="w-6 h-6 text-gray-400" />
+                  )}
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-12 pt-6 flex items-center justify-end gap-x-6">
+          {/* <button
+          type="button"
+          className="text-sm font-semibold leading-6 text-gray-900"
+        >
+          取消
+        </button> */}
+          <button
+            type="submit"
+            className="rounded-md bg-violet-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500"
+          >
+            保存
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 };
 
 const AccountEdit = () => {

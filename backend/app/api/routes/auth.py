@@ -469,6 +469,29 @@ async def reset_password_via_cellnum(
     return JSONResponse(content={"message": "success"})
 
 
+@r.post("/reset/password")
+async def reset_password_via_login(
+    old_password: str = Form(...),
+    new_password: str = Form(...),
+    db: Database = Depends(get_db),
+    current_user: User = Depends(get_current_enabled_user),
+):
+    current_user_with_password = await get_user_by_field(
+        db, field_name="uid", field_value=current_user.uid, only_check_existence=True, with_password=True
+    )
+
+    if not verify_password(old_password, current_user_with_password.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="旧密码错误",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    check_password_format(new_password)
+    await update_user_field_by_uid(db, current_user.uid, {"hashed_password": get_password_hash(new_password)})
+    return JSONResponse(content={"message": "success"})
+
+
 @r.get("/whoami", response_model=User)
 async def whoami(current_user: User = Depends(get_current_enabled_user)):
     return current_user

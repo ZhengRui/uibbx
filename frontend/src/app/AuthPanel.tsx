@@ -17,17 +17,15 @@ import {
   resetPasswdByEmail,
   verifyCell,
   resetPasswdByCell,
+  cellFmt,
+  emailFmt,
+  passwordFmt,
 } from "@/utils/auth";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 
 import Image from "next/image";
-
-const cellFmt = /^1[3456789]\d{9}$/;
-const emailFmt =
-  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-const passwordFmt = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*_=+-]).{8,12}$/;
 
 const Login = () => {
   const setMode = useSetAtom(authModeAtom);
