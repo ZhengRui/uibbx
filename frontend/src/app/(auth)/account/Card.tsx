@@ -127,7 +127,11 @@ const Card = ({
           </div>
         </div>
       </div>
-      <div className="w-full p-3 bg-[#dbe9ff] rounded-b-2xl overflow-clip">
+      <div
+        className={`w-full p-3 bg-[#dbe9ff] rounded-b-2xl overflow-clip border-b-4 ${
+          bundle.deleted ? "border-b-red-400" : "border-b-violet-400"
+        }`}
+      >
         <div className="w-full flex justify-between items-center text-sm text-gray-700">
           <span>{bundle.title}</span>
           <span>¥ {bundle.purchase_price}</span>

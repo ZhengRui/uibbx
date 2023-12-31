@@ -3,6 +3,7 @@
 import LikesCarousel from "./LikesCarousel";
 import BookmarksCarousel from "./BookmarksCarousel";
 import PublishesCarousel from "./PublishesCarousel";
+import OrdersCarousel from "./OrdersCarousel";
 
 import { useAtomValue } from "jotai";
 import { accountTabAtom } from "@/atoms";
@@ -28,6 +29,8 @@ export default function AccountPage() {
             <BookmarksCarousel />
           ) : currentTab === "publishes" ? (
             <PublishesCarousel />
+          ) : currentTab === "orders" ? (
+            <OrdersCarousel />
           ) : null}
         </div>
       </div>

@@ -27,6 +27,7 @@ export interface BundleIF {
   purchase_price?: number;
   liked?: boolean;
   bookmarked?: boolean;
+  deleted?: boolean;
 }
 
 export interface SubscriptionOption {

@@ -163,3 +163,20 @@ export const getBundlesBookmarked = requestTemplate(
   (data: any) => data.map((bundle: any) => transformImageUrls(bundle)),
   true
 );
+
+export const getBundlesPurchased = requestTemplate(
+  (
+    offset: number,
+    limit: number,
+    with_liked: boolean = false,
+    with_bookmarked: boolean = false
+  ) => ({
+    url:
+      apiEndpoint +
+      `/bundle/all_purchased?offset=${offset}&limit=${limit}&with_liked=${with_liked}&with_bookmarked=${with_bookmarked}`,
+    method: "GET",
+  }),
+  responseHandlerTemplate,
+  (data: any) => data.map((bundle: any) => transformImageUrls(bundle)),
+  true
+);

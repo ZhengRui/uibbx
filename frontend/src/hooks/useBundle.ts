@@ -13,6 +13,7 @@ import {
   getBundlesPublished,
   getBundlesLiked,
   getBundlesBookmarked,
+  getBundlesPurchased,
   uploadBundle,
   updateBundle,
   deleteBundle,
@@ -106,6 +107,27 @@ export const useBundlesBookmarked = (
     refetchOnWindowFocus: false,
   });
 
+export const useBundlesPurchased = (
+  offset: number,
+  limit: number,
+  with_liked: boolean = false,
+  with_bookmarked: boolean = false
+) =>
+  useQuery<BundleIF[]>({
+    queryKey: [
+      "user",
+      "bundlesPurchased",
+      offset,
+      limit,
+      with_liked,
+      with_bookmarked,
+    ],
+    queryFn: async () =>
+      await getBundlesPurchased(offset, limit, with_liked, with_bookmarked),
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
+  });
+
 export const usePublishBundle = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -160,14 +182,32 @@ export const useDeleteBundle = () => {
       queryClient.removeQueries({
         queryKey: ["bundle", id],
       });
-      queryClient.removeQueries({
-        queryKey: ["numOfLikes", id],
+
+      // soft delete in the backend, so no need to invalidate following queries
+      // queryClient.removeQueries({
+      //   queryKey: ["numOfLikes", id],
+      // });
+      // queryClient.removeQueries({
+      //   queryKey: ["user", "liked", id],
+      // });
+      // queryClient.removeQueries({
+      //   queryKey: ["user", "bookmarked", id],
+      // });
+      // queryClient.invalidateQueries({
+      //   queryKey: ["user", "numOfBundlesLiked"],
+      // });
+      // queryClient.invalidateQueries({
+      //   queryKey: ["user", "numOfBundlesBookmarked"],
+      // });
+
+      queryClient.invalidateQueries({
+        queryKey: ["user", "bundlesLiked"],
       });
-      queryClient.removeQueries({
-        queryKey: ["user", "liked", id],
+      queryClient.invalidateQueries({
+        queryKey: ["user", "bundlesBookmarked"],
       });
-      queryClient.removeQueries({
-        queryKey: ["user", "bookmarked", id],
+      queryClient.invalidateQueries({
+        queryKey: ["user", "bundlesPurchased"],
       });
 
       queryClient.invalidateQueries({
@@ -175,18 +215,6 @@ export const useDeleteBundle = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["user", "bundlesPublished"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["user", "numOfBundlesLiked"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["user", "bundlesLiked"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["user", "numOfBundlesBookmarked"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["user", "bundlesBookmarked"],
       });
 
       toast.success("删除成功");

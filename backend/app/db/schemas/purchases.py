@@ -35,3 +35,17 @@ class PurchaseOrdersTable(Base):
 
     bundle = relationship("BundlesTable", backref="purchase_orders")
     user = relationship("UsersTable", backref="purchase_orders")
+
+
+class PurchasesByCoinsTable(Base):
+    __tablename__ = "purchases_by_coins"
+
+    id = Column("id", Integer, primary_key=True)
+    coins_used = Column("coins_used", Integer, nullable=False)
+    purchased_at = Column("purchased_at", DateTime(timezone=True), nullable=False)
+
+    bundle_id = Column("bundle_id", UUID(as_uuid=True), ForeignKey('bundles.id'))
+    user_uid = Column("user_uid", String(32), ForeignKey('users.uid'))
+
+    bundle = relationship("BundlesTable", backref="purchases_by_coins")
+    user = relationship("UsersTable", backref="purchases_by_coins")
