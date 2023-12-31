@@ -164,14 +164,18 @@ async def update_bundle_filed_by_id(db: Database, id: uuid.UUID, values: dict):
 
 async def delete_bundle_by_id(db: Database, id: uuid.UUID):
     try:
-        query = delete(LikesTable).where(LikesTable.bundle_id == id)
+        # hard delete (keep purchase and donwload records)
+        # query = delete(LikesTable).where(LikesTable.bundle_id == id)
+        # await db.execute(query=query)
+        # query = delete(BookmarksTable).where(BookmarksTable.bundle_id == id)
+        # await db.execute(query=query)
+        # query = delete(BundlesTable).where(BundlesTable.id == id)
+        # await db.execute(query=query)
+
+        # soft delete
+        query = update(BundlesTable).where(BundlesTable.id == id).values(deleted=True)
         await db.execute(query=query)
 
-        query = delete(BookmarksTable).where(BookmarksTable.bundle_id == id)
-        await db.execute(query=query)
-
-        query = delete(BundlesTable).where(BundlesTable.id == id)
-        await db.execute(query=query)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -188,13 +192,13 @@ async def get_bundle_by_id(
     query = select([BundlesTable]).where(BundlesTable.id == id)
     bundle = await db.fetch_one(query)
 
-    if not bundle:
+    if not bundle or bundle.deleted:
         if only_check_existence:
             return False
 
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"素材: id={id} 不存在",
+            detail="素材不存在或已删除",
         )
 
     # stupid encode/databses return a Record but not a Mapping
@@ -358,7 +362,14 @@ async def get_bundles_published_by_user(
     with_bookmarked: bool = False,
 ):
     try:
-        query = select([BundlesTable]).where(BundlesTable.creator_uid == user_uid).offset(offset).limit(limit)
+        query = (
+            select([BundlesTable])
+            .where(BundlesTable.creator_uid == user_uid)
+            .where(BundlesTable.deleted == False)
+            .offset(offset)
+            .limit(limit)
+        )
+
         bundles = await db.fetch_all(query)
 
         user = await get_user_by_field(db, field_name="uid", field_value=user_uid)

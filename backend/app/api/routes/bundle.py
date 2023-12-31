@@ -41,9 +41,9 @@ bundle_router = r = APIRouter()
 @r.post("/bundle")
 async def upload_bundle(
     title: str = Form(...),
-    subtitle: str = Form(None),
-    description: str = Form(None),
-    tags: List[str] = Form(None),
+    subtitle: str = Form(""),
+    description: str = Form(""),
+    tags: List[str] = Form([]),
     images: List[UploadFile] = File(...),
     bundle_url: str = Form(...),
     bundle_format: str = Form(...),
@@ -268,8 +268,10 @@ async def delete_bundle(
     current_user: User = Depends(get_current_enabled_user),
 ):
     await delete_bundle_by_id(db, id)
-    bundle_fd = f'./static/bundles/{id}'
-    shutil.rmtree(bundle_fd)
+
+    # keep bundle_fd for soft delete
+    # bundle_fd = f'./static/bundles/{id}'
+    # shutil.rmtree(bundle_fd)
 
     return JSONResponse(status_code=200, content={"detail": "删除素材成功"})
 

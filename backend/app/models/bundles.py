@@ -17,6 +17,7 @@ class Bundle(BaseModel, extra=Extra.allow):
     format: str
     created_at: datetime
     purchase_price: Optional[float] = 10.0
+    deleted: bool = False
 
 
 class BundleInDB(Bundle):
