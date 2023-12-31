@@ -19,6 +19,7 @@ export const uploadBundle = requestTemplate(
       images: bundle.images,
       bundle_url: bundle.bundle_url,
       bundle_format: bundle.format,
+      purchase_price: bundle.purchase_price,
     }),
   }),
   responseHandlerTemplate,
@@ -41,6 +42,7 @@ export const updateBundle = requestTemplate(
       ),
       bundle_url: bundle.bundle_url,
       bundle_format: bundle.format,
+      purchase_price: bundle.purchase_price,
     }),
   }),
   responseHandlerTemplate,
@@ -48,27 +50,37 @@ export const updateBundle = requestTemplate(
   true
 );
 
+export const deleteBundle = requestTemplate(
+  (id: string) => ({
+    url: apiEndpoint + "/bundle?id=" + id,
+    method: "DELETE",
+  }),
+  responseHandlerTemplate,
+  null,
+  true
+);
+
+const transformImageUrls = (bundle: any) => {
+  const { cover, carousel, creator_avatar, ...rest } = bundle;
+
+  return {
+    ...rest,
+    creator_avatar: creator_avatar
+      ? `${apiEndpoint}/static/avatars/${creator_avatar}`
+      : undefined,
+    images: [cover, ...carousel].map(
+      (img: string) => `${apiEndpoint}/static/bundles/${bundle.id}/${img}`
+    ),
+  };
+};
+
 export const getBundlePublic = requestTemplate(
   (id: string) => ({
     url: apiEndpoint + "/bundle/public?id=" + id,
     method: "GET",
   }),
   responseHandlerTemplate,
-  (data: any) => ({
-    id: data.id,
-    creator_uid: data.creator_uid,
-    created_at: data.created_at,
-    title: data.title,
-    subtitle: data.subtitle,
-    description: data.description,
-    tags: data.tags,
-    images: [data.cover, ...data.carousel].map(
-      (img: string) => `${apiEndpoint}/static/bundles/${data.id}/${img}`
-    ),
-    bundle_url: data.bundle_url,
-    format: data.format,
-    creator_username: data.creator_username,
-  })
+  (bundle: any) => transformImageUrls(bundle)
 );
 
 export const getBundle = requestTemplate(
@@ -77,21 +89,7 @@ export const getBundle = requestTemplate(
     method: "GET",
   }),
   responseHandlerTemplate,
-  (data: any) => ({
-    id: data.id,
-    creator_uid: data.creator_uid,
-    created_at: data.created_at,
-    title: data.title,
-    subtitle: data.subtitle,
-    description: data.description,
-    tags: data.tags,
-    images: [data.cover, ...data.carousel].map(
-      (img: string) => `${apiEndpoint}/static/bundles/${data.id}/${img}`
-    ),
-    bundle_url: data.bundle_url,
-    format: data.format,
-    creator_username: data.creator_username,
-  }),
+  (bundle: any) => transformImageUrls(bundle),
   true
 );
 
@@ -118,17 +116,7 @@ export const getBundlesPublished = requestTemplate(
     method: "GET",
   }),
   responseHandlerTemplate,
-  (data: any) =>
-    data.map((bundle: any) => {
-      const { cover, carousel, ...rest } = bundle;
-
-      return {
-        ...rest,
-        images: [cover, ...carousel].map(
-          (img: string) => `${apiEndpoint}/static/bundles/${bundle.id}/${img}`
-        ),
-      };
-    }),
+  (data: any) => data.map((bundle: any) => transformImageUrls(bundle)),
   true
 );
 
@@ -150,17 +138,7 @@ export const getBundlesLiked = requestTemplate(
     method: "GET",
   }),
   responseHandlerTemplate,
-  (data: any) =>
-    data.map((bundle: any) => {
-      const { cover, carousel, ...rest } = bundle;
-
-      return {
-        ...rest,
-        images: [cover, ...carousel].map(
-          (img: string) => `${apiEndpoint}/static/bundles/${bundle.id}/${img}`
-        ),
-      };
-    }),
+  (data: any) => data.map((bundle: any) => transformImageUrls(bundle)),
   true
 );
 
@@ -182,16 +160,6 @@ export const getBundlesBookmarked = requestTemplate(
     method: "GET",
   }),
   responseHandlerTemplate,
-  (data: any) =>
-    data.map((bundle: any) => {
-      const { cover, carousel, ...rest } = bundle;
-
-      return {
-        ...rest,
-        images: [cover, ...carousel].map(
-          (img: string) => `${apiEndpoint}/static/bundles/${bundle.id}/${img}`
-        ),
-      };
-    }),
+  (data: any) => data.map((bundle: any) => transformImageUrls(bundle)),
   true
 );

@@ -13,6 +13,7 @@ from ...db.connect import get_db
 from ...db.core import (
     bookmark_bundle,
     create_bundle,
+    delete_bundle_by_id,
     get_bundle_bookmarked_by_user,
     get_bundle_by_id,
     get_bundle_liked_by_user,
@@ -26,6 +27,7 @@ from ...db.core import (
     like_bundle,
     unbookmark_bundle,
     unlike_bundle,
+    update_bundle_filed_by_id,
 )
 from ...models import BundleInDB, User
 from .auth import get_current_enabled_user
@@ -45,6 +47,7 @@ async def upload_bundle(
     images: List[UploadFile] = File(...),
     bundle_url: str = Form(...),
     bundle_format: str = Form(...),
+    purchase_price: float = Form(10.0),
     db: Database = Depends(get_db),
     current_user: User = Depends(get_current_enabled_user),
 ):
@@ -100,6 +103,7 @@ async def upload_bundle(
             carousel=namesWithExt[1:],
             bundle_url=bundle_url,
             format=bundle_format,
+            purchase_price=purchase_price,
             created_at=datetime.now().replace(microsecond=0),
             creator_uid=current_user.uid,
         ),
@@ -140,29 +144,134 @@ async def get_bundle(
 async def update_bundle(
     id: str = Form(...),
     title: str = Form(...),
-    subtitle: str = Form(None),
-    description: str = Form(None),
-    tags: List[str] = Form(None),
+    subtitle: str = Form(""),
+    description: str = Form(""),
+    tags: List[str] = Form([]),
     images: List[str | UploadFile] = File(...),
     bundle_url: str = Form(...),
     bundle_format: str = Form(...),
+    purchase_price: float = Form(10.0),
     db: Database = Depends(get_db),
     current_user: User = Depends(get_current_enabled_user),
 ):
-    # TODO: check if current_user is the creator of bundle
+    bundle = await get_bundle_by_id(db, id, return_url=True)
+    if bundle.creator_uid != current_user.uid:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="素材修改权限错误",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-    print(
-        id,
-        title,
-        subtitle,
-        description,
-        tags,
-        [img if isinstance(img, str) else type(img) for img in images],
-        bundle_url,
-        bundle_format,
-    )
+    keep = set([image for image in images if isinstance(image, str)])
 
-    pass
+    cache_fd = f'./static/cache/{id}'
+    if not os.path.exists(cache_fd):
+        os.makedirs(cache_fd)
+
+    bundle_fd = f'./static/bundles/{id}'
+
+    names = []
+    namesWithExt = []
+    for i, image in enumerate(images):
+        if isinstance(image, str):
+            name, ext = image.split('.')
+
+            if i == 0 and name != 'cover':
+                shutil.copy2(f'{bundle_fd}/{image}', f'{cache_fd}/cover.{ext}')
+                name = 'cover'
+
+            if i and name == 'cover':
+                while True:
+                    rnd_name = f'{random.randint(1, 1e3):03d}'
+                    exist = f'{rnd_name}.{ext}' in keep or rnd_name in names
+                    if not exist:
+                        break
+
+                shutil.copy2(f'{bundle_fd}/{image}', f'{cache_fd}/{rnd_name}.{ext}')
+                name = rnd_name
+
+            keep.remove(image)
+        else:
+            content = await image.read()
+
+            # Optional: check if image is valid
+            # img = Image.open(image.file)
+            # img = ImageOps.exif_transpose(img)
+
+            ext = image.filename.split('.')[-1]
+
+            name = 'cover'
+
+            if i:
+                while True:
+                    rnd_name = f'{random.randint(1, 1e3):03d}'
+                    exist = f'{rnd_name}.{ext}' in keep or rnd_name in names
+                    if not exist:
+                        break
+
+                name = rnd_name
+
+            with open(f'{cache_fd}/{name}.{ext}', 'wb') as f:
+                f.write(content)
+
+        names.append(name)
+        namesWithExt.append(f'{name}.{ext}')
+
+    updates = {}
+
+    if title != bundle.title:
+        updates['title'] = title
+
+    if subtitle != bundle.subtitle:
+        updates['subtitle'] = subtitle
+
+    if description != bundle.description:
+        updates['description'] = description
+
+    if tags != bundle.tags:
+        updates['tags'] = tags
+
+    if namesWithExt[0] != bundle.cover:
+        updates['cover'] = namesWithExt[0]
+
+    if namesWithExt[1:] != bundle.carousel:
+        updates['carousel'] = namesWithExt[1:]
+
+    if bundle_url != bundle.bundle_url:
+        updates['bundle_url'] = bundle_url
+
+    if bundle_format != bundle.format:
+        updates['format'] = bundle_format
+
+    if purchase_price != bundle.purchase_price:
+        updates['purchase_price'] = purchase_price
+
+    if updates:
+        await update_bundle_filed_by_id(db, id, updates)
+
+    for image in os.listdir(cache_fd):
+        shutil.move(f'{cache_fd}/{image}', f'{bundle_fd}/{image}')
+
+    shutil.rmtree(cache_fd)
+
+    for image in os.listdir(bundle_fd):
+        if image not in namesWithExt:
+            os.remove(f'{bundle_fd}/{image}')
+
+    return await get_bundle_by_id(db, id)
+
+
+@r.delete("/bundle")
+async def delete_bundle(
+    id: uuid.UUID,
+    db: Database = Depends(get_db),
+    current_user: User = Depends(get_current_enabled_user),
+):
+    await delete_bundle_by_id(db, id)
+    bundle_fd = f'./static/bundles/{id}'
+    shutil.rmtree(bundle_fd)
+
+    return JSONResponse(status_code=200, content={"detail": "删除素材成功"})
 
 
 @r.get("/bundle/all_published")

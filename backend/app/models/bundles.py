@@ -5,8 +5,9 @@ from typing import List, Optional
 from pydantic import BaseModel, Extra
 
 
-class Bundle(BaseModel):
+class Bundle(BaseModel, extra=Extra.allow):
     id: Optional[uuid.UUID] = None
+    creator_uid: str
     title: str
     subtitle: Optional[str] = ""
     description: Optional[str] = ""
@@ -15,10 +16,8 @@ class Bundle(BaseModel):
     carousel: List[str] = []
     format: str
     created_at: datetime
-    creator_uid: str
-    creator_username: Optional[str] = ""
-    purchase_price: Optional[float] = 10
+    purchase_price: Optional[float] = 10.0
 
 
-class BundleInDB(Bundle, extra=Extra.allow):
+class BundleInDB(Bundle):
     bundle_url: str

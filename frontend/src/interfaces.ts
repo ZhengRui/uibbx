@@ -22,6 +22,8 @@ export interface BundleIF {
   bundle_url?: string;
   format: string;
   creator_username?: string;
+  creator_nickname?: string;
+  creator_avatar?: string;
   purchase_price?: number;
   liked?: boolean;
   bookmarked?: boolean;

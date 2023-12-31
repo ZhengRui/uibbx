@@ -26,6 +26,7 @@ import {
 import { authPanelOpenAtom, downloadPanelOpenAtom } from "@/atoms";
 import { useSetAtom } from "jotai";
 import DownloadPanel from "./DownloadPanel";
+import { UserCircleIcon } from "@/components/icons";
 
 export default function BundlePreviewPage({
   params,
@@ -105,9 +106,25 @@ export default function BundlePreviewPage({
             下载
           </button>
           <div className="mt-16 flex justify-start items-center space-x-2">
-            <span className="bg-gray-700 rounded-full w-14 h-14"></span>
+            <span className="relative w-14 h-14 rounded-full overflow-clip flex justify-center items-center bg-[#404040]">
+              {bundle.creator_avatar ? (
+                <Image
+                  src={bundle.creator_avatar as string}
+                  alt="avatar"
+                  fill={true}
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              ) : bundle.creator_nickname ? (
+                <span className="text-gray-300 text-base">
+                  {bundle.creator_nickname[0]}
+                </span>
+              ) : (
+                <UserCircleIcon className="w-full h-full" />
+              )}
+            </span>
             <span className="text-xs text-gray-700">
-              {bundle.creator_username}
+              {bundle.creator_nickname}
             </span>
           </div>
           <div className="mt-5 flex flex-col justify-start items-center space-y-2">
@@ -123,15 +140,9 @@ export default function BundlePreviewPage({
             <span className="text-xs text-gray-400">格式</span>
           </div>
           <div className="mt-5 flex flex-col justify-start items-center space-y-2">
-            <span className="w-14 h-14 rounded-full bg-[#e3eeff] flex justify-center items-center">
-              <ShareIcon className="w-5 h-5 text-[#25314C]" />
-            </span>
-            <span className="text-xs text-gray-400">分享</span>
-          </div>
-          <div className="mt-5 flex flex-col justify-start items-center space-y-2">
             <span
               className={`w-14 h-14 rounded-full ${
-                likedByMe ? "bg-[#936efe]" : "bg-[#e3eeff]"
+                likedByMe ? "bg-[#f27979]" : "bg-[#e3eeff]"
               } flex flex-col justify-center items-center space-y-1 cursor-pointer`}
               onClick={() =>
                 !user
@@ -176,6 +187,12 @@ export default function BundlePreviewPage({
               />
             </span>
             <span className="text-xs text-gray-400">收藏</span>
+          </div>
+          <div className="mt-5 flex flex-col justify-start items-center space-y-2">
+            <span className="w-14 h-14 rounded-full bg-[#e3eeff] flex justify-center items-center">
+              <ShareIcon className="w-5 h-5 text-[#25314C]" />
+            </span>
+            <span className="text-xs text-gray-400">分享</span>
           </div>
           <div className="mt-5 flex flex-col justify-start items-center space-y-2">
             <span className="w-14 h-14 rounded-full bg-[#e3eeff] flex justify-center items-center">

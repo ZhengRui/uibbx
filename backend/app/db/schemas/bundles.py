@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, DateTime, ForeignKey, String, Text
+from sqlalchemy import Column, DateTime, Float, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import relationship
 
@@ -20,6 +20,7 @@ class BundlesTable(Base):
     bundle_url = Column("bundle_url", Text, nullable=False)
     format = Column("format", String(32), nullable=False)
     created_at = Column("created_at", DateTime(timezone=True), nullable=False)
+    purchase_price = Column("purchase_price", Float, nullable=True)
 
     creator_uid = Column("creator_uid", String(32), ForeignKey('users.uid'))
     creator = relationship("UsersTable", backref="bundles")

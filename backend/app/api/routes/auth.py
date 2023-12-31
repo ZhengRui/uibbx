@@ -549,4 +549,4 @@ async def update_user(
     if avatar:
         shutil.move(f'{cache_avatar_fd}/{current_user.uid}.{ext}', f'{avatar_fd}/{current_user.uid}.{ext}')
 
-    return User(**(current_user.dict() | updates))
+    return await get_user_by_field(db, field_name="uid", field_value=current_user.uid)

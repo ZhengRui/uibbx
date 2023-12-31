@@ -111,13 +111,14 @@ const Header = () => {
         isAccountPage ? "" : "bg-[#01102d]"
       }`}
     >
-      <div className={`w-full ${isAccountPage ? "relative h-72" : "hidden"}`}>
+      <div className={`relative w-full ${isAccountPage ? "h-72" : "hidden"}`}>
         <Image
           src="/account_header_background.png"
           alt="account_header_background"
           fill={true}
           className="object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          priority
         />
 
         <div className="absolute pt-24 ml-8 lg:ml-12 xl:ml-16">

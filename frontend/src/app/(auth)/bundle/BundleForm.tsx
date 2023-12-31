@@ -3,22 +3,22 @@
 import ImageStack from "./ImageStack";
 import toast from "react-hot-toast";
 import React, { useEffect, useRef, useState } from "react";
-import { uploadBundle, updateBundle } from "@/utils/bundle";
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import { BundleIF } from "@/interfaces";
-import { usePublishBundle, useUpdateBundle } from "@/hooks/useBundle";
+import {
+  usePublishBundle,
+  useUpdateBundle,
+  useDeleteBundle,
+} from "@/hooks/useBundle";
+import { Modal } from "@/components/Modal";
+import { ExclamationCircleSolidIcon } from "@/components/icons";
+import Link from "next/link";
 
 const BundleForm = ({
   init,
-  formTitle,
-  okBtnName = "确定",
-  cancelBtnName = "取消",
   newOrUpdate = "new",
 }: {
   init?: BundleIF;
-  formTitle: string;
-  okBtnName: string;
-  cancelBtnName: string;
   newOrUpdate: string;
 }) => {
   const [tags, setTags] = useState<string[]>(init ? init.tags : []);
@@ -35,6 +35,7 @@ const BundleForm = ({
 
   const publishBundle = usePublishBundle();
   const updateBundle = useUpdateBundle();
+  const deleteBundle = useDeleteBundle();
 
   //   const [bundle, setBundle] = useState<File | null>(null);
   //   const selectBundleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,7 +76,7 @@ const BundleForm = ({
     e.target.value = "";
   };
 
-  const uploadBundleCall = async (evt: React.FormEvent) => {
+  const onSubmitForm = async (evt: React.FormEvent) => {
     evt.preventDefault();
     const target = evt.target as HTMLFormElement;
 
@@ -84,6 +85,7 @@ const BundleForm = ({
     const description = target.desc.value;
     const bundle_url = target.bundleUrl.value;
     const format = target.format.value;
+    const purchase_price = target.purchasePrice.value;
 
     if (images.length === 0) {
       toast.error("请上传预览图");
@@ -91,6 +93,7 @@ const BundleForm = ({
     }
 
     await (newOrUpdate === "new" ? publishBundle : updateBundle)({
+      id: init?.id,
       title,
       subtitle,
       description,
@@ -98,8 +101,12 @@ const BundleForm = ({
       images: images.map((i) => i.file || i.url),
       bundle_url,
       format,
+      purchase_price,
     });
   };
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [draftModalOpen, setDraftModalOpen] = useState(false);
 
   useEffect(() => {
     if (init && formRef.current) {
@@ -109,169 +116,171 @@ const BundleForm = ({
       formRef.current.bundleUrl.value = init.bundle_url;
       formRef.current.format.value = init.format;
       formRef.current.tags.value = init.tags.join(", ");
+      formRef.current.purchasePrice.value = init.purchase_price;
     }
   }, []);
 
   return (
-    <form className="w-full" onSubmit={uploadBundleCall} ref={formRef}>
-      <h2 className="text-2xl font-semibold leading-7 text-gray-900">
-        {formTitle}
-      </h2>
+    <>
+      <form className="w-full" onSubmit={onSubmitForm} ref={formRef}>
+        <h2 className="text-2xl font-semibold leading-7 text-gray-900">
+          {newOrUpdate === "new" ? "发布素材" : "更新素材"}
+        </h2>
 
-      <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-        <div className="sm:col-span-4">
-          <label htmlFor="btitle" className="text-sm font-medium leading-6">
-            标题
-          </label>
-          <div className="mt-2">
-            <input
-              type="text"
-              name="btitle"
-              id="btitle"
-              className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
-              required
-            />
+        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          <div className="sm:col-span-4">
+            <label htmlFor="btitle" className="text-sm font-medium leading-6">
+              标题
+            </label>
+            <div className="mt-2">
+              <input
+                type="text"
+                name="btitle"
+                id="btitle"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                required
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="col-span-full">
-          <label htmlFor="subtitle" className="text-sm font-medium leading-6">
-            子标题 <span className="text-gray-400">(选填)</span>
-          </label>
-          <div className="mt-2">
-            <input
-              type="text"
-              name="subtitle"
-              id="subtitle"
-              className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
-            />
+          <div className="col-span-full">
+            <label htmlFor="subtitle" className="text-sm font-medium leading-6">
+              子标题 <span className="text-gray-400">(选填)</span>
+            </label>
+            <div className="mt-2">
+              <input
+                type="text"
+                name="subtitle"
+                id="subtitle"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="col-span-full">
-          <label htmlFor="desc" className="text-sm font-medium leading-6">
-            描述 <span className="text-gray-400">(选填)</span>
-          </label>
-          <div className="mt-2">
-            <textarea
-              id="desc"
-              name="desc"
-              rows={3}
-              className="w-full rounded-md border py-1.5 px-3 text-gray-600 text-sm focus:outline-none"
-            />
+          <div className="col-span-full">
+            <label htmlFor="desc" className="text-sm font-medium leading-6">
+              描述 <span className="text-gray-400">(选填)</span>
+            </label>
+            <div className="mt-2">
+              <textarea
+                id="desc"
+                name="desc"
+                rows={3}
+                className="w-full rounded-md border py-1.5 px-3 text-gray-600 text-sm focus:outline-none"
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="col-span-full">
-          <label htmlFor="tags" className="text-sm font-medium leading-6">
-            标签 <span className="text-gray-400">(选填)</span>
-          </label>
-          <div className="mt-2 flex flex-col space-y-2">
-            <input
-              type="text"
-              name="tags"
-              id="tags"
-              className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
-              placeholder="例子: 3D, 电影海报, 卡通, figma"
-              onChange={(e) => {
-                const value = e.target.value;
-                setTags(
-                  value
-                    .replaceAll("，", ",")
-                    .split(",")
-                    .map((t) => t.trim())
-                    .filter((t) => t.length > 0)
-                );
-              }}
-            />
-            {tags && (
-              <div className="space-x-2">
-                {tags.map((tag, i) => (
-                  <span
-                    className="border border-indigo-400 rounded-lg py-1 px-2 text-xs text-gray-600"
-                    key={i}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="col-span-full">
-          <label
-            htmlFor="images-label"
-            className="text-sm font-medium leading-6"
-          >
-            预览图片 <span className="text-gray-400">(首张为封面图)</span>
-          </label>
-          <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-            {images.length ? (
-              <div className="w-full flex flex-col">
-                <div className="pb-5 border-b">
-                  <ImageStack images={images} setImages={setImages} />
-                </div>
-                <div className="flex justify-end items-center pt-4 space-x-4">
-                  <div>
-                    <label
-                      htmlFor="images-append"
-                      className="cursor-pointer rounded-md bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+          <div className="col-span-full">
+            <label htmlFor="tags" className="text-sm font-medium leading-6">
+              标签 <span className="text-gray-400">(选填)</span>
+            </label>
+            <div className="mt-2 flex flex-col space-y-2">
+              <input
+                type="text"
+                name="tags"
+                id="tags"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                placeholder="例子: 3D, 电影海报, 卡通, figma"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setTags(
+                    value
+                      .replaceAll("，", ",")
+                      .split(",")
+                      .map((t) => t.trim())
+                      .filter((t) => t.length > 0)
+                  );
+                }}
+              />
+              {tags && (
+                <div className="space-x-2">
+                  {tags.map((tag, i) => (
+                    <span
+                      className="border border-indigo-400 rounded-lg py-1 px-2 text-xs text-gray-600"
+                      key={i}
                     >
-                      <span>继续添加</span>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
 
+          <div className="col-span-full">
+            <label
+              htmlFor="images-label"
+              className="text-sm font-medium leading-6"
+            >
+              预览图片 <span className="text-gray-400">(首张为封面图)</span>
+            </label>
+            <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+              {images.length ? (
+                <div className="w-full flex flex-col">
+                  <div className="pb-5 border-b">
+                    <ImageStack images={images} setImages={setImages} />
+                  </div>
+                  <div className="flex justify-end items-center pt-4 space-x-4">
+                    <div>
+                      <label
+                        htmlFor="images-append"
+                        className="cursor-pointer rounded-md bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+                      >
+                        <span>继续添加</span>
+
+                        <input
+                          id="images-append"
+                          name="images-append"
+                          type="file"
+                          multiple
+                          className="sr-only"
+                          onChange={appendImageFiles}
+                          accept="image/*"
+                        />
+                      </label>
+                    </div>
+                    <button
+                      className="rounded-md bg-orange-700 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600"
+                      onClick={() => setImages([])}
+                    >
+                      清空
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center">
+                  <PhotoIcon
+                    className="mx-auto h-12 w-12 text-gray-300"
+                    aria-hidden="true"
+                  />
+                  <div className="mt-4 flex justify-center text-sm leading-6 text-gray-600">
+                    <label
+                      htmlFor="images"
+                      className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-500"
+                    >
+                      <span>上传预览图</span>
                       <input
-                        id="images-append"
-                        name="images-append"
+                        id="images"
+                        name="images"
                         type="file"
                         multiple
                         className="sr-only"
-                        onChange={appendImageFiles}
+                        onChange={selectImageFiles}
                         accept="image/*"
                       />
                     </label>
                   </div>
-                  <button
-                    className="rounded-md bg-orange-700 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600"
-                    onClick={() => setImages([])}
-                  >
-                    清空
-                  </button>
+                  <p className="text-xs leading-5 text-gray-600">
+                    PNG, JPG, JPEG
+                  </p>
                 </div>
-              </div>
-            ) : (
-              <div className="text-center">
-                <PhotoIcon
-                  className="mx-auto h-12 w-12 text-gray-300"
-                  aria-hidden="true"
-                />
-                <div className="mt-4 flex justify-center text-sm leading-6 text-gray-600">
-                  <label
-                    htmlFor="images"
-                    className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-500"
-                  >
-                    <span>上传预览图</span>
-                    <input
-                      id="images"
-                      name="images"
-                      type="file"
-                      multiple
-                      className="sr-only"
-                      onChange={selectImageFiles}
-                      accept="image/*"
-                    />
-                  </label>
-                </div>
-                <p className="text-xs leading-5 text-gray-600">
-                  PNG, JPG, JPEG
-                </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
 
-        <div className="col-span-full">
-          {/* <label
+          <div className="col-span-full">
+            {/* <label
               htmlFor="bundle-label"
               className="text-sm font-medium leading-6"
             >
@@ -297,109 +306,187 @@ const BundleForm = ({
               </span>
             </div> */}
 
-          <label htmlFor="bundleUrl" className="text-sm font-medium leading-6">
-            网盘链接 <span className="text-gray-400">(带密码)</span>
-          </label>
+            <label
+              htmlFor="bundleUrl"
+              className="text-sm font-medium leading-6"
+            >
+              网盘链接 <span className="text-gray-400">(带密码)</span>
+            </label>
 
-          <div className="mt-2">
-            <input
-              id="bundleUrl"
-              name="bundleUrl"
-              type="url"
-              className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
-              required
-            />
+            <div className="mt-2">
+              <input
+                id="bundleUrl"
+                name="bundleUrl"
+                type="url"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="col-span-full">
+            <label
+              htmlFor="purchasePrice"
+              className="text-sm font-medium leading-6"
+            >
+              购买价格
+            </label>
+
+            <div className="mt-2 relative">
+              <input
+                id="purchasePrice"
+                name="purchasePrice"
+                type="number"
+                min="0"
+                step="0.1"
+                className="pl-6 w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                defaultValue={10.0}
+                required
+              />
+              <span className="absolute top-0 left-2 h-full flex items-center text-gray-500 font-semibold">
+                ¥
+              </span>
+            </div>
+          </div>
+
+          <div className="col-span-full">
+            <fieldset>
+              <legend className="text-sm font-medium leading-6 ">格式</legend>
+              <div className="mt-2 space-y-3 2xs:flex 2xs:space-y-0 2xs:space-x-6">
+                <div className="flex items-center gap-x-2">
+                  <input
+                    id="figma"
+                    name="format"
+                    type="radio"
+                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                    value="figma"
+                    required
+                  />
+                  <label
+                    htmlFor="figma"
+                    className="block text-sm font-medium leading-6"
+                  >
+                    Figma
+                  </label>
+                </div>
+                <div className="flex items-center gap-x-2">
+                  <input
+                    id="photoshop"
+                    name="format"
+                    type="radio"
+                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                    value="photoshop"
+                    required
+                  />
+                  <label
+                    htmlFor="photoshop"
+                    className="block text-sm font-medium leading-6 "
+                  >
+                    Photoshop
+                  </label>
+                </div>
+                <div className="flex items-center gap-x-2">
+                  <input
+                    id="sketch"
+                    name="format"
+                    type="radio"
+                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                    value="sketch"
+                    required
+                  />
+                  <label
+                    htmlFor="sketch"
+                    className="block text-sm font-medium leading-6"
+                  >
+                    Sketch
+                  </label>
+                </div>
+              </div>
+            </fieldset>
           </div>
         </div>
 
-        <div className="col-span-full">
-          <fieldset>
-            <legend className="text-sm font-medium leading-6 ">格式</legend>
-            <div className="mt-2 space-y-3 2xs:flex 2xs:space-y-0 2xs:space-x-6">
-              <div className="flex items-center gap-x-2">
-                <input
-                  id="figma"
-                  name="format"
-                  type="radio"
-                  className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                  value="figma"
-                  required
-                />
-                <label
-                  htmlFor="figma"
-                  className="block text-sm font-medium leading-6"
-                >
-                  Figma
-                </label>
-              </div>
-              <div className="flex items-center gap-x-2">
-                <input
-                  id="photoshop"
-                  name="format"
-                  type="radio"
-                  className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                  value="photoshop"
-                  required
-                />
-                <label
-                  htmlFor="photoshop"
-                  className="block text-sm font-medium leading-6 "
-                >
-                  Photoshop
-                </label>
-              </div>
-              <div className="flex items-center gap-x-2">
-                <input
-                  id="sketch"
-                  name="format"
-                  type="radio"
-                  className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                  value="sketch"
-                  required
-                />
-                <label
-                  htmlFor="sketch"
-                  className="block text-sm font-medium leading-6"
-                >
-                  Sketch
-                </label>
-              </div>
+        {newOrUpdate === "new" ? (
+          <div className="mt-12 pt-6 flex items-center justify-end gap-x-4 border-t border-gray-900/10 ">
+            <button
+              type="submit"
+              className="rounded-md bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+            >
+              发布
+            </button>
+          </div>
+        ) : (
+          <div className="mt-12 pt-6 flex items-center justify-between border-t border-gray-900/10 ">
+            <div className="flex justify-start items-center gap-x-4">
+              <button
+                type="button"
+                className="rounded-md bg-orange-700 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600"
+                onClick={() => setDeleteModalOpen(true)}
+              >
+                删除
+              </button>
+              <button
+                type="button"
+                className="rounded-md bg-emerald-700 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-600"
+                onClick={() => setDraftModalOpen(true)}
+              >
+                转为草稿
+              </button>
             </div>
-          </fieldset>
-        </div>
-      </div>
+            <div className="flex justify-end items-center gap-x-4">
+              <Link href={`/bundle/preview/${init?.id}`} target="_blank">
+                <button
+                  type="button"
+                  className="rounded-md bg-amber-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-500"
+                >
+                  预览
+                </button>
+              </Link>
+              <button
+                type="submit"
+                className="rounded-md bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+              >
+                更新
+              </button>
+            </div>
+          </div>
+        )}
+      </form>
 
-      <div className="mt-12 pt-6 flex items-center justify-end gap-x-6 border-t border-gray-900/10 ">
-        {/* <button
-          type="button"
-          className="text-sm font-semibold leading-6 text-gray-900"
-        >
-          {cancelBtnName}
-        </button> */}
-        <button
-          type="submit"
-          className="rounded-md bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
-        >
-          {okBtnName}
-        </button>
-      </div>
-    </form>
+      {newOrUpdate === "update" && (
+        <>
+          <Modal
+            title="确认删除素材?"
+            body="删除后无法恢复, 请谨慎操作！"
+            open={deleteModalOpen}
+            setOpen={setDeleteModalOpen}
+            yesCallback={() => deleteBundle(init?.id!)}
+            type="warning"
+            confirmAlias="确认"
+          />
+          <Modal
+            title="确认将素材转入草稿箱?"
+            body="转入草稿后将不会在首页展示, 但仍可在我的发布-草稿箱查看，后续可随时再次发布。"
+            open={draftModalOpen}
+            setOpen={setDraftModalOpen}
+            yesCallback={() => {}}
+            type="success"
+            confirmAlias="确认"
+            titleIcon={ExclamationCircleSolidIcon}
+          />
+        </>
+      )}
+    </>
   );
 };
 
 export const NewBundleForm = () =>
   BundleForm({
-    formTitle: "发布素材",
-    okBtnName: "发布",
-    cancelBtnName: "取消",
     newOrUpdate: "new",
   });
 
 export const UpdateBundleForm = ({ init }: { init: BundleIF }) =>
   BundleForm({
     init,
-    formTitle: "更新素材",
-    okBtnName: "更新",
-    cancelBtnName: "取消",
     newOrUpdate: "update",
   });

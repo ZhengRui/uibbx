@@ -15,6 +15,7 @@ import {
   getBundlesBookmarked,
   uploadBundle,
   updateBundle,
+  deleteBundle,
 } from "@/utils/bundle";
 import { BundleIF } from "@/interfaces";
 import toast from "react-hot-toast";
@@ -22,7 +23,7 @@ import { useRouter } from "next/navigation";
 
 export const useBundlePublic = (id: string) =>
   useQuery<BundleIF>({
-    queryKey: ["bundle", id],
+    queryKey: ["bundle", id, "public"],
     queryFn: async () => await getBundlePublic(id),
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
@@ -111,7 +112,7 @@ export const usePublishBundle = () => {
 
   const publishBundleMutation = useMutation({
     mutationFn: uploadBundle,
-    onSuccess: (data, id) => {
+    onSuccess: (data, bundle) => {
       queryClient.invalidateQueries({
         queryKey: ["user", "numOfBundlesPublished"],
       });
@@ -129,19 +130,69 @@ export const usePublishBundle = () => {
 
 export const useUpdateBundle = () => {
   const queryClient = useQueryClient();
-  const router = useRouter();
+  // const router = useRouter();
 
   const updateBundleMutation = useMutation({
     mutationFn: updateBundle,
-    onSuccess: (data, id) => {
+    onSuccess: (data, bundle) => {
+      queryClient.invalidateQueries({
+        queryKey: ["bundle", bundle.id],
+      });
       queryClient.invalidateQueries({
         queryKey: ["user", "bundlesPublished"],
       });
 
       toast.success("更新成功");
-      router.push(`/bundle/preview/${data.id}`);
+      // router.push(`/bundle/preview/${data.id}`);
     },
   });
 
   return (bundle: BundleIF) => updateBundleMutation.mutate(bundle);
+};
+
+export const useDeleteBundle = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  const deleteBundleMutation = useMutation({
+    mutationFn: deleteBundle,
+    onSuccess: (data, id) => {
+      queryClient.removeQueries({
+        queryKey: ["bundle", id],
+      });
+      queryClient.removeQueries({
+        queryKey: ["numOfLikes", id],
+      });
+      queryClient.removeQueries({
+        queryKey: ["user", "liked", id],
+      });
+      queryClient.removeQueries({
+        queryKey: ["user", "bookmarked", id],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["user", "numOfBundlesPublished"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["user", "bundlesPublished"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["user", "numOfBundlesLiked"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["user", "bundlesLiked"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["user", "numOfBundlesBookmarked"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["user", "bundlesBookmarked"],
+      });
+
+      toast.success("删除成功");
+      router.push(`/account`);
+    },
+  });
+
+  return (id: string) => deleteBundleMutation.mutate(id);
 };

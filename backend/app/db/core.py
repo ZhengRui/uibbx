@@ -133,15 +133,50 @@ async def get_and_del_verification_code(db: Database, codeId: str, code: Optiona
     return record
 
 
-async def update_user_field_by_uid(db: Database, uid: str, value: dict):
-    query = update(UsersTable).where(UsersTable.uid == uid).values(value)
+async def update_user_field_by_uid(db: Database, uid: str, values: dict):
+    query = update(UsersTable).where(UsersTable.uid == uid).values(values)
     await db.execute(query=query)
 
 
 async def create_bundle(db: Database, bundle: BundleInDB) -> BundleInDB:
-    query = insert(BundlesTable).values(**bundle.dict(exclude={'creator_username', 'purchase_price'}))
-    await db.execute(query)
+    try:
+        query = insert(BundlesTable).values(**bundle.dict())
+        await db.execute(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"创建素材失败: {e}",
+        )
+
     return bundle
+
+
+async def update_bundle_filed_by_id(db: Database, id: uuid.UUID, values: dict):
+    try:
+        query = update(BundlesTable).where(BundlesTable.id == id).values(values)
+        await db.execute(query=query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"更新素材失败: {e}",
+        )
+
+
+async def delete_bundle_by_id(db: Database, id: uuid.UUID):
+    try:
+        query = delete(LikesTable).where(LikesTable.bundle_id == id)
+        await db.execute(query=query)
+
+        query = delete(BookmarksTable).where(BookmarksTable.bundle_id == id)
+        await db.execute(query=query)
+
+        query = delete(BundlesTable).where(BundlesTable.id == id)
+        await db.execute(query=query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"删除素材失败: {e}",
+        )
 
 
 async def get_bundle_by_id(
@@ -168,9 +203,19 @@ async def get_bundle_by_id(
     user = await get_user_by_field(db, field_name="uid", field_value=bundle.creator_uid)
 
     if return_url:
-        return BundleInDB(**dict(zip(bundle.keys(), bundle.values())), creator_username=user.username)
+        return BundleInDB(
+            **dict(zip(bundle.keys(), bundle.values())),
+            creator_username=user.username,
+            creator_nickname=user.nickname,
+            creator_avatar=user.avatar,
+        )
     else:
-        return Bundle(**dict(zip(bundle.keys(), bundle.values())), creator_username=user.username)
+        return Bundle(
+            **dict(zip(bundle.keys(), bundle.values())),
+            creator_username=user.username,
+            creator_nickname=user.nickname,
+            creator_avatar=user.avatar,
+        )
 
 
 async def like_bundle(db: Database, bundle_id: uuid.UUID, user_uid: str):
@@ -262,7 +307,19 @@ async def get_bundles_liked_by_user(
         query = select([BundlesTable]).where(BundlesTable.id.in_([like.bundle_id for like in liked]))
         bundles = await db.fetch_all(query)
 
-        bundles = [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
+        query = select([UsersTable]).where(UsersTable.uid.in_([bundle.creator_uid for bundle in bundles]))
+        creators_ = await db.fetch_all(query)
+        creators = {creator.uid: creator for creator in creators_}
+
+        bundles = [
+            BundleInDB(
+                **dict(zip(bundle.keys(), bundle.values())),
+                creator_username=creators[bundle.creator_uid].username,
+                creator_nickname=creators[bundle.creator_uid].nickname,
+                creator_avatar=creators[bundle.creator_uid].avatar,
+            )
+            for bundle in bundles
+        ]
 
         if with_bookmarked:
             bookmarked = await check_bundles_bookmarked_by_user(db, bundles, user_uid)
@@ -304,7 +361,17 @@ async def get_bundles_published_by_user(
         query = select([BundlesTable]).where(BundlesTable.creator_uid == user_uid).offset(offset).limit(limit)
         bundles = await db.fetch_all(query)
 
-        bundles = [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
+        user = await get_user_by_field(db, field_name="uid", field_value=user_uid)
+
+        bundles = [
+            BundleInDB(
+                **dict(zip(bundle.keys(), bundle.values())),
+                creator_username=user.username,
+                creator_nickname=user.nickname,
+                creator_avatar=user.avatar,
+            )
+            for bundle in bundles
+        ]
 
         if with_liked:
             liked = await check_bundles_liked_by_user(db, bundles, user_uid)
@@ -438,7 +505,19 @@ async def get_bundles_bookmarked_by_user(
         query = select([BundlesTable]).where(BundlesTable.id.in_([bookmark.bundle_id for bookmark in bookmarked]))
         bundles = await db.fetch_all(query)
 
-        bundles = [BundleInDB(**dict(zip(bundle.keys(), bundle.values()))) for bundle in bundles]
+        query = select([UsersTable]).where(UsersTable.uid.in_([bundle.creator_uid for bundle in bundles]))
+        creators_ = await db.fetch_all(query)
+        creators = {creator.uid: creator for creator in creators_}
+
+        bundles = [
+            BundleInDB(
+                **dict(zip(bundle.keys(), bundle.values())),
+                creator_username=creators[bundle.creator_uid].username,
+                creator_nickname=creators[bundle.creator_uid].nickname,
+                creator_avatar=creators[bundle.creator_uid].avatar,
+            )
+            for bundle in bundles
+        ]
 
         if with_liked:
             liked = await check_bundles_liked_by_user(db, bundles, user_uid)
