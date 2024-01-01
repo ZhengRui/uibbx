@@ -12,7 +12,9 @@ from ..models import (
     Bundle,
     BundleInDB,
     Purchase,
+    PurchaseByCoins,
     PurchaseOrder,
+    Refer,
     Subscription,
     SubscriptionOrder,
     User,
@@ -24,7 +26,9 @@ from .schemas import (
     DownloadsTable,
     LikesTable,
     PurchaseOrdersTable,
+    PurchasesByCoinsTable,
     PurchasesTable,
+    RefersTable,
     SubscriptionOrdersTable,
     SubscriptionsTable,
     UsersTable,
@@ -78,7 +82,6 @@ async def create_user(db: Database, user: UserInDB) -> UserInDB:
             break
 
     user.username = rnd_username
-    user.nickname = '设计师小小'
 
     try:
         query = insert(UsersTable).values(**user.dict())
@@ -733,3 +736,68 @@ async def get_downloads_today(db: Database, user_uid: str):
         )
 
     return downloads
+
+
+async def create_refer(db: Database, refer: Refer):
+    try:
+        query = insert(RefersTable).values(**refer.dict(exclude={'id'}))
+        id = await db.execute(query)
+        refer.id = id
+    except Exception as e:
+        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"创建推广记录失败: {e}",
+        )
+
+    return refer
+
+
+async def get_refers_today(db: Database, referrer_uid: str, refer_type: str = "registration"):
+    try:
+        query = (
+            select([RefersTable])
+            .where(RefersTable.referrer_uid == referrer_uid)
+            .where(RefersTable.refer_type == refer_type)
+            .where(RefersTable.referred_at >= date.today())
+            .where(RefersTable.referred_at < date.today() + timedelta(days=1))
+        )
+        refers = await db.fetch_all(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取今日推广记录失败: {e}",
+        )
+
+    return refers
+
+
+async def create_purchase_by_coins(db: Database, purchase: PurchaseByCoins):
+    try:
+        query = insert(PurchasesByCoinsTable).values(**purchase.dict(exclude={'id'}))
+        id = await db.execute(query)
+        purchase.id = id
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"创建用下载币购买记录失败: {e}",
+        )
+
+    return purchase
+
+
+async def get_purchase_by_coins_by_user_bundle(db: Database, bundle_id: uuid.UUID, user_uid: str):
+    try:
+        query = (
+            select([PurchasesByCoinsTable])
+            .where(PurchasesByCoinsTable.bundle_id == bundle_id)
+            .where(PurchasesByCoinsTable.user_uid == user_uid)
+        )
+        purchase = await db.fetch_one(query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取用下载币购买记录失败: {e}",
+        )
+
+    return purchase

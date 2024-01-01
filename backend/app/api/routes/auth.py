@@ -17,18 +17,23 @@ from pydantic import EmailStr
 from ...config import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     ALGORITHM,
+    COINS_REWARDED_BY_REFER,
     MAILING_ENDPOINT,
+    MAX_REWARDED_REFERS_PER_DAY,
     SECRET_KEY,
 )
 from ...db.connect import get_db
 from ...db.core import (
+    create_refer,
     create_user,
     get_and_del_verification_code,
+    get_bundle_by_id,
+    get_refers_today,
     get_user_by_field,
     save_verification_code,
     update_user_field_by_uid,
 )
-from ...models import User, UserInDB
+from ...models import Refer, User, UserInDB
 from ...utils.sms import send_sms
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -284,6 +289,7 @@ async def signup_by_email(
     password: str = Form(...),
     code: str = Form(...),
     token: str = Form(...),
+    refer_token: str = Form(None),
     db: Database = Depends(get_db),
 ):
     await verify_email(email, code, token, db)
@@ -305,6 +311,38 @@ async def signup_by_email(
         data={"sub": user.uid},
         expires_delta=access_token_expires,
     )
+
+    if refer_token:
+        try:
+            payload = verify_access_token(refer_token, f"{SECRET_KEY}/REFER")
+            referrer = await get_user_by_field(
+                db, field_name="uid", field_value=payload["referrer_uid"], only_check_existence=True
+            )
+            if referrer:
+                coins_gained = COINS_REWARDED_BY_REFER
+
+                refers_today = await get_refers_today(db, referrer.uid, "registration")
+                if len(refers_today) >= MAX_REWARDED_REFERS_PER_DAY:
+                    coins_gained = 0
+
+                await create_refer(
+                    db,
+                    Refer(
+                        referrer_uid=referrer.uid,
+                        referent_uid=user.uid,
+                        bundle_id=payload.get("bundle_id", None),
+                        refer_type="registration",
+                        referred_at=datetime.now().replace(microsecond=0),
+                        coins_gained=coins_gained,
+                    ),
+                )
+
+                if coins_gained > 0:
+                    await update_user_field_by_uid(db, referrer.uid, {"coins": referrer.coins + coins_gained})
+
+        except Exception:
+            pass
+
     return {"access_token": access_token, "token_type": "bearer"}
 
 
@@ -316,6 +354,28 @@ async def signin_by_email(email: str = Form(...), password: str = Form(...), db:
         data={"sub": user.uid},
         expires_delta=access_token_expires,
     )
+
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@r.get("/token/refer")
+async def refer(referrer_uid: str, bundle_id: uuid.UUID = None, db: Database = Depends(get_db)):
+    access_token = None
+
+    referrer = await get_user_by_field(db, field_name="uid", field_value=referrer_uid)
+    if referrer:
+        if bundle_id:
+            bundle = await get_bundle_by_id(db, bundle_id, only_check_existence=True)
+
+            if not bundle:
+                bundle_id = None
+
+        access_token_expires = timedelta(days=15)
+        access_token = create_access_token(
+            data={"referrer_uid": referrer.uid, **({"bundle_id": str(bundle_id)} if bundle_id else {})},
+            expires_delta=access_token_expires,
+            encrypt_key=f"{SECRET_KEY}/REFER",
+        )
 
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -411,6 +471,7 @@ async def signup_by_cellnum(
     password: str = Form(...),
     code: str = Form(...),
     token: str = Form(...),
+    refer_token: str = Form(None),
     db: Database = Depends(get_db),
 ):
     await verify_cellnum(cellnum, code, token, db)
@@ -432,6 +493,38 @@ async def signup_by_cellnum(
         data={"sub": user.uid},
         expires_delta=access_token_expires,
     )
+
+    if refer_token:
+        try:
+            payload = verify_access_token(refer_token, f"{SECRET_KEY}/REFER")
+            referrer = await get_user_by_field(
+                db, field_name="uid", field_value=payload["referrer_uid"], only_check_existence=True
+            )
+            if referrer:
+                coins_gained = COINS_REWARDED_BY_REFER
+
+                refers_today = await get_refers_today(db, referrer.uid, "registration")
+                if len(refers_today) >= MAX_REWARDED_REFERS_PER_DAY:
+                    coins_gained = 0
+
+                await create_refer(
+                    db,
+                    Refer(
+                        referrer_uid=referrer.uid,
+                        referent_uid=user.uid,
+                        bundle_id=payload.get("bundle_id", None),
+                        refer_type="registration",
+                        referred_at=datetime.now().replace(microsecond=0),
+                        coins_gained=coins_gained,
+                    ),
+                )
+
+                if coins_gained > 0:
+                    await update_user_field_by_uid(db, referrer.uid, {"coins": referrer.coins + coins_gained})
+
+        except Exception:
+            pass
+
     return {"access_token": access_token, "token_type": "bearer"}
 
 

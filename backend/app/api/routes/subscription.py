@@ -23,6 +23,7 @@ tiers = {
             "subsubtitle": "包月30天",
             "features": ["每天可下载10次", "访问所有产品", "访问未来新品", "专属客服，及时响应"],
         },
+        "refer_coins": 10,
     },
     "quarter": {
         "tier": 2,
@@ -35,6 +36,7 @@ tiers = {
             "subsubtitle": "包季90天",
             "features": ["每天可下载20次", "访问所有产品", "访问未来新品", "专属客服，及时响应"],
         },
+        "refer_coins": 20,
     },
     "ultra": {
         "tier": 3,
@@ -47,6 +49,7 @@ tiers = {
             "subsubtitle": "永久",
             "features": ["每天可下载30次", "访问所有产品", "访问未来新品", "专属客服，及时响应", "即时开通，终身可用"],
         },
+        "refer_coins": 30,
     },
 }
 

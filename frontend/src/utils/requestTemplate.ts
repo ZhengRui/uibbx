@@ -18,7 +18,8 @@ export const requestTemplate =
     requestConstructor: Function,
     responseHandler: Function = responseHandlerTemplate,
     dataTransformer: Function | null = null,
-    requireAuthentication: boolean = false
+    requireAuthentication: boolean = false,
+    useReferToken: boolean = false
   ) =>
   async (...args: any[]) => {
     const { url, method, headers, body } = requestConstructor(...args);
@@ -31,6 +32,13 @@ export const requestTemplate =
       }
 
       headersFinal.set("Authorization", `Bearer ${token}`);
+    }
+
+    if (useReferToken) {
+      const referToken = localStorage.getItem("referToken");
+      if (referToken) {
+        body.append("refer_token", referToken);
+      }
     }
 
     const request = new Request(url, {

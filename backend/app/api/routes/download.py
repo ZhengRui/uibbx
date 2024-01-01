@@ -9,6 +9,7 @@ from ...db.core import (
     create_download,
     get_bundle_by_id,
     get_downloads_today,
+    get_purchase_by_coins_by_user_bundle,
     get_purchase_by_user_bundle,
 )
 from ...models import User
@@ -28,7 +29,8 @@ async def download(
 
     # check if user has purchased the bundle
     purchase = await get_purchase_by_user_bundle(db, bundle_id, current_user.uid)
-    if purchase:
+    purchase_by_coins = await get_purchase_by_coins_by_user_bundle(db, bundle_id, current_user.uid)
+    if purchase or purchase_by_coins:
         passed = True
         purchased = True
     elif current_user.subscription:

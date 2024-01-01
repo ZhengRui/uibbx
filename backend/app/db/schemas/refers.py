@@ -10,12 +10,13 @@ class RefersTable(Base):
 
     id = Column("id", Integer, primary_key=True)
 
-    referrer_uid = Column("referrer_uid", String(32), ForeignKey('users.uid'))
-    referent_uid = Column("referent_uid", String(32), ForeignKey('users.uid'))
-    bundle_id = Column("bundle_id", UUID(as_uuid=True), ForeignKey('bundles.id'), nullable=True)
+    referrer_uid = Column("referrer_uid", String(32), ForeignKey('users.uid'), nullable=False)
+    referent_uid = Column("referent_uid", String(32), ForeignKey('users.uid'), nullable=False)
+    bundle_id = Column("bundle_id", UUID(as_uuid=True), ForeignKey('bundles.id'))
     referred_at = Column("referred_at", DateTime(timezone=True), nullable=False)
+    refer_type = Column("refer_type", String(96), nullable=False)
     coins_gained = Column("coins_gained", Integer, nullable=False)
 
-    referrer = relationship("UsersTable", backref="refers")
-    referent = relationship("UsersTable", backref="refers")
+    referrer = relationship("UsersTable", foreign_keys=[referrer_uid], backref="refers_as_referrer")
+    referent = relationship("UsersTable", foreign_keys=[referent_uid], backref="refers_as_referent")
     bundle = relationship("BundlesTable", backref="refers")

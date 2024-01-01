@@ -17,3 +17,7 @@ SMS_ACCESSSECRET = config("SMS_ACCESSSECRET", cast=str)
 SMS_SIGNAME = config("SMS_SIGNAME", cast=str)
 SMS_TEMPLATECODE = config("SMS_TEMPLATECODE", cast=str)
 SMS_REGIONID = config("SMS_REGIONID", cast=str)
+
+COINS_REWARDED_BY_REFER = config("COINS_REWARDED_BY_REFER", cast=int, default=1)
+MAX_REWARDED_REFERS_PER_DAY = config("MAX_REWARDED_REFERS_PER_DAY", cast=int, default=5)
+COINS_PRICE_PER_BUNDLE = config("COINS_PRICE_PER_BUNDLE", cast=int, default=1)

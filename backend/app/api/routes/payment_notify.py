@@ -5,19 +5,23 @@ from databases import Database
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
+from ...config import SECRET_KEY
 from ...db.connect import get_db
 from ...db.core import (
     create_purchase,
+    create_refer,
     create_subscription,
     get_purchase_by_order_id,
     get_purchase_order,
     get_subscription_by_order_id,
     get_subscription_order,
+    get_user_by_field,
     set_purchase_order_status,
     set_subscription_order_status,
     update_user_field_by_uid,
 )
-from ...models import Purchase, Subscription
+from ...models import Purchase, Refer, Subscription
+from .auth import verify_access_token
 from .subscription import tiers
 
 payment_notify_router = r = APIRouter()
@@ -29,7 +33,9 @@ class OrderType(str, Enum):
 
 
 @r.post("/payment_notify")
-async def payment_notify(order_id: str, order_type: OrderType, succeed: bool, db: Database = Depends(get_db)):
+async def payment_notify(
+    order_id: str, order_type: OrderType, succeed: bool, refer_token: str = None, db: Database = Depends(get_db)
+):
     # receive transaction result from different platforms
     # succeed = True
 
@@ -63,6 +69,34 @@ async def payment_notify(order_id: str, order_type: OrderType, succeed: bool, db
                 db, order.user_uid, {'subscription': order.after, 'next_billing_at': next_billing_at}
             )
             await set_subscription_order_status(db, order_id, 'succeed')
+
+            if refer_token:
+                try:
+                    payload = verify_access_token(refer_token, f"{SECRET_KEY}/REFER")
+                    referrer = await get_user_by_field(
+                        db, field_name="uid", field_value=payload["referrer_uid"], only_check_existence=True
+                    )
+                    if referrer:
+                        coins_gained = tiers[order.after]['refer_coins'] - (
+                            0 if order.before == 'none' else tiers[order.before]['refer_coins']
+                        )
+
+                        await create_refer(
+                            db,
+                            Refer(
+                                referrer_uid=referrer.uid,
+                                referent_uid=order.user_uid,
+                                bundle_id=payload.get("bundle_id", None),
+                                refer_type=f"subscription:{order.before}->{order.after}",
+                                referred_at=now,
+                                coins_gained=coins_gained,
+                            ),
+                        )
+
+                        await update_user_field_by_uid(db, referrer.uid, {"coins": referrer.coins + coins_gained})
+
+                except Exception:
+                    pass
 
             return subscription
         else:

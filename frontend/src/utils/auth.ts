@@ -68,7 +68,10 @@ export const signupByEmail = requestTemplate(
     const data = await responseHandlerTemplate(res);
     localStorage.setItem("token", data["access_token"]);
     return data;
-  }
+  },
+  null,
+  false,
+  true
 );
 
 export const signinByEmail = requestTemplate(
@@ -129,7 +132,10 @@ export const signupByCell = requestTemplate(
     const data = await responseHandlerTemplate(res);
     localStorage.setItem("token", data["access_token"]);
     return data;
-  }
+  },
+  null,
+  false,
+  true
 );
 
 export const signinByCell = requestTemplate(
@@ -200,4 +206,13 @@ export const resetPasswdByOldPasswd = requestTemplate(
   responseHandlerTemplate,
   null,
   true
+);
+
+export const getReferToken = requestTemplate(
+  (referrerUid: string, bundleId?: string) => ({
+    url: `${apiEndpoint}/token/refer?referrer_uid=${referrerUid}${
+      bundleId ? "&bundle_id=" + bundleId : ""
+    }`,
+    method: "GET",
+  })
 );

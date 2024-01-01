@@ -24,3 +24,12 @@ class PurchaseOrder(BaseModel):
 
     bundle_id: uuid.UUID
     user_uid: str
+
+
+class PurchaseByCoins(BaseModel):
+    id: Optional[int] = None
+    coins_used: int
+    purchased_at: datetime
+
+    bundle_id: uuid.UUID
+    user_uid: str
