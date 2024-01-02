@@ -12,6 +12,7 @@
     "@headlessui/react": "^1.7.17",
     "@hello-pangea/dnd": "^16.5.0",
     "@heroicons/react": "^2.0.18",
+    "@tailwindcss/container-queries": "^0.1.1",
     "@tanstack/react-query": "^5.13.4",
     "jotai": "^2.6.0",
     "next": "14.0.4",

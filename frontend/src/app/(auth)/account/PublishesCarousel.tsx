@@ -11,7 +11,7 @@ const Carousel = () => {
   if (isPending || isFetching) return null;
 
   return (
-    <div className="w-full flex flex-col justify-start items-center">
+    <div className="w-full flex flex-col justify-start items-center @container">
       <div className="w-full pl-4 flex justify-between">
         <div className="text-sm">
           <span className="bg-gray-700 text-gray-200 rounded-full px-4 py-1.5">
@@ -27,7 +27,7 @@ const Carousel = () => {
           添加项目
         </Link>
       </div>
-      <div className="mt-6 w-full pl-4 grid grid-cols-3 gap-x-4 gap-y-6">
+      <div className="mt-6 w-full pl-4 grid grid-cols-1 @[768px]:grid-cols-2 @[1096px]:grid-cols-3 gap-x-4 gap-y-6">
         {bundles?.map((bundle, i) => (
           <div key={bundle.id} className="w-full">
             <BundleCard bundle={bundle} editDisabled={false} />

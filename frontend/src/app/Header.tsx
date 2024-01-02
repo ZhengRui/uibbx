@@ -107,7 +107,7 @@ const Header = () => {
 
   return (
     <header
-      className={`sticky top-0 z-30 w-full ${
+      className={`sticky top-0 z-30 w-full flex justify-center ${
         isAccountPage ? "" : "bg-[#01102d]"
       }`}
     >
@@ -121,15 +121,17 @@ const Header = () => {
           priority
         />
 
-        <div className="absolute pt-24 ml-8 lg:ml-12 xl:ml-16">
-          <AccountSquare />
+        <div className="absolute bottom-0 w-full">
+          <div className="max-w-screen-2xl w-full mx-auto px-8 lg:px-12 xl:px-16 flex justify-between">
+            <AccountSquare />
+          </div>
         </div>
       </div>
 
       <div
         className={`${
-          isAccountPage ? "absolute top-0 w-full" : ""
-        } max-w-screen-2xl mx-auto px-8 lg:px-12 xl:px-16 py-6 flex justify-between items-center`}
+          isAccountPage ? "absolute top-0" : ""
+        } max-w-screen-2xl w-full mx-auto px-8 lg:px-12 xl:px-16 py-6 flex justify-between items-center`}
       >
         <Categories />
         <Logo />
