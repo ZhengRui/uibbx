@@ -49,7 +49,7 @@ const Card = ({
 
   return (
     <div className="relative group">
-      <div className="w-full relative h-48 rounded-t-2xl overflow-clip">
+      <div className="w-full relative h-72 rounded-2xl overflow-clip">
         {isPendingLikedByMe ||
         isPendingBookmarkedByMe ||
         isPendingNumOfLikes ? null : (
@@ -71,7 +71,7 @@ const Card = ({
 
             <Link
               href={`/bundle/preview/${id}`}
-              className="z-10 w-14 h-14 border rounded-full p-3 transition ease-in-out delay-50 duration-300 text-white border-white opacity-50 hover:opacity-100"
+              className="z-10 w-12 h-12 border rounded-full p-3 transition ease-in-out delay-50 duration-300 text-white border-white opacity-50 hover:opacity-100"
             >
               <EyeIcon className="w-full h-full" />
             </Link>
@@ -79,14 +79,14 @@ const Card = ({
             {!editDisabled && (
               <Link
                 href={`/bundle/update/${id}`}
-                className="z-10 ml-8 w-14 h-14 border rounded-full p-4 transition ease-in-out delay-50 duration-300 text-white border-white opacity-50 hover:opacity-100"
+                className="z-10 ml-8 w-12 h-12 border rounded-full p-4 transition ease-in-out delay-50 duration-300 text-white border-white opacity-50 hover:opacity-100"
               >
                 <PenLineIcon className="w-full h-full" />
               </Link>
             )}
           </div>
 
-          <div className="absolute top-4 right-2 flex justify-end items-start space-x-3">
+          <div className="absolute top-4 right-2 flex justify-end items-start space-x-2">
             {!likeDisabled && (
               <div className="flex justify-center items-center group/likes">
                 <span className="text-[10px] text-white mr-2 transition ease-in-out delay-50 duration-300 opacity-60 group-hover/likes:opacity-100">
@@ -94,7 +94,7 @@ const Card = ({
                 </span>
 
                 <button
-                  className={`w-6 h-6 rounded-full transition ease-in-out delay-50 duration-300 opacity-60 hover:opacity-100 ${
+                  className={`w-5 h-5 rounded-full transition ease-in-out delay-50 duration-300 opacity-60 hover:opacity-100 ${
                     likedByMe ? "text-[#f27979]" : "text-[#e3eeff]"
                   } flex justify-center items-center ${
                     likeDisabled ? "cursor-not-allowed" : ""
@@ -109,7 +109,7 @@ const Card = ({
 
             {!bookmarkDisabled && (
               <button
-                className={`w-6 h-6 rounded-full transition ease-in-out delay-50 duration-300 opacity-60 hover:opacity-100 ${
+                className={`w-5 h-5 rounded-full transition ease-in-out delay-50 duration-300 opacity-60 hover:opacity-100 ${
                   bookmarkedByMe ? "text-[#a259ff]" : "text-[#e3eeff]"
                 } flex justify-center items-center ${
                   bookmarkDisabled ? "cursor-not-allowed" : ""
@@ -121,22 +121,18 @@ const Card = ({
               </button>
             )}
 
-            <button className="w-6 h-6 rounded-full transition ease-in-out delay-50 duration-300 opacity-60 hover:opacity-100 text-[#e3eeff] flex justify-center items-center">
+            <button className="w-5 h-5 rounded-full transition ease-in-out delay-50 duration-300 opacity-60 hover:opacity-100 text-[#e3eeff] flex justify-center items-center">
               <ShareIcon className="w-full h-full" />
             </button>
           </div>
         </div>
       </div>
-      <div
-        className={`w-full p-3 bg-[#dbe9ff] rounded-b-2xl overflow-clip border-b-4 ${
-          bundle.deleted ? "border-b-red-400" : "border-b-violet-400"
-        }`}
-      >
+      <div className="w-full p-3">
         <div className="w-full flex justify-between items-center text-sm text-gray-700">
           <span>{bundle.title}</span>
           <span>¥ {bundle.purchase_price}</span>
         </div>
-        <div className="mt-2 w-full flex justify-between items-center text-xs">
+        <div className="mt-2 w-full hidden justify-between items-center text-xs">
           <div className="flex justify-start items-center">
             <span className="relative w-6 h-6 rounded-full overflow-clip flex justify-center items-center bg-[#404040] bg-opacity-10">
               {bundle.creator_avatar ? (

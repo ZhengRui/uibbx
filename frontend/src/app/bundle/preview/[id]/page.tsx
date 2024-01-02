@@ -64,8 +64,8 @@ export default function BundlePreviewPage({
   return (
     <>
       <div className="w-full flex flex-col items-center max-w-7xl">
-        <div className="w-full flex justify-center px-48">
-          <div className="flex flex-col justify-center items-start max-w-xl">
+        <div className="w-full flex justify-start px-4 sm:px-6 md:px-10 lg:px-16 xl:px-24">
+          <div className="flex flex-col justify-center items-start px-8 sm:px-12 md:px-16 lg:px-24 xl:px-32">
             <span className="text-gray-800 font-semibold text-xl">
               {bundle.title}
             </span>
@@ -78,7 +78,7 @@ export default function BundlePreviewPage({
           </div>
         </div>
 
-        <div className="mt-16 flex flex-col justify-center items-center w-full space-y-10 px-48">
+        <div className="mt-16 flex flex-col justify-center items-center w-full space-y-10 px-4 sm:px-6 md:px-10 lg:px-16 xl:px-24">
           {bundle.images.slice(1).map((image, i) => (
             <div key={i} className="w-full relative">
               <Image
@@ -95,8 +95,8 @@ export default function BundlePreviewPage({
         </div>
       </div>
 
-      <div className="w-full flex justify-center max-w-7xl fixed top-28">
-        <div className="absolute w-48 -right-2 flex flex-col justify-start items-start">
+      <div className="sticky h-full top-28">
+        <div className="w-24 h-full flex flex-col justify-start items-center">
           <button
             onClick={() =>
               !user ? setAuthPanelOpen(true) : setDownloadPanelOpen(true)
@@ -105,8 +105,8 @@ export default function BundlePreviewPage({
           >
             下载
           </button>
-          <div className="mt-16 flex justify-start items-center space-x-2">
-            <span className="relative w-14 h-14 rounded-full overflow-clip flex justify-center items-center bg-[#404040]">
+          <div className="mt-16 flex flex-col justify-center items-center space-y-2">
+            <span className="relative w-14 h-14 rounded-full overflow-clip flex justify-start items-center bg-[#404040]">
               {bundle.creator_avatar ? (
                 <Image
                   src={bundle.creator_avatar as string}
@@ -123,8 +123,9 @@ export default function BundlePreviewPage({
                 <UserCircleIcon className="w-full h-full" />
               )}
             </span>
-            <span className="text-xs text-gray-700">
-              {bundle.creator_nickname}
+            <span className="text-xs text-gray-400">
+              {/* {bundle.creator_nickname} */}
+              {"小西八啊小西八啊"}
             </span>
           </div>
           <div className="mt-5 flex flex-col justify-start items-center space-y-2">
