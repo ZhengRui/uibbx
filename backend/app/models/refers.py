@@ -2,10 +2,10 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
 
-class Refer(BaseModel):
+class Refer(BaseModel, extra=Extra.allow):
     id: Optional[int] = None
 
     referrer_uid: str

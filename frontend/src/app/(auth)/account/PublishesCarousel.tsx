@@ -12,7 +12,7 @@ const Carousel = () => {
 
   return (
     <div className="w-full flex flex-col justify-start items-center @container">
-      <div className="w-full pl-4 flex justify-between">
+      <div className="w-full pl-4 flex justify-between items-center">
         <div className="text-sm">
           <span className="bg-gray-700 text-gray-200 rounded-full px-4 py-1.5">
             项目

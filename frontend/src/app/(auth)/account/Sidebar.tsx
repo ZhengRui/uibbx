@@ -13,7 +13,7 @@ const tabs = {
   likes: "我的喜欢",
   bookmarks: "我的收藏",
   publishes: "我的发布",
-  promotions: "我的推广",
+  refers: "我的推广",
   orders: "交易记录",
 };
 

@@ -1,9 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useBundlesPurchased } from "@/hooks/useBundle";
+import BundleCard from "./Card";
 
 const Carousel = () => {
   const [tab, setTab] = useState<string>("orders");
+
+  const { isPending, isFetching, data: bundles } = useBundlesPurchased(0, 20);
+
+  if (isPending || isFetching) return null;
 
   return (
     <div className="w-full flex flex-col justify-start items-center">
@@ -25,9 +31,15 @@ const Carousel = () => {
           购买记录
         </span>
       </div>
-      <div className="mt-6 w-full pl-4 grid grid-cols-3 gap-x-4 gap-y-6">
-        haha
-      </div>
+      {tab === "purchases" && (
+        <div className="mt-6 w-full pl-4 grid grid-cols-3 gap-x-4 gap-y-6">
+          {bundles?.map((bundle, i) => (
+            <div key={bundle.id} className="w-full">
+              <BundleCard bundle={bundle} />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

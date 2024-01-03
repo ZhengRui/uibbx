@@ -8,6 +8,7 @@ export interface UserIF {
   nickname?: string;
   description?: string;
   avatar?: string;
+  coins?: number;
 }
 
 export interface BundleIF {
@@ -39,4 +40,15 @@ export interface SubscriptionOption {
   subscriptable: boolean;
   subscribe_price: number;
   features: string[];
+}
+
+export interface ReferIF {
+  referrer_uid: string;
+  referent_uid: string;
+  referent_nickname?: string;
+  referent_avatar?: string;
+  bundle_id?: string;
+  referred_at: string;
+  coins_gained: number;
+  refer_type: string;
 }

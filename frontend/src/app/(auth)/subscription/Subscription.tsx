@@ -25,6 +25,14 @@ const VIPCard = ({ option }: { option: SubscriptionOption }) => {
       </div>
 
       <div className="mt-4 w-full flex justify-between items-center">
+        {upgradable && (
+          <div className="flex flex-col justify-between items-start">
+            <span className="text-xs tracking-wider">现时升级价</span>
+            <span className="text-2xl font-semibold">
+              ￥{option.subscribe_price}
+            </span>
+          </div>
+        )}
         <div className="flex flex-col justify-between items-start">
           <span className="text-xs tracking-wider">{option.subsubtitle}</span>
           <span
@@ -33,16 +41,6 @@ const VIPCard = ({ option }: { option: SubscriptionOption }) => {
             }  text-2xl font-semibold`}
           >
             ￥{option.price}
-          </span>
-        </div>
-        <div
-          className={`${
-            upgradable ? "flex" : "invisible"
-          } flex-col justify-between items-start`}
-        >
-          <span className="text-xs tracking-wider">现时升级价</span>
-          <span className="text-2xl font-semibold">
-            ￥{option.subscribe_price}
           </span>
         </div>
       </div>

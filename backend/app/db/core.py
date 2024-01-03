@@ -801,3 +801,89 @@ async def get_purchase_by_coins_by_user_bundle(db: Database, bundle_id: uuid.UUI
         )
 
     return purchase
+
+
+async def get_bundles_purchased_by_user(
+    db: Database,
+    user_uid: str,
+    offset: int = 0,
+    limit: int = 10,
+    with_liked: bool = False,
+    with_bookmarked: bool = False,
+):
+    try:
+        query = select([PurchasesTable]).where(PurchasesTable.user_uid == user_uid).offset(offset).limit(limit)
+        purchases = await db.fetch_all(query)
+
+        query = select([BundlesTable]).where(BundlesTable.id.in_([purchase.bundle_id for purchase in purchases]))
+        bundles = await db.fetch_all(query)
+
+        query = select([UsersTable]).where(UsersTable.uid.in_([bundle.creator_uid for bundle in bundles]))
+        creators_ = await db.fetch_all(query)
+        creators = {creator.uid: creator for creator in creators_}
+
+        bundles = [
+            BundleInDB(
+                **dict(zip(bundle.keys(), bundle.values())),
+                creator_username=creators[bundle.creator_uid].username,
+                creator_nickname=creators[bundle.creator_uid].nickname,
+                creator_avatar=creators[bundle.creator_uid].avatar,
+            )
+            for bundle in bundles
+        ]
+
+        if with_liked:
+            liked = await check_bundles_liked_by_user(db, bundles, user_uid)
+            for i in range(len(bundles)):
+                bundles[i].liked = liked[i]
+
+        if with_bookmarked:
+            bookmarked = await check_bundles_bookmarked_by_user(db, bundles, user_uid)
+            for i in range(len(bundles)):
+                bundles[i].bookmarked = bookmarked[i]
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取用户所有购买素材失败: {e}",
+        )
+
+    return bundles
+
+
+async def get_refers_rewarded_of_user(
+    db: Database,
+    user_uid: str,
+    offset: int = 0,
+    limit: int = 10,
+):
+    try:
+        query = (
+            select([RefersTable])
+            .where(RefersTable.referrer_uid == user_uid)
+            .where(RefersTable.coins_gained > 0)
+            .offset(offset)
+            .limit(limit)
+        )
+        refers = await db.fetch_all(query)
+
+        query = select([UsersTable]).where(UsersTable.uid.in_([refer.referent_uid for refer in refers]))
+        referents_ = await db.fetch_all(query)
+        referents = {user.uid: user for user in referents_}
+
+        refers = [
+            Refer(
+                **dict(zip(refer.keys(), refer.values())),
+                referent_nickname=referents[refer.referent_uid].nickname,
+                referent_avatar=referents[refer.referent_uid].avatar,
+            )
+            for refer in refers
+        ]
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取用户所有有奖推广失败: {e}",
+        )
+
+    return refers

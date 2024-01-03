@@ -10,6 +10,7 @@ from .routes.bundle import bundle_router
 from .routes.download import download_router
 from .routes.payment_notify import payment_notify_router
 from .routes.purchase import purchase_router
+from .routes.refer import refer_router
 from .routes.subscription import subscription_router
 
 
@@ -49,6 +50,7 @@ def get_application():
     app.include_router(purchase_router)
     app.include_router(payment_notify_router)
     app.include_router(download_router)
+    app.include_router(refer_router)
 
     return app
 
