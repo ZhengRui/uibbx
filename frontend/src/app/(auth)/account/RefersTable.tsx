@@ -6,7 +6,7 @@ import { UserIF } from "@/interfaces";
 import { useRefersRewarded } from "@/hooks/useRefer";
 import Image from "next/image";
 
-const convertDateString = (dateString: string) => {
+export const convertDateString = (dateString: string) => {
   // Parse the string into a Date object
   const date = new Date(dateString);
 

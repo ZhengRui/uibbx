@@ -31,7 +31,7 @@ export interface BundleIF {
   deleted?: boolean;
 }
 
-export interface SubscriptionOption {
+export interface SubscriptionOptionIF {
   title: string;
   subtitle: string;
   subsubtitle: string;
@@ -40,6 +40,15 @@ export interface SubscriptionOption {
   subscriptable: boolean;
   subscribe_price: number;
   features: string[];
+}
+
+export interface SubscriptionIF {
+  before: string;
+  after: string;
+  amount: number;
+  subscribed_at: string;
+  next_billing_at: string;
+  order_id: string;
 }
 
 export interface ReferIF {

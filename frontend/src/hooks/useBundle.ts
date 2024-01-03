@@ -113,7 +113,13 @@ export const useBundlesPurchased = (
   with_liked: boolean = false,
   with_bookmarked: boolean = false
 ) =>
-  useQuery<BundleIF[]>({
+  useQuery<
+    (BundleIF & {
+      purchased_price: number;
+      purchased_at: string;
+      order_id: string;
+    })[]
+  >({
     queryKey: [
       "user",
       "bundlesPurchased",

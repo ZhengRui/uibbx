@@ -4,7 +4,7 @@ from databases import Database
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from ...db.connect import get_db
-from ...db.core import create_subscription_order
+from ...db.core import create_subscription_order, get_subscriptions_of_user
 from ...models import SubscriptionOrder, User
 from ...utils.order import generate_order_id
 from .auth import get_current_enabled_user
@@ -150,3 +150,21 @@ async def get_subscription_options(
         }
         for tier in tiers
     ]
+
+
+@r.get('/subscription/all')
+async def get_subscriptions_all(
+    offset: int = 0,
+    limit: int = 10,
+    db: Database = Depends(get_db),
+    current_user: User = Depends(get_current_enabled_user),
+):
+    subscriptions = await get_subscriptions_of_user(db, current_user.uid, offset, limit)
+
+    for subscription in subscriptions:
+        before = subscription.before
+        subscription.before = tiers.get(before, {'detail': {'title': '无'}}).get('detail').get('title')
+        after = subscription.after
+        subscription.after = tiers.get(after).get('detail').get('title')
+
+    return subscriptions

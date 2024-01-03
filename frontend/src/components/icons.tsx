@@ -402,3 +402,138 @@ export const CoinIcon = (props: React.ComponentProps<"svg">) => (
     />
   </svg>
 );
+
+export const SubscriptionLevel1Icon = (props: React.ComponentProps<"svg">) => (
+  <svg
+    width="69"
+    height="69"
+    viewBox="0 0 69 69"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <circle cx="34.5" cy="34.5" r="34.5" fill="#BFBEBB" />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M23.6897 19H45.3103L51 26H18L23.6897 19Z"
+      fill="#D9D7D2"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M34.5 50L18 26H51L34.5 50Z"
+      fill="#808086"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M34.5588 50L27 26H41L34.5588 50Z"
+      fill="#D9D7D2"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M34 19L41 26H27L34 19Z"
+      fill="#808086"
+    />
+  </svg>
+);
+
+export const SubscriptionLevel2Icon = (props: React.ComponentProps<"svg">) => (
+  <svg
+    width="69"
+    height="69"
+    viewBox="0 0 69 69"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <circle cx="34.5" cy="34.5" r="34.5" fill="#CB7C10" />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M23.6897 19H45.3103L51 26H18L23.6897 19Z"
+      fill="#FFDD95"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M34.5 50L18 26H51L34.5 50Z"
+      fill="#FFAF40"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M34.5588 50L27 26H41L34.5588 50Z"
+      fill="#FFDD95"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M34 19L41 26H27L34 19Z"
+      fill="#FFAF40"
+    />
+  </svg>
+);
+
+export const SubscriptionLevel3Icon = (props: React.ComponentProps<"svg">) => (
+  <svg
+    width="69"
+    height="69"
+    viewBox="0 0 69 69"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <circle cx="34.5" cy="34.5" r="34.5" fill="#8B1119" />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M22.6897 17H44.3103L50 24H17L22.6897 17Z"
+      fill="#FAB8BC"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M33.5 48L17 24H50L33.5 48Z"
+      fill="#E54D5C"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M33.5588 48L26 24H40L33.5588 48Z"
+      fill="#FAB8BC"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M33 17L40 24H26L33 17Z"
+      fill="#E54D5C"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M46.4719 40.2421L51.2413 48.7622L49.7379 52.5485L42.4583 39.5442L46.4719 40.2421Z"
+      fill="#FAB8BC"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M36.6411 51.3406L42.459 39.5442L49.7386 52.5486L36.6411 51.3406Z"
+      fill="#E54D5C"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M36.6531 51.3638L44.4434 43.0908L47.5317 48.6078L36.6531 51.3638Z"
+      fill="#FAB8BC"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M48.7453 44.3051L47.531 48.6078L44.4427 43.0908L48.7453 44.3051Z"
+      fill="#E54D5C"
+    />
+  </svg>
+);

@@ -625,6 +625,31 @@ async def get_subscription_by_order_id(db: Database, order_id: str):
     return subscription
 
 
+async def get_subscriptions_of_user(
+    db: Database,
+    user_uid: str,
+    offset: int = 0,
+    limit: int = 10,
+):
+    try:
+        query = (
+            select([SubscriptionsTable])
+            .where(SubscriptionsTable.user_uid == user_uid)
+            .order_by(SubscriptionsTable.subscribed_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+        subscriptions = await db.fetch_all(query)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取用户订阅历史失败: {e}",
+        )
+
+    return [Subscription(**subscription) for subscription in subscriptions]
+
+
 async def create_purchase_order(db: Database, purchase_order: PurchaseOrder):
     try:
         query = insert(PurchaseOrdersTable).values(**purchase_order.dict())
@@ -842,6 +867,18 @@ async def get_bundles_purchased_by_user(
             for i in range(len(bundles)):
                 bundles[i].bookmarked = bookmarked[i]
 
+        bundles = {bundle.id: bundle for bundle in bundles}
+
+        bundles = [
+            {
+                **bundles[purchase.bundle_id].dict(),
+                "purchased_price": purchase.amount,
+                "purchased_at": purchase.purchased_at,
+                "order_id": purchase.order_id,
+            }
+            for purchase in purchases
+        ]
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -862,6 +899,7 @@ async def get_refers_rewarded_of_user(
             select([RefersTable])
             .where(RefersTable.referrer_uid == user_uid)
             .where(RefersTable.coins_gained > 0)
+            .order_by(RefersTable.referred_at.desc())
             .offset(offset)
             .limit(limit)
         )

@@ -11,3 +11,13 @@ export const getSubscriptionOptions = requestTemplate(
   null,
   true
 );
+
+export const getSubscriptions = requestTemplate(
+  (offset: number, limit: number) => ({
+    url: apiEndpoint + `/subscription/all?offset=${offset}&limit=${limit}`,
+    method: "GET",
+  }),
+  responseHandlerTemplate,
+  null,
+  true
+);

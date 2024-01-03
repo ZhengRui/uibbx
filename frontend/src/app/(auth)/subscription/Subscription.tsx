@@ -1,10 +1,10 @@
 "use client";
 
 import { useSubscriptionOptions } from "@/hooks/useSubscription";
-import { SubscriptionOption } from "@/interfaces";
+import { SubscriptionOptionIF } from "@/interfaces";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
 
-const VIPCard = ({ option }: { option: SubscriptionOption }) => {
+const VIPCard = ({ option }: { option: SubscriptionOptionIF }) => {
   const upgradable =
     option.subscribe_price !== 0 && option.subscribe_price !== option.price;
 
