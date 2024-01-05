@@ -6,7 +6,7 @@ const Footer = () => (
       <div className="flex flex-col divide-y space-y-10 text-white text-sm">
         <div className="flex justify-between items-center">
           <Logo />
-          <div className="flex justify-between space-x-8 ">
+          <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center xs:space-x-8">
             <span>官方网址: uibbx.com</span>
             <span>联系客服QQ: 1533949286</span>
           </div>

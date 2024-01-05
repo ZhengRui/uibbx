@@ -653,7 +653,7 @@ const AuthPanel = () => {
             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
-            <Popover.Panel className="relative bg-white flex justify-center items-center rounded-3xl overflow-clip">
+            <Popover.Panel className="relative mx-10 bg-white flex justify-center items-center rounded-3xl overflow-clip">
               <div className="relative flex justify-center items-center h-[540px] w-[960px]">
                 <Image
                   src="/authpanel-bg.png"
@@ -663,7 +663,7 @@ const AuthPanel = () => {
                 />
               </div>
 
-              <div className="bg-white w-1/2 h-full absolute right-0 flex justify-center items-center px-16 py-16">
+              <div className="bg-white w-full md:w-1/2 h-full absolute right-0 flex justify-center items-center px-8 md:px-16 py-16">
                 {mode === "login" ? (
                   <Login />
                 ) : mode === "signup" ? (

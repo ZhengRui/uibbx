@@ -9,7 +9,7 @@ import {
 import { useAtom } from "jotai";
 import { accountTabAtom } from "@/atoms";
 
-const tabs = {
+export const tabs = {
   likes: "我的喜欢",
   bookmarks: "我的收藏",
   publishes: "我的发布",
@@ -38,12 +38,12 @@ const Sidebar = () => {
   if (isNumOfBookmarkedPending || isNumOfLikedPending) return null;
 
   return (
-    <div className="bg-white h-full flex flex-col justify-start items-center py-6 space-y-6 text-sm">
+    <div className="bg-white h-full flex flex-col justify-start items-center py-6 space-y-6 text-xs lg:text-sm">
       {Object.entries(tabs).map(([tab, tabText], i) => (
         <span
           key={i}
           className={`${
-            currentTab === tab ? "text-violet-600 text-xl" : ""
+            currentTab === tab ? "text-violet-600 text-lg lg:text-xl" : ""
           } h-8 cursor-pointer select-none`}
           onClick={() => setCurrentTab(tab)}
         >

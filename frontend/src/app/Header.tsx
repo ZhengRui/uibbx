@@ -6,12 +6,19 @@ import Image from "next/image";
 import { authPanelOpenAtom } from "@/atoms";
 import { useSetAtom } from "jotai";
 import { useAuth } from "@/hooks/useAuth";
-import { UserCircleIcon, MenuIcon, XMarkOutlineIcon } from "@/components/icons";
+import {
+  UserCircleIcon,
+  MenuIcon,
+  XMarkOutlineIcon,
+  LogoutOulineIcon,
+} from "@/components/icons";
 import { usePathname } from "next/navigation";
 import AccountSquare from "./AccountSquare";
 import { UibbxIconColored } from "@/components/icons";
 import { Popover, Transition } from "@headlessui/react";
 import { Fragment } from "react";
+
+import { useQueryClient } from "@tanstack/react-query";
 
 const cates = [
   { name: "UI套件", href: "/ui" },
@@ -79,6 +86,16 @@ const Header = () => {
 
   const isAccountPage = path === "/account" && user;
 
+  const queryClient = useQueryClient();
+
+  const logout = () => {
+    localStorage.removeItem("token");
+
+    queryClient.invalidateQueries({
+      queryKey: ["whoami"],
+    });
+  };
+
   return (
     <header
       className={`sticky top-0 z-30 w-full flex justify-center ${
@@ -97,8 +114,16 @@ const Header = () => {
           />
 
           <div className="absolute bottom-0 w-full">
-            <div className="max-w-screen-2xl w-full mx-auto px-8 lg:px-12 xl:px-16 flex justify-between">
+            <div className="max-w-screen-2xl w-full mx-auto px-8 lg:px-12 xl:px-16 flex justify-between items-end">
               <AccountSquare />
+
+              <button
+                className="md:hidden text-xs tracking-widest border border-[#f27979] text-[#f27979] bg-[#404040] bg-opacity-40 p-2 3xs:px-3 3xs:py-1.5 2xs:px-4 2xs:py-2 mb-2 rounded-full"
+                onClick={logout}
+              >
+                <span className="hidden 3xs:block">退出登录</span>
+                <LogoutOulineIcon className="w-5 h-5 3xs:hidden" />
+              </button>
             </div>
           </div>
         </div>

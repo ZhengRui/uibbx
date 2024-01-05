@@ -129,7 +129,7 @@ const Card = ({
         </div>
       </div>
       <div className="w-full p-3">
-        <div className="w-full flex justify-between items-center text-sm text-gray-700">
+        <div className="w-full flex flex-col @[360px]:flex-row justify-between space-y-1 items-start @[360px]:items-center text-xs @[240px]:text-sm text-gray-700">
           <span>{bundle.title}</span>
           <span>¥ {bundle.purchase_price}</span>
         </div>
@@ -205,7 +205,7 @@ export const CardOfPurchase = ({
   return (
     <div className="relative group bg-white p-4 rounded-2xl overflow-clip">
       <div className="w-full">
-        <div className="w-full flex justify-between items-center text-sm text-gray-700">
+        <div className="w-full flex flex-col @[360px]:flex-row justify-between space-y-1 items-start @[360px]:items-center text-xs @[240px]:text-sm text-gray-700">
           <span>{bundle.title}</span>
           <span>¥ {bundle.purchase_price}</span>
         </div>
@@ -324,11 +324,12 @@ export const CardOfPurchase = ({
         </div>
       </div>
 
-      <div className="mt-3 w-full flex justify-between items-center text-xs text-gray-400">
+      <div className="mt-3 w-full flex flex-col @[360px]:flex-row space-y-1 justify-between items-start @[360px]:items-center text-[10px] @[240px]:text-xs text-gray-400">
         <span>{`订单号: ${bundle.order_id}`}</span>
         <span>{`时间: ${convertDateString(bundle.purchased_at)}`}</span>
+        <span className="text-gray-700 @[360px]:hidden">{`实付款: ¥ ${bundle.purchased_price}`}</span>
       </div>
-      <div className="mt-3 w-full flex justify-end items-center text-sm">
+      <div className="mt-3 w-full hidden @[360px]:flex justify-end items-center text-sm">
         <span>{`实付款: ¥ ${bundle.purchased_price}`}</span>
       </div>
     </div>
