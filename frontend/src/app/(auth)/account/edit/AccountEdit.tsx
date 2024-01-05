@@ -70,9 +70,9 @@ const EditInfoForm = () => {
   };
 
   return (
-    <div className="flex flex-col w-full ml-64 mr-32">
-      <span className="text-2xl font-semibold">编辑个人资料</span>
-      <span className="mt-4 text-sm">
+    <div className="flex flex-col w-full mx-4 2xs:mx-8 xs:mx-16 md:ml-64 md:mr-32">
+      <span className="text-xl xs:text-2xl font-semibold">编辑个人资料</span>
+      <span className="mt-4 text-xs xs:text-sm">
         此处可更改个人信息，用户可通过用户名搜索到你的账号
       </span>
       <form className="mt-12" ref={formRef} onSubmit={handleUpdateUserInfo}>
@@ -99,7 +99,10 @@ const EditInfoForm = () => {
                 <UserCircleIcon className="w-full h-full bg-[#f2f7ff]" />
               )}
             </div>
-            <label htmlFor="avatar" className="text-sm cursor-pointer">
+            <label
+              htmlFor="avatar"
+              className="text-xs xs:text-sm cursor-pointer"
+            >
               <span>更改头像</span>
 
               <input
@@ -114,7 +117,10 @@ const EditInfoForm = () => {
           </div>
 
           <div className="col-span-full">
-            <label htmlFor="nickname" className="text-sm font-medium leading-6">
+            <label
+              htmlFor="nickname"
+              className="text-xs xs:text-sm font-medium leading-6"
+            >
               昵称
             </label>
             <div className="mt-2">
@@ -122,14 +128,17 @@ const EditInfoForm = () => {
                 type="text"
                 name="nickname"
                 id="nickname"
-                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-xs xs:text-sm focus:outline-none"
                 required
               />
             </div>
           </div>
 
           <div className="col-span-full">
-            <label htmlFor="desc" className="text-sm font-medium leading-6">
+            <label
+              htmlFor="desc"
+              className="text-xs xs:text-sm font-medium leading-6"
+            >
               简介
             </label>
             <div className="mt-2">
@@ -137,13 +146,16 @@ const EditInfoForm = () => {
                 name="desc"
                 id="desc"
                 rows={3}
-                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-xs xs:text-sm focus:outline-none"
               />
             </div>
           </div>
 
           <div className="col-span-full">
-            <label htmlFor="username" className="text-sm font-medium leading-6">
+            <label
+              htmlFor="username"
+              className="text-xs xs:text-sm font-medium leading-6"
+            >
               用户名
             </label>
             <div className="mt-2">
@@ -151,7 +163,7 @@ const EditInfoForm = () => {
                 type="text"
                 name="username"
                 id="username"
-                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-xs xs:text-sm focus:outline-none"
                 required
               />
             </div>
@@ -160,7 +172,7 @@ const EditInfoForm = () => {
           <div className="col-span-full">
             <label
               htmlFor="emailOrCell"
-              className="text-sm font-medium leading-6"
+              className="text-xs xs:text-sm font-medium leading-6"
             >
               邮箱地址/手机号
             </label>
@@ -169,7 +181,7 @@ const EditInfoForm = () => {
                 type="text"
                 name="emailOrCell"
                 id="emailOrCell"
-                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-xs xs:text-sm focus:outline-none"
                 disabled
               />
             </div>
@@ -185,7 +197,7 @@ const EditInfoForm = () => {
         </button> */}
           <button
             type="submit"
-            className="rounded-md bg-violet-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500"
+            className="rounded-md bg-violet-600 px-6 py-2 text-xs xs:text-sm font-semibold text-white shadow-sm hover:bg-violet-500"
           >
             保存
           </button>
@@ -234,12 +246,12 @@ const ResetPasswordForm = () => {
   };
 
   return (
-    <div className="flex flex-col w-full ml-64 mr-32">
-      <span className="text-2xl font-semibold">修改登录密码</span>
-      <span className="mt-4 text-sm">
+    <div className="flex flex-col w-full mx-4 2xs:mx-8 xs:mx-16 md:ml-64 md:mr-32">
+      <span className="text-xl xs:text-2xl font-semibold">修改登录密码</span>
+      <span className="mt-4 text-xs xs:text-sm">
         此处可修改登录密码。如您已忘记旧登录密码，可退出登录后再登录时选择“忘记密码”，利用注册邮箱/手机号来重设密码。
       </span>
-      <span className="mt-2 text-xs text-gray-500">
+      <span className="mt-2 text-[10px] xs:text-xs text-gray-500">
         8-12个字符，数字、字母、特殊字符至少各有一个
       </span>
 
@@ -248,7 +260,7 @@ const ResetPasswordForm = () => {
           <div className="col-span-full">
             <label
               htmlFor="oldPassword"
-              className="text-sm font-medium leading-6"
+              className="text-xs xs:text-sm font-medium leading-6"
             >
               旧密码
             </label>
@@ -259,7 +271,7 @@ const ResetPasswordForm = () => {
                 type={passwordVisible ? "text" : "password"}
                 placeholder="旧密码"
                 title="8-12个字符，数字、字母、特殊字符至少各有一个"
-                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-xs xs:text-sm focus:outline-none"
                 required
               />
 
@@ -279,7 +291,10 @@ const ResetPasswordForm = () => {
           </div>
 
           <div className="col-span-full">
-            <label htmlFor="password" className="text-sm font-medium leading-6">
+            <label
+              htmlFor="password"
+              className="text-xs xs:text-sm font-medium leading-6"
+            >
               新密码
             </label>
             <div className="mt-2 relative">
@@ -289,7 +304,7 @@ const ResetPasswordForm = () => {
                 type={passwordVisible ? "text" : "password"}
                 placeholder="输入新密码"
                 title="8-12个字符，数字、字母、特殊字符至少各有一个"
-                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-xs xs:text-sm focus:outline-none"
                 required
               />
 
@@ -309,7 +324,10 @@ const ResetPasswordForm = () => {
           </div>
 
           <div className="col-span-full">
-            <label htmlFor="repeat" className="text-sm font-medium leading-6">
+            <label
+              htmlFor="repeat"
+              className="text-xs xs:text-sm font-medium leading-6"
+            >
               确认新密码
             </label>
             <div className="mt-2 relative">
@@ -319,7 +337,7 @@ const ResetPasswordForm = () => {
                 type={passwordVisible ? "text" : "password"}
                 placeholder="再次输入新密码"
                 title="与上面密码相同"
-                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-xs xs:text-sm focus:outline-none"
                 required
               />
 
@@ -348,7 +366,7 @@ const ResetPasswordForm = () => {
         </button> */}
           <button
             type="submit"
-            className="rounded-md bg-violet-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500"
+            className="rounded-md bg-violet-600 px-6 py-2 text-xs xs:text-sm font-semibold text-white shadow-sm hover:bg-violet-500"
           >
             保存
           </button>
@@ -363,7 +381,7 @@ const AccountEdit = () => {
 
   return (
     <div className="relative w-full h-full">
-      <div className="absolute top-0 left-0 w-64 flex flex-col justify-start items-center space-y-6 text-sm">
+      <div className="absolute top-0 left-0 w-64 hidden md:flex flex-col justify-start items-center space-y-6 text-sm">
         <span
           className={`${
             currentTab === "info" ? "text-violet-600 text-xl" : ""
@@ -381,6 +399,29 @@ const AccountEdit = () => {
           修改密码
         </span>
       </div>
+
+      <div className="w-full flex justify-end space-x-8 border-b mb-10 md:hidden">
+        {["info", "password"].map((tab) => (
+          <span
+            key={tab}
+            className={`${
+              tab === currentTab
+                ? "border-indigo-500 text-indigo-600"
+                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+            }
+                  whitespace-nowrap border-b-2 pb-1 text-xs xs:text-sm font-medium cursor-pointer`}
+            aria-current={tab === currentTab ? "page" : undefined}
+            onClick={() => setCurrentTab(tab)}
+          >
+            {tab === "info"
+              ? "编辑个人资料"
+              : tab === "password"
+              ? "修改密码"
+              : ""}
+          </span>
+        ))}
+      </div>
+
       <div className="flex justify-center items-start w-full h-full">
         {currentTab === "info" ? <EditInfoForm /> : <ResetPasswordForm />}
       </div>
