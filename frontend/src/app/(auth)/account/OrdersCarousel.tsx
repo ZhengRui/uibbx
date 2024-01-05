@@ -35,9 +35,9 @@ const Carousel = () => {
 
   return (
     <div className="w-full flex flex-col justify-start items-center @container">
-      <div className="w-full flex justify-begin items-center text-sm">
+      <div className="w-full flex justify-begin items-center text-xs 2xs:text-sm">
         <span
-          className={`cursor-pointer rounded-full px-4 py-1.5 ${
+          className={`cursor-pointer rounded-full px-2.5 py-1 2xs:px-4 2xs:py-1.5 ${
             tab === "subscriptions"
               ? "bg-gray-700 text-gray-200"
               : "text-gray-700"
@@ -47,7 +47,7 @@ const Carousel = () => {
           充值记录
         </span>
         <span
-          className={`ml-4 cursor-pointer rounded-full px-4 py-1.5 ${
+          className={`ml-4 cursor-pointer rounded-full px-2.5 py-1 2xs:px-4 2xs:py-1.5 ${
             tab === "purchases" ? "bg-gray-700 text-gray-200" : "text-gray-700"
           }`}
           onClick={() => setTab("purchases")}

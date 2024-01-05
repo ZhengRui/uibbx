@@ -46,13 +46,13 @@ const Table = () => {
     <div className="w-full flex flex-col justify-start items-center @container">
       <div className="w-full flex flex-col @[540px]:flex-row justify-between items-center text-sm space-y-3 @[540px]:space-y-0">
         <div className="flex justify-start items-center">
-          <span className="text-xs @[240px]:text-sm text-gray-700">
+          <span className="text-xs 2xs:text-sm text-gray-700">
             我的下载分:{" "}
           </span>
           <CoinIcon className="ml-4 w-5 h-5" />
           <span className="ml-2 tracking-widest text-amber-500">{`${user?.coins}分`}</span>
         </div>
-        <div className="flex @[540px]:justify-end items-center px-4 bg-white rounded-lg py-2 text-xs @[240px]:text-sm">
+        <div className="flex @[540px]:justify-end items-center px-4 bg-white rounded-lg py-2 text-xs 2xs:text-sm">
           <span className="text-gray-400">{referURL}</span>
           <button
             className="hidden @[360px]:flex justify-end items-center ml-4 space-x-1"
@@ -63,7 +63,7 @@ const Table = () => {
           </button>
 
           <button
-            className="flex @[360px]:hidden justify-end items-center ml-2 @[240px]:ml-4"
+            className="flex @[360px]:hidden justify-end items-center ml-2 2xs:ml-4"
             onClick={() => navigator.clipboard.writeText(referURL)}
           >
             <CopyOutlineIcon className="w-4 h-4 text-gray-500" />
