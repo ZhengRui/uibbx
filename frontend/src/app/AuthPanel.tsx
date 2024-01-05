@@ -114,15 +114,15 @@ const Login = () => {
           }
         </div>
 
-        <div className="mt-6 w-full flex justify-end items-center space-x-10 text-gray-500">
+        <div className="mt-6 w-full flex justify-end items-center space-x-4 2xs:space-x-10 text-gray-500">
           <span
-            className="text-sm cursor-pointer hover:text-[#936efe]"
+            className="text-xs 2xs:text-sm cursor-pointer hover:text-[#936efe]"
             onClick={() => setMode("signup")}
           >
             还没有账号？
           </span>
           <span
-            className="text-sm cursor-pointer hover:text-[#936efe]"
+            className="text-xs 2xs:text-sm cursor-pointer hover:text-[#936efe]"
             onClick={() => setMode("reset")}
           >
             忘记密码？
@@ -315,7 +315,7 @@ const Signup = () => {
           ) : (
             <div className="absolute top-0 right-1 h-full py-1">
               <button
-                className="px-8 h-full bg-[#936efe] rounded-full text-sm text-white"
+                className="px-6 2xs:px-8 h-full bg-[#936efe] rounded-full text-sm text-white"
                 type="button"
                 onClick={handleVerification}
               >
@@ -327,7 +327,7 @@ const Signup = () => {
 
         <div className="mt-6 w-full flex justify-end items-center space-x-10 text-gray-500">
           <span
-            className="text-sm cursor-pointer hover:text-[#936efe]"
+            className="text-xs 2xs:text-sm cursor-pointer hover:text-[#936efe]"
             onClick={() => setMode("login")}
           >
             返回登录
@@ -521,7 +521,7 @@ const Reset = () => {
           ) : (
             <div className="absolute top-0 right-1 h-full py-1">
               <button
-                className="px-8 h-full bg-[#936efe] rounded-full text-sm text-white"
+                className="px-6 2xs:px-8 h-full bg-[#936efe] rounded-full text-sm text-white"
                 type="button"
                 onClick={handleVerification}
               >
@@ -595,7 +595,7 @@ const Reset = () => {
 
         <div className="mt-6 w-full flex justify-end items-center space-x-10 text-gray-500">
           <span
-            className="text-sm cursor-pointer hover:text-[#936efe]"
+            className="text-xs 2xs:text-sm cursor-pointer hover:text-[#936efe]"
             onClick={() => setMode("login")}
           >
             返回登录
@@ -663,7 +663,7 @@ const AuthPanel = () => {
                 />
               </div>
 
-              <div className="bg-white w-full md:w-1/2 h-full absolute right-0 flex justify-center items-center px-8 md:px-16 py-16">
+              <div className="bg-white w-full md:w-1/2 h-full absolute right-0 flex justify-center items-center px-4 2xs:px-8 md:px-16 py-16">
                 {mode === "login" ? (
                   <Login />
                 ) : mode === "signup" ? (
