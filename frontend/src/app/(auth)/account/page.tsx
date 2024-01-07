@@ -105,10 +105,10 @@ export default function AccountPage() {
 
         <div
           className={`sticky top-72 z-10 w-screen -translate-x-8 md:hidden bg-[#f2f7ff] px-8 transition duration-1000 ${
-            scrolled ? "shadow-xl backdrop-blur-sm bg-opacity-90" : ""
+            scrolled ? "shadow-lg" : ""
           }`}
         >
-          <div className="w-full  overflow-x-auto py-6">
+          <div className="w-full overflow-x-auto py-6">
             <div className="flex justify-start items-center space-x-3">
               {Object.entries(tabs).map(
                 ([tab, { name, Icon, OutlineIcon, hlStyle }], i) => (
