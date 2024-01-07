@@ -13,7 +13,7 @@ import {
   useNumOfBundlesBookmarked,
 } from "@/hooks/useBundle";
 
-import Sidebar, { tabs } from "./Sidebar";
+import Sidebar from "./Sidebar";
 import {
   LikeIcon,
   LikeOutlineIcon,
@@ -26,6 +26,55 @@ import {
   OrderIcon,
   OrderOutlineIcon,
 } from "@/components/icons";
+import { useEffect, useState } from "react";
+
+const tabs = {
+  likes: {
+    name: "我的喜欢",
+    Icon: LikeIcon,
+    OutlineIcon: LikeOutlineIcon,
+    hlStyle: {
+      text: "text-[#f27979] bg-[#f8c5c5] bg-opacity-20",
+      ring: "ring-[#f27979]",
+    },
+  },
+  bookmarks: {
+    name: "我的收藏",
+    Icon: BookmarkIcon,
+    OutlineIcon: BookmarkOutlineIcon,
+    hlStyle: {
+      text: "text-[#936efe] bg-[#cebef5] bg-opacity-20",
+      ring: "ring-[#936efe]",
+    },
+  },
+  publishes: {
+    name: "我的发布",
+    Icon: BundleIcon,
+    OutlineIcon: BundleOutlineIcon,
+    hlStyle: {
+      text: "text-emerald-600 bg-emerald-200 bg-opacity-20",
+      ring: "ring-emerald-600",
+    },
+  },
+  refers: {
+    name: "我的推广",
+    Icon: ShareIcon,
+    OutlineIcon: ShareOutlineIcon,
+    hlStyle: {
+      text: "text-amber-600 bg-amber-200 bg-opacity-20",
+      ring: "ring-amber-600",
+    },
+  },
+  orders: {
+    name: "交易记录",
+    Icon: OrderIcon,
+    OutlineIcon: OrderOutlineIcon,
+    hlStyle: {
+      text: "text-indigo-600 bg-indigo-200 bg-opacity-20",
+      ring: "ring-indigo-600",
+    },
+  },
+};
 
 export default function AccountPage() {
   const [currentTab, setCurrentTab] = useAtom(accountTabAtom);
@@ -34,6 +83,16 @@ export default function AccountPage() {
     useNumOfBundlesLiked();
   const { isPending: isNumOfBookmarkedPending, data: numOfBookmarked } =
     useNumOfBundlesBookmarked();
+
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const scrollHandler = () => {
+      window.scrollY > 10 ? setScrolled(true) : setScrolled(false);
+    };
+    window.addEventListener("scroll", scrollHandler);
+    return () => window.removeEventListener("scroll", scrollHandler);
+  }, [scrolled]);
 
   return (
     <div className="w-full h-full max-w-screen-2xl mx-auto px-8 lg:px-12 xl:px-16">
@@ -44,99 +103,61 @@ export default function AccountPage() {
           </div>
         </div>
 
-        <div className="w-full sticky top-72 z-10 md:hidden mt-6 flex justify-between items-center bg-[#404040] bg-opacity-80 rounded-xl">
-          <div className="flex justify-between 3xs:justify-center w-full xs:justify-start xs:w-fit items-center 3xs:space-x-4 2xs:space-x-6 px-2 3xs:px-5 py-1.5 sm:px-6 sm:py-2 ">
-            <span
-              className={`w-8 h-8 p-1.5 sm:w-10 sm:h-10 sm:p-2 bg-opacity-50 ${
-                currentTab === "likes"
-                  ? "outline outline-[#f27979] text-[#f27979] bg-[#f8c5c5]"
-                  : "bg-white"
-              } rounded-full flex justify-center items-center`}
-              onClick={() => setCurrentTab("likes")}
-            >
-              {currentTab === "likes" ? (
-                <LikeIcon className="w-full h-full" />
-              ) : (
-                <LikeOutlineIcon className="w-full h-full" />
-              )}
-            </span>
-            <span
-              className={`w-8 h-8 p-1.5 sm:w-10 sm:h-10 sm:p-2 bg-opacity-50 ${
-                currentTab === "bookmarks"
-                  ? "outline outline-[#936efe] text-[#936ef3] bg-[#cebef5]"
-                  : "bg-white "
-              } rounded-full flex justify-center items-center`}
-              onClick={() => setCurrentTab("bookmarks")}
-            >
-              {currentTab === "bookmarks" ? (
-                <BookmarkIcon className="w-full h-full" />
-              ) : (
-                <BookmarkOutlineIcon className="w-full h-full" />
-              )}
-            </span>
-            <span
-              className={`w-8 h-8 p-1.5 sm:w-10 sm:h-10 sm:p-2 bg-opacity-50 ${
-                currentTab === "publishes"
-                  ? "outline outline-emerald-600 text-emerald-600 bg-emerald-200"
-                  : "bg-white"
-              } rounded-full flex justify-center items-center`}
-              onClick={() => setCurrentTab("publishes")}
-            >
-              {currentTab === "publishes" ? (
-                <BundleIcon className="w-full h-full" />
-              ) : (
-                <BundleOutlineIcon className="w-full h-full" />
-              )}
-            </span>
-            <span
-              className={`w-8 h-8 p-1.5 sm:w-10 sm:h-10 sm:p-2 bg-opacity-50 ${
-                currentTab === "orders"
-                  ? "outline outline-amber-600 text-amber-600 bg-amber-200"
-                  : "bg-white"
-              } rounded-full flex justify-center items-center`}
-              onClick={() => setCurrentTab("orders")}
-            >
-              {currentTab === "orders" ? (
-                <OrderIcon className="w-full h-full" />
-              ) : (
-                <OrderOutlineIcon className="w-full h-full" />
-              )}
-            </span>
-            <span
-              className={`w-8 h-8 p-1.5 sm:w-10 sm:h-10 sm:p-2 bg-opacity-50 ${
-                currentTab === "refers"
-                  ? "outline outline-indigo-600 text-indigo-600 bg-indigo-200"
-                  : "bg-white"
-              } rounded-full flex justify-center items-center`}
-              onClick={() => setCurrentTab("refers")}
-            >
-              {currentTab === "refers" ? (
-                <ShareIcon className="w-full h-full" />
-              ) : (
-                <ShareOutlineIcon className="w-full h-full" />
-              )}
-            </span>
-          </div>
-          <span className="hidden xs:block bg-gray-200 text-gray-700 text-xs sm:text-sm p-2 mr-2 rounded-xl">
-            {`${tabs[currentTab as keyof typeof tabs]}${
-              currentTab === "likes" && !isNumOfLikedPending
-                ? ` (${numOfLiked})`
-                : currentTab === "bookmarks" && !isNumOfBookmarkedPending
-                ? ` (${numOfBookmarked})`
-                : ""
-            }`}
-          </span>
-        </div>
-
-        <span className="w-full xs:hidden text-center mt-6 text-sm 2xs:text-base underline underline-offset-8">
-          {`${tabs[currentTab as keyof typeof tabs]}${
-            currentTab === "likes" && !isNumOfLikedPending
-              ? ` (${numOfLiked})`
-              : currentTab === "bookmarks" && !isNumOfBookmarkedPending
-              ? ` (${numOfBookmarked})`
-              : ""
+        <div
+          className={`sticky top-72 z-10 w-screen -translate-x-8 md:hidden bg-[#f2f7ff] px-8 transition duration-1000 ${
+            scrolled ? "shadow-xl backdrop-blur-sm bg-opacity-90" : ""
           }`}
-        </span>
+        >
+          <div className="w-full  overflow-x-auto py-6">
+            <div className="flex justify-start items-center space-x-3">
+              {Object.entries(tabs).map(
+                ([tab, { name, Icon, OutlineIcon, hlStyle }], i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`isolate inline-flex shadow-sm rounded-full ${
+                      currentTab === tab
+                        ? hlStyle.text
+                        : "bg-white text-gray-500"
+                    }`}
+                    onClick={() => setCurrentTab(tab)}
+                  >
+                    <span
+                      className={`relative inline-flex items-center gap-x-1.5 ${
+                        i < 2 ? "rounded-l-full pr-2" : "rounded-full pr-4"
+                      } pl-4 py-2 text-xs ring-1 ring-inset ${
+                        currentTab === tab ? hlStyle.ring : "ring-gray-300"
+                      }`}
+                    >
+                      {currentTab === tab ? (
+                        <Icon className="-ml-0.5 h-4 w-4 " aria-hidden="true" />
+                      ) : (
+                        <OutlineIcon
+                          className="-ml-0.5 h-4 w-4 "
+                          aria-hidden="true"
+                        />
+                      )}
+                      <span className="w-12">{name}</span>
+                    </span>
+                    {i < 2 && (
+                      <span
+                        className={`relative -ml-px inline-flex items-center rounded-r-full pl-2 pr-4 py-2 text-xs ring-1 ring-inset ${
+                          currentTab === tab ? hlStyle.ring : "ring-gray-300"
+                        }`}
+                      >
+                        {tab === "likes" && !isNumOfLikedPending
+                          ? numOfLiked
+                          : tab === "bookmarks" && !isNumOfBookmarkedPending
+                          ? numOfBookmarked
+                          : " "}
+                      </span>
+                    )}
+                  </button>
+                )
+              )}
+            </div>
+          </div>
+        </div>
 
         <div className="w-full md:grow h-full py-6 md:ml-8">
           {currentTab === "likes" ? (
