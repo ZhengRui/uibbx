@@ -104,59 +104,64 @@ export default function AccountPage() {
         </div>
 
         <div
-          className={`sticky top-72 z-10 w-screen -translate-x-8 md:hidden bg-[#f2f7ff] px-8 transition duration-1000 ${
+          className={`sticky top-72 z-10 h-20 w-screen -translate-x-8 md:hidden bg-[#f2f7ff] px-8 transition duration-1000 ${
             scrolled ? "shadow-lg" : ""
           }`}
         >
-          <div className="w-full overflow-x-auto py-6">
-            <div className="flex justify-start items-center space-x-3">
-              {Object.entries(tabs).map(
-                ([tab, { name, Icon, OutlineIcon, hlStyle }], i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    className={`isolate inline-flex shadow-sm rounded-full ${
-                      currentTab === tab
-                        ? hlStyle.text
-                        : "bg-white text-gray-500"
-                    }`}
-                    onClick={() => setCurrentTab(tab)}
-                  >
-                    <span
-                      className={`relative inline-flex items-center gap-x-1.5 ${
-                        i < 2 ? "rounded-l-full pr-2" : "rounded-full pr-4"
-                      } pl-4 py-2 text-xs ring-1 ring-inset ${
-                        currentTab === tab ? hlStyle.ring : "ring-gray-300"
+          {!isNumOfBookmarkedPending && !isNumOfLikedPending && (
+            <div className="w-full overflow-x-auto py-6">
+              <div className="flex justify-start items-center space-x-3">
+                {Object.entries(tabs).map(
+                  ([tab, { name, Icon, OutlineIcon, hlStyle }], i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      className={`isolate inline-flex shadow-sm rounded-full ${
+                        currentTab === tab
+                          ? hlStyle.text
+                          : "bg-white text-gray-500"
                       }`}
+                      onClick={() => setCurrentTab(tab)}
                     >
-                      {currentTab === tab ? (
-                        <Icon className="-ml-0.5 h-4 w-4 " aria-hidden="true" />
-                      ) : (
-                        <OutlineIcon
-                          className="-ml-0.5 h-4 w-4 "
-                          aria-hidden="true"
-                        />
-                      )}
-                      <span className="w-12">{name}</span>
-                    </span>
-                    {i < 2 && (
                       <span
-                        className={`relative -ml-px inline-flex items-center rounded-r-full pl-2 pr-4 py-2 text-xs ring-1 ring-inset ${
+                        className={`relative inline-flex items-center gap-x-1.5 ${
+                          i < 2 ? "rounded-l-full pr-2" : "rounded-full pr-4"
+                        } pl-4 py-2 text-xs ring-1 ring-inset ${
                           currentTab === tab ? hlStyle.ring : "ring-gray-300"
                         }`}
                       >
-                        {tab === "likes" && !isNumOfLikedPending
-                          ? numOfLiked
-                          : tab === "bookmarks" && !isNumOfBookmarkedPending
-                          ? numOfBookmarked
-                          : " "}
+                        {currentTab === tab ? (
+                          <Icon
+                            className="-ml-0.5 h-4 w-4 "
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <OutlineIcon
+                            className="-ml-0.5 h-4 w-4 "
+                            aria-hidden="true"
+                          />
+                        )}
+                        <span className="w-12">{name}</span>
                       </span>
-                    )}
-                  </button>
-                )
-              )}
+                      {i < 2 && (
+                        <span
+                          className={`relative -ml-px inline-flex items-center rounded-r-full pl-2 pr-4 py-2 text-xs ring-1 ring-inset ${
+                            currentTab === tab ? hlStyle.ring : "ring-gray-300"
+                          }`}
+                        >
+                          {tab === "likes"
+                            ? numOfLiked
+                            : tab === "bookmarks"
+                            ? numOfBookmarked
+                            : " "}
+                        </span>
+                      )}
+                    </button>
+                  )
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="w-full md:grow h-full py-6 md:ml-8">
