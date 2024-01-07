@@ -21,7 +21,7 @@ export interface BundleIF {
   tags: string[];
   images: (File | string)[];
   bundle_url?: string;
-  format: string;
+  format: string[];
   creator_username?: string;
   creator_nickname?: string;
   creator_avatar?: string;

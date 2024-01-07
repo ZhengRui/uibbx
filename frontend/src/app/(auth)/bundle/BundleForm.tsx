@@ -84,11 +84,18 @@ const BundleForm = ({
     const subtitle = target.subtitle.value;
     const description = target.desc.value;
     const bundle_url = target.bundleUrl.value;
-    const format = target.format.value;
+    const format = Array.from(target.format as NodeListOf<HTMLInputElement>)
+      .filter((f) => f.checked)
+      .map((f) => f.value);
     const purchase_price = target.purchasePrice.value;
 
     if (images.length === 0) {
       toast.error("请上传预览图");
+      return;
+    }
+
+    if (format.length === 0) {
+      toast.error("请至少选择一个格式");
       return;
     }
 
@@ -114,7 +121,11 @@ const BundleForm = ({
       formRef.current.subtitle.value = init.subtitle;
       formRef.current.desc.value = init.description;
       formRef.current.bundleUrl.value = init.bundle_url;
-      formRef.current.format.value = init.format;
+      Array.from(
+        formRef.current.format as NodeListOf<HTMLInputElement>
+      ).forEach((f) => {
+        if (init.format.includes(f.value)) f.checked = true;
+      });
       formRef.current.tags.value = init.tags.join(", ");
       formRef.current.purchasePrice.value = init.purchase_price;
     }
@@ -123,13 +134,16 @@ const BundleForm = ({
   return (
     <>
       <form className="w-full" onSubmit={onSubmitForm} ref={formRef}>
-        <h2 className="text-2xl font-semibold leading-7 text-gray-900">
+        <h2 className="text-xl xs:text-2xl font-semibold leading-7 text-gray-900">
           {newOrUpdate === "new" ? "发布素材" : "更新素材"}
         </h2>
 
         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-4">
-            <label htmlFor="btitle" className="text-sm font-medium leading-6">
+            <label
+              htmlFor="btitle"
+              className="text-xs xs:text-sm font-medium leading-6"
+            >
               标题
             </label>
             <div className="mt-2">
@@ -137,14 +151,17 @@ const BundleForm = ({
                 type="text"
                 name="btitle"
                 id="btitle"
-                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-xs xs:text-sm focus:outline-none"
                 required
               />
             </div>
           </div>
 
           <div className="col-span-full">
-            <label htmlFor="subtitle" className="text-sm font-medium leading-6">
+            <label
+              htmlFor="subtitle"
+              className="text-xs xs:text-sm font-medium leading-6"
+            >
               子标题 <span className="text-gray-400">(选填)</span>
             </label>
             <div className="mt-2">
@@ -152,13 +169,16 @@ const BundleForm = ({
                 type="text"
                 name="subtitle"
                 id="subtitle"
-                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-xs xs:text-sm focus:outline-none"
               />
             </div>
           </div>
 
           <div className="col-span-full">
-            <label htmlFor="desc" className="text-sm font-medium leading-6">
+            <label
+              htmlFor="desc"
+              className="text-xs xs:text-sm font-medium leading-6"
+            >
               描述 <span className="text-gray-400">(选填)</span>
             </label>
             <div className="mt-2">
@@ -166,13 +186,16 @@ const BundleForm = ({
                 id="desc"
                 name="desc"
                 rows={3}
-                className="w-full rounded-md border py-1.5 px-3 text-gray-600 text-sm focus:outline-none"
+                className="w-full rounded-md border py-1.5 px-3 text-gray-600 text-xs xs:text-sm focus:outline-none"
               />
             </div>
           </div>
 
           <div className="col-span-full">
-            <label htmlFor="tags" className="text-sm font-medium leading-6">
+            <label
+              htmlFor="tags"
+              className="text-xs xs:text-sm font-medium leading-6"
+            >
               标签 <span className="text-gray-400">(选填)</span>
             </label>
             <div className="mt-2 flex flex-col space-y-2">
@@ -180,7 +203,7 @@ const BundleForm = ({
                 type="text"
                 name="tags"
                 id="tags"
-                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-xs xs:text-sm focus:outline-none"
                 placeholder="例子: 3D, 电影海报, 卡通, figma"
                 onChange={(e) => {
                   const value = e.target.value;
@@ -197,7 +220,7 @@ const BundleForm = ({
                 <div className="space-x-2">
                   {tags.map((tag, i) => (
                     <span
-                      className="border border-indigo-400 rounded-lg py-1 px-2 text-xs text-gray-600"
+                      className="border border-indigo-400 rounded-lg py-1 px-2 text-[10px] xs:text-xs text-gray-600"
                       key={i}
                     >
                       {tag}
@@ -211,7 +234,7 @@ const BundleForm = ({
           <div className="col-span-full">
             <label
               htmlFor="images-label"
-              className="text-sm font-medium leading-6"
+              className="text-xs xs:text-sm font-medium leading-6"
             >
               预览图片 <span className="text-gray-400">(首张为封面图)</span>
             </label>
@@ -221,11 +244,11 @@ const BundleForm = ({
                   <div className="pb-5 border-b">
                     <ImageStack images={images} setImages={setImages} />
                   </div>
-                  <div className="flex justify-end items-center pt-4 space-x-4">
-                    <div>
+                  <div className="flex justify-end items-center mt-4 space-x-2 2xs:space-x-4">
+                    <div className="flex justify-center items-center">
                       <label
                         htmlFor="images-append"
-                        className="cursor-pointer rounded-md bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+                        className="cursor-pointer rounded-full bg-indigo-600 px-4 2xs:px-6 py-2 text-xs xs:text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
                       >
                         <span>继续添加</span>
 
@@ -241,7 +264,7 @@ const BundleForm = ({
                       </label>
                     </div>
                     <button
-                      className="rounded-md bg-orange-700 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600"
+                      className="rounded-full bg-orange-700 px-4 2xs:px-6 py-2 text-xs xs:text-sm font-semibold text-white shadow-sm hover:bg-orange-600"
                       onClick={() => setImages([])}
                     >
                       清空
@@ -254,7 +277,7 @@ const BundleForm = ({
                     className="mx-auto h-12 w-12 text-gray-300"
                     aria-hidden="true"
                   />
-                  <div className="mt-4 flex justify-center text-sm leading-6 text-gray-600">
+                  <div className="mt-4 flex justify-center text-xs xs:text-sm leading-6 text-gray-600">
                     <label
                       htmlFor="images"
                       className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-500"
@@ -282,14 +305,14 @@ const BundleForm = ({
           <div className="col-span-full">
             {/* <label
               htmlFor="bundle-label"
-              className="text-sm font-medium leading-6"
+              className="text-xs xs:text-sm font-medium leading-6"
             >
               文件包
             </label>
             <div className="mt-2 flex justify-start items-center space-x-6">
               <label
                 htmlFor="bundle"
-                className="cursor-pointer border border-dashed rounded-lg py-2 px-4 text-sm text-indigo-500"
+                className="cursor-pointer border border-dashed rounded-lg py-2 px-4 text-xs xs:text-sm text-indigo-500"
               >
                 <span>上传</span>
 
@@ -308,7 +331,7 @@ const BundleForm = ({
 
             <label
               htmlFor="bundleUrl"
-              className="text-sm font-medium leading-6"
+              className="text-xs xs:text-sm font-medium leading-6"
             >
               网盘链接 <span className="text-gray-400">(带密码)</span>
             </label>
@@ -318,7 +341,7 @@ const BundleForm = ({
                 id="bundleUrl"
                 name="bundleUrl"
                 type="url"
-                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-xs xs:text-sm focus:outline-none"
                 required
               />
             </div>
@@ -327,7 +350,7 @@ const BundleForm = ({
           <div className="col-span-full">
             <label
               htmlFor="purchasePrice"
-              className="text-sm font-medium leading-6"
+              className="text-xs xs:text-sm font-medium leading-6"
             >
               购买价格
             </label>
@@ -339,11 +362,11 @@ const BundleForm = ({
                 type="number"
                 min="0"
                 step="0.1"
-                className="pl-6 w-full border py-1.5 px-3 rounded-md text-gray-600 text-sm focus:outline-none"
+                className="pl-6 w-full border py-1.5 px-3 rounded-md text-gray-600 text-xs xs:text-sm focus:outline-none"
                 defaultValue={10.0}
                 required
               />
-              <span className="absolute top-0 left-2 h-full flex items-center text-gray-500 font-semibold">
+              <span className="absolute top-0 left-2 h-full flex items-center text-gray-500 font-semibold text-sm xs:text-base">
                 ¥
               </span>
             </div>
@@ -351,20 +374,21 @@ const BundleForm = ({
 
           <div className="col-span-full">
             <fieldset>
-              <legend className="text-sm font-medium leading-6 ">格式</legend>
+              <legend className="text-xs xs:text-sm font-medium leading-6 ">
+                格式
+              </legend>
               <div className="mt-2 space-y-3 2xs:flex 2xs:space-y-0 2xs:space-x-6">
                 <div className="flex items-center gap-x-2">
                   <input
                     id="figma"
                     name="format"
-                    type="radio"
-                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                    type="checkbox"
+                    className="h-4 w-4 text-indigo-600"
                     value="figma"
-                    required
                   />
                   <label
                     htmlFor="figma"
-                    className="block text-sm font-medium leading-6"
+                    className="block text-xs xs:text-sm font-medium leading-6"
                   >
                     Figma
                   </label>
@@ -373,14 +397,13 @@ const BundleForm = ({
                   <input
                     id="photoshop"
                     name="format"
-                    type="radio"
-                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                    type="checkbox"
+                    className="h-4 w-4 text-indigo-600"
                     value="photoshop"
-                    required
                   />
                   <label
                     htmlFor="photoshop"
-                    className="block text-sm font-medium leading-6 "
+                    className="block text-xs xs:text-sm font-medium leading-6 "
                   >
                     Photoshop
                   </label>
@@ -389,14 +412,13 @@ const BundleForm = ({
                   <input
                     id="sketch"
                     name="format"
-                    type="radio"
-                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                    type="checkbox"
+                    className="h-4 w-4 text-indigo-600"
                     value="sketch"
-                    required
                   />
                   <label
                     htmlFor="sketch"
-                    className="block text-sm font-medium leading-6"
+                    className="block text-xs xs:text-sm font-medium leading-6"
                   >
                     Sketch
                   </label>
@@ -407,48 +429,44 @@ const BundleForm = ({
         </div>
 
         {newOrUpdate === "new" ? (
-          <div className="mt-12 pt-6 flex items-center justify-end gap-x-4 border-t border-gray-900/10 ">
+          <div className="mt-12 pt-6 flex items-center justify-end border-t border-gray-900/10 ">
             <button
               type="submit"
-              className="rounded-md bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+              className="rounded-md bg-indigo-600 px-4 2xs:px-6 py-2 text-xs xs:text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
             >
               发布
             </button>
           </div>
         ) : (
-          <div className="mt-12 pt-6 flex items-center justify-between border-t border-gray-900/10 ">
-            <div className="flex justify-start items-center gap-x-4">
+          <div className="mt-12 pt-6 flex items-center justify-end border-t border-gray-900/10 space-x-1.5 2xs:space-x-3">
+            <button
+              type="button"
+              className="rounded-full bg-orange-700 px-4 2xs:px-6 py-2 text-xs xs:text-sm font-semibold text-white shadow-sm hover:bg-orange-600"
+              onClick={() => setDeleteModalOpen(true)}
+            >
+              删除
+            </button>
+            <button
+              type="button"
+              className="rounded-full bg-emerald-700 px-4 2xs:px-6 py-2 text-xs xs:text-sm font-semibold text-white shadow-sm hover:bg-emerald-600"
+              onClick={() => setDraftModalOpen(true)}
+            >
+              草稿
+            </button>
+            <Link href={`/bundle/preview/${init?.id}`} target="_blank">
               <button
                 type="button"
-                className="rounded-md bg-orange-700 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600"
-                onClick={() => setDeleteModalOpen(true)}
+                className="rounded-full bg-amber-600 px-4 2xs:px-6 py-2 text-xs xs:text-sm font-semibold text-white shadow-sm hover:bg-amber-500"
               >
-                删除
+                预览
               </button>
-              <button
-                type="button"
-                className="rounded-md bg-emerald-700 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-600"
-                onClick={() => setDraftModalOpen(true)}
-              >
-                转为草稿
-              </button>
-            </div>
-            <div className="flex justify-end items-center gap-x-4">
-              <Link href={`/bundle/preview/${init?.id}`} target="_blank">
-                <button
-                  type="button"
-                  className="rounded-md bg-amber-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-500"
-                >
-                  预览
-                </button>
-              </Link>
-              <button
-                type="submit"
-                className="rounded-md bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
-              >
-                更新
-              </button>
-            </div>
+            </Link>
+            <button
+              type="submit"
+              className="rounded-full bg-indigo-600 px-4 2xs:px-6 py-2 text-xs xs:text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+            >
+              保存
+            </button>
           </div>
         )}
       </form>

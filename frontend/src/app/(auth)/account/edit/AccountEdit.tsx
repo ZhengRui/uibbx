@@ -70,7 +70,7 @@ const EditInfoForm = () => {
   };
 
   return (
-    <div className="flex flex-col w-full mx-4 2xs:mx-8 xs:mx-16 md:ml-64 md:mr-32">
+    <div className="flex flex-col w-full max-w-md md:ml-64 md:mr-32">
       <span className="text-xl xs:text-2xl font-semibold">编辑个人资料</span>
       <span className="mt-4 text-xs xs:text-sm">
         此处可更改个人信息，用户可通过用户名搜索到你的账号
@@ -197,7 +197,7 @@ const EditInfoForm = () => {
         </button> */}
           <button
             type="submit"
-            className="rounded-md bg-violet-600 px-6 py-2 text-xs xs:text-sm font-semibold text-white shadow-sm hover:bg-violet-500"
+            className="rounded-full bg-violet-600 px-6 py-2 text-xs xs:text-sm font-semibold text-white shadow-sm hover:bg-violet-500"
           >
             保存
           </button>
@@ -246,7 +246,7 @@ const ResetPasswordForm = () => {
   };
 
   return (
-    <div className="flex flex-col w-full mx-4 2xs:mx-8 xs:mx-16 md:ml-64 md:mr-32">
+    <div className="flex flex-col w-full max-w-md md:ml-64 md:mr-32">
       <span className="text-xl xs:text-2xl font-semibold">修改登录密码</span>
       <span className="mt-4 text-xs xs:text-sm">
         此处可修改登录密码。如您已忘记旧登录密码，可退出登录后再登录时选择“忘记密码”，利用注册邮箱/手机号来重设密码。
@@ -366,7 +366,7 @@ const ResetPasswordForm = () => {
         </button> */}
           <button
             type="submit"
-            className="rounded-md bg-violet-600 px-6 py-2 text-xs xs:text-sm font-semibold text-white shadow-sm hover:bg-violet-500"
+            className="rounded-full bg-violet-600 px-6 py-2 text-xs xs:text-sm font-semibold text-white shadow-sm hover:bg-violet-500"
           >
             保存
           </button>
@@ -400,26 +400,28 @@ const AccountEdit = () => {
         </span>
       </div>
 
-      <div className="w-full flex justify-end space-x-8 border-b mb-10 md:hidden">
-        {["info", "password"].map((tab) => (
-          <span
-            key={tab}
-            className={`${
-              tab === currentTab
-                ? "border-indigo-500 text-indigo-600"
-                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-            }
+      <div className="w-full flex justify-center">
+        <div className="w-full max-w-md flex justify-end space-x-8 border-b mb-10 md:hidden">
+          {["info", "password"].map((tab) => (
+            <span
+              key={tab}
+              className={`${
+                tab === currentTab
+                  ? "border-indigo-500 text-indigo-600"
+                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+              }
                   whitespace-nowrap border-b-2 pb-1 text-xs xs:text-sm font-medium cursor-pointer`}
-            aria-current={tab === currentTab ? "page" : undefined}
-            onClick={() => setCurrentTab(tab)}
-          >
-            {tab === "info"
-              ? "编辑个人资料"
-              : tab === "password"
-              ? "修改密码"
-              : ""}
-          </span>
-        ))}
+              aria-current={tab === currentTab ? "page" : undefined}
+              onClick={() => setCurrentTab(tab)}
+            >
+              {tab === "info"
+                ? "编辑个人资料"
+                : tab === "password"
+                ? "修改密码"
+                : ""}
+            </span>
+          ))}
+        </div>
       </div>
 
       <div className="flex justify-center items-start w-full h-full">

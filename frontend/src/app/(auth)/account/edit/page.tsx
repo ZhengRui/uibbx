@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function AccountEditPage() {
   return (
-    <div className="w-full h-full max-w-screen-2xl mx-auto px-8 lg:px-12 xl:px-16 min-h-screen py-16">
+    <div className="w-full h-full max-w-screen-2xl mx-auto px-4 md:px-8 lg:px-12 xl:px-16 min-h-screen py-16">
       <AccountEdit />
     </div>
   );
