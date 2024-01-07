@@ -14,7 +14,7 @@ class Bundle(BaseModel, extra=Extra.allow):
     tags: List[str] = []
     cover: str
     carousel: List[str] = []
-    format: str
+    format: List[str] = ['figma']
     created_at: datetime
     purchase_price: Optional[float] = 10.0
     deleted: bool = False

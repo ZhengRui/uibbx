@@ -18,7 +18,7 @@ class BundlesTable(Base):
     cover = Column("cover", Text, nullable=True)
     carousel = Column("carousel", ARRAY(Text), nullable=True)
     bundle_url = Column("bundle_url", Text, nullable=False)
-    format = Column("format", String(32), nullable=False)
+    format = Column("format", ARRAY(String(32)), nullable=False)
     created_at = Column("created_at", DateTime(timezone=True), nullable=False)
     purchase_price = Column("purchase_price", Float, nullable=True)
     deleted = Column("deleted", Boolean, nullable=False, default=False)
