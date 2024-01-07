@@ -10,7 +10,7 @@ const VIPCard = ({ option }: { option: SubscriptionOptionIF }) => {
 
   return (
     <div
-      className={`relative w-full min-w-[280px] max-w-xs h-[460px] flex flex-col justify-start items-center ${
+      className={`relative w-full max-w-xs h-[460px] flex flex-col justify-start items-center ${
         option.subscribed ? "bg-violet-600 text-white" : "bg-white"
       } rounded-3xl pt-8 px-8`}
     >
@@ -28,7 +28,7 @@ const VIPCard = ({ option }: { option: SubscriptionOptionIF }) => {
         {upgradable && (
           <div className="flex flex-col justify-between items-start">
             <span className="text-xs tracking-wider">现时升级价</span>
-            <span className="text-2xl font-semibold">
+            <span className="text-xl 3xs:text-2xl font-semibold">
               ￥{option.subscribe_price}
             </span>
           </div>
@@ -38,7 +38,7 @@ const VIPCard = ({ option }: { option: SubscriptionOptionIF }) => {
           <span
             className={`${
               upgradable ? "line-through text-gray-400" : ""
-            }  text-2xl font-semibold`}
+            } text-xl 3xs:text-2xl font-semibold`}
           >
             ￥{option.price}
           </span>
@@ -82,13 +82,13 @@ const Subscription = () => {
 
   return (
     <div className="w-full text-gray-800">
-      <div className="w-full flex flex-col justify-center items-center text-5xl space-y-4">
+      <div className="w-full flex flex-col justify-center items-center text-xl 3xs:text-2xl xs:text-3xl sm:text-4xl lg:text-5xl space-y-4">
         <span>成为VIP</span>
         <span>解锁本站所有素材下载权限</span>
       </div>
-      <div className="w-full mt-16 flex justify-center items-center space-x-4">
+      <div className="w-full mt-16 flex flex-col lg:flex-row justify-center items-center space-y-6 lg:space-y-0 lg:space-x-4">
         {options?.map((option, i: number) => (
-          <div key={i}>
+          <div key={i} className="w-full flex justify-center px-2">
             <VIPCard option={option} />
           </div>
         ))}
