@@ -7,6 +7,8 @@ import {
 import {
   getBundlePublic,
   getBundle,
+  getBundles,
+  getBundlesPublic,
   getNumOfBundlesBookmarked,
   getNumOfBundlesPublished,
   getNumOfBundlesLiked,
@@ -34,6 +36,22 @@ export const useBundle = (id: string) =>
   useQuery<BundleIF>({
     queryKey: ["bundle", id],
     queryFn: async () => await getBundle(id),
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
+  });
+
+export const useBundlesPublic = (offset: number, limit: number) =>
+  useQuery<BundleIF[]>({
+    queryKey: ["bundles", offset, limit, "public"],
+    queryFn: async () => await getBundlesPublic(offset, limit),
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
+  });
+
+export const useBundles = (offset: number, limit: number) =>
+  useQuery<BundleIF[]>({
+    queryKey: ["bundles", offset, limit],
+    queryFn: async () => await getBundles(offset, limit),
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
   });
@@ -142,6 +160,9 @@ export const usePublishBundle = () => {
     mutationFn: uploadBundle,
     onSuccess: (data, bundle) => {
       queryClient.invalidateQueries({
+        queryKey: ["bundles"],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["user", "numOfBundlesPublished"],
       });
       queryClient.invalidateQueries({
@@ -164,6 +185,9 @@ export const useUpdateBundle = () => {
     mutationFn: updateBundle,
     onSuccess: (data, bundle) => {
       queryClient.invalidateQueries({
+        queryKey: ["bundles"],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["bundle", bundle.id],
       });
       queryClient.invalidateQueries({
@@ -185,6 +209,9 @@ export const useDeleteBundle = () => {
   const deleteBundleMutation = useMutation({
     mutationFn: deleteBundle,
     onSuccess: (data, id) => {
+      queryClient.invalidateQueries({
+        queryKey: ["bundles"],
+      });
       queryClient.removeQueries({
         queryKey: ["bundle", id],
       });

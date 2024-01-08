@@ -1,4 +1,5 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import Carousel from "./Carousel";
 
 const Title = () => (
   <div className="flex flex-col justify-center items-center space-y-4 md:space-y-5 lg:space-y-6">
@@ -48,37 +49,6 @@ const HotSearch = () => (
   </div>
 );
 
-const AssetCard = ({
-  title,
-  price,
-  thumbnail,
-}: {
-  title: string;
-  price: number;
-  thumbnail: string;
-}) => (
-  <div className="flex flex-col justify-between items-center space-y-2 py-2">
-    <div className="w-full h-64 bg-gray-300 rounded-lg"></div>
-    <div className="w-full flex justify-between items-center text-sm px-2">
-      <span>{title}</span>
-      <span>¥ {price}</span>
-    </div>
-  </div>
-);
-
-const AssetWall = () => (
-  <div className="grid grid-cols-4 gap-4 w-full max-w-7xl mx-auto">
-    {Array.from({ length: 12 }, (_, i) => (
-      <AssetCard
-        key={i}
-        title="Door Hub - 家庭服务应用 Flutter UI"
-        price={20}
-        thumbnail=""
-      />
-    ))}
-  </div>
-);
-
 const ViewMore = () => (
   <button
     type="button"
@@ -93,7 +63,7 @@ const Landing = () => (
     <Title />
     <Search />
     <HotSearch />
-    {/* <AssetWall /> */}
+    <Carousel />
     <ViewMore />
   </div>
 );

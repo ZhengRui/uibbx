@@ -20,6 +20,7 @@ from ...db.core import (
     get_bundle_likes_count,
     get_bundles_bookmarked_by_user,
     get_bundles_liked_by_user,
+    get_bundles_of_all_users,
     get_bundles_published_by_user,
     get_bundles_purchased_by_user,
     get_num_of_bundles_bookmarked_by_user,
@@ -417,4 +418,27 @@ async def get_bundles_purchased(
     current_user: User = Depends(get_current_enabled_user),
 ):
     bundles = await get_bundles_purchased_by_user(db, current_user.uid, offset, limit, with_liked, with_bookmarked)
+    return bundles
+
+
+@r.get("/bundle/all/public")
+async def get_bundles_all_public(
+    offset: int = 0,
+    limit: int = 10,
+    db: Database = Depends(get_db),
+):
+    bundles = await get_bundles_of_all_users(db, None, offset, limit, False, False, False)
+    return bundles
+
+
+@r.get("/bundle/all")
+async def get_bundles_all(
+    offset: int = 0,
+    limit: int = 10,
+    with_liked: bool = False,
+    with_bookmarked: bool = False,
+    db: Database = Depends(get_db),
+    current_user: User = Depends(get_current_enabled_user),
+):
+    bundles = await get_bundles_of_all_users(db, current_user.uid, offset, limit, with_liked, with_bookmarked, False)
     return bundles

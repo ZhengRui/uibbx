@@ -925,3 +925,78 @@ async def get_refers_rewarded_of_user(
         )
 
     return refers
+
+
+async def get_bundles_of_all_users(
+    db: Database,
+    user_uid: str = None,
+    offset: int = 0,
+    limit: int = 10,
+    with_liked: bool = False,
+    with_bookmarked: bool = False,
+    return_url: bool = False,
+):
+    try:
+        query = (
+            select([BundlesTable])
+            .where(BundlesTable.deleted == False)
+            .order_by(BundlesTable.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+
+        bundles = await db.fetch_all(query)
+
+        query = select([UsersTable]).where(UsersTable.uid.in_([bundle.creator_uid for bundle in bundles]))
+        creators_ = await db.fetch_all(query)
+        creators = {creator.uid: creator for creator in creators_}
+
+        if user_uid is None:
+            bundles = [
+                BundleInDB(
+                    **dict(zip(bundle.keys(), bundle.values())),
+                    creator_username=creators[bundle.creator_uid].username,
+                    creator_nickname=creators[bundle.creator_uid].nickname,
+                    creator_avatar=creators[bundle.creator_uid].avatar,
+                )
+                for bundle in bundles
+            ]
+        else:
+            if return_url:
+                bundles = [
+                    BundleInDB(
+                        **dict(zip(bundle.keys(), bundle.values())),
+                        creator_username=creators[bundle.creator_uid].username,
+                        creator_nickname=creators[bundle.creator_uid].nickname,
+                        creator_avatar=creators[bundle.creator_uid].avatar,
+                    )
+                    for bundle in bundles
+                ]
+            else:
+                bundles = [
+                    Bundle(
+                        **dict(zip(bundle.keys(), bundle.values())),
+                        creator_username=creators[bundle.creator_uid].username,
+                        creator_nickname=creators[bundle.creator_uid].nickname,
+                        creator_avatar=creators[bundle.creator_uid].avatar,
+                    )
+                    for bundle in bundles
+                ]
+
+            if with_liked:
+                liked = await check_bundles_liked_by_user(db, bundles, user_uid)
+                for i in range(len(bundles)):
+                    bundles[i].liked = liked[i]
+
+            if with_bookmarked:
+                bookmarked = await check_bundles_bookmarked_by_user(db, bundles, user_uid)
+                for i in range(len(bundles)):
+                    bundles[i].bookmarked = bookmarked[i]
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取所有素材失败: {e}",
+        )
+
+    return bundles

@@ -180,3 +180,29 @@ export const getBundlesPurchased = requestTemplate(
   (data: any) => data.map((bundle: any) => transformImageUrls(bundle)),
   true
 );
+
+export const getBundlesPublic = requestTemplate(
+  (offset: number, limit: number) => ({
+    url: apiEndpoint + `/bundle/all/public?offset=${offset}&limit=${limit}`,
+    method: "GET",
+  }),
+  responseHandlerTemplate,
+  (data: any) => data.map((bundle: any) => transformImageUrls(bundle))
+);
+
+export const getBundles = requestTemplate(
+  (
+    offset: number,
+    limit: number,
+    with_liked: boolean = false,
+    with_bookmarked: boolean = false
+  ) => ({
+    url:
+      apiEndpoint +
+      `/bundle/all?offset=${offset}&limit=${limit}&with_liked=${with_liked}&with_bookmarked=${with_bookmarked}`,
+    method: "GET",
+  }),
+  responseHandlerTemplate,
+  (data: any) => data.map((bundle: any) => transformImageUrls(bundle)),
+  true
+);

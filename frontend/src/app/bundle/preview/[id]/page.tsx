@@ -107,8 +107,7 @@ export default function BundlePreviewPage({
                   )}
                 </span>
                 <span className="text-[10px] xs:text-xs text-gray-400">
-                  {/* {bundle.creator_nickname} */}
-                  小西八啊小西八啊
+                  {bundle.creator_nickname}
                 </span>
               </div>
 
@@ -377,7 +376,7 @@ export default function BundlePreviewPage({
         </div>
       </div>
 
-      <DownloadPanel bundle={bundle} />
+      {user && <DownloadPanel bundle={bundle} />}
     </div>
   );
 }
