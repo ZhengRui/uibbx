@@ -1,3 +1,5 @@
+import React from "react";
+
 export interface UserIF {
   uid: string;
   created_at?: string;
@@ -60,4 +62,14 @@ export interface ReferIF {
   referred_at: string;
   coins_gained: number;
   refer_type: string;
+}
+
+export interface WxLoginProps {
+  appid: string;
+  scope?: string;
+  redirect_uri: string;
+  self_redirect?: boolean;
+  state?: string;
+  theme?: string;
+  href?: string;
 }

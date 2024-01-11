@@ -24,8 +24,12 @@ import {
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
+import { WxLogin } from "@/components/WxLogin";
 
 import Image from "next/image";
+
+const ssoWechatAppId = process.env.NEXT_PUBLIC_SSO_WECHAT_APPID!;
+const ssoWechatRedirectUri = process.env.NEXT_PUBLIC_SSO_WECHAT_REDIRECT_URI!;
 
 const Login = () => {
   const setMode = useSetAtom(authModeAtom);
@@ -67,78 +71,108 @@ const Login = () => {
     }
   };
 
+  const [socialLogin, setSocialLogin] = useState<string | null>(null);
+
+  const generateState = () => {
+    const state = Math.random().toString(36).slice(2, 15);
+    localStorage.setItem("ssoWechatState", state);
+    return state;
+  };
+
   return (
-    <div className="flex flex-col justify-end items-center w-full h-full space-y-16">
-      <form
-        className="flex flex-col justify-between items-center w-full"
-        onSubmit={handleLogin}
-      >
-        <div className="w-full">
-          <label className="hidden" htmlFor="cellOrEmail">
-            手机号/邮箱
-          </label>
-          <input
-            id="cellOrEmail"
-            name="cellOrEmail"
-            type="text"
-            placeholder="手机号/邮箱"
-            required
-            className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
-          />
-        </div>
+    <div className="flex flex-col justify-end items-center w-full h-full">
+      {!socialLogin ? (
+        <form
+          className="mb-16 flex flex-col justify-between items-center w-full"
+          onSubmit={handleLogin}
+        >
+          <div className="w-full">
+            <label className="hidden" htmlFor="cellOrEmail">
+              手机号/邮箱
+            </label>
+            <input
+              id="cellOrEmail"
+              name="cellOrEmail"
+              type="text"
+              placeholder="手机号/邮箱"
+              required
+              className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
+            />
+          </div>
 
-        <div className="mt-3 w-full relative">
-          <label className="hidden" htmlFor="password">
-            密码
-          </label>
-          <input
-            id="password"
-            name="password"
-            type={passwordVisible ? "text" : "password"}
-            placeholder="密码"
-            title="8-12个字符，数字、字母、特殊字符至少各有一个"
-            required
-            className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
-          />
-          {
-            <div
-              className="absolute top-0 right-4 h-full flex items-center cursor-pointer"
-              onClick={() => setPasswordVisible(!passwordVisible)}
+          <div className="mt-3 w-full relative">
+            <label className="hidden" htmlFor="password">
+              密码
+            </label>
+            <input
+              id="password"
+              name="password"
+              type={passwordVisible ? "text" : "password"}
+              placeholder="密码"
+              title="8-12个字符，数字、字母、特殊字符至少各有一个"
+              required
+              className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
+            />
+            {
+              <div
+                className="absolute top-0 right-4 h-full flex items-center cursor-pointer"
+                onClick={() => setPasswordVisible(!passwordVisible)}
+              >
+                {passwordVisible ? (
+                  <EyeSlashIcon className="w-6 h-6 text-gray-400" />
+                ) : (
+                  <EyeIcon className="w-6 h-6 text-gray-400" />
+                )}
+              </div>
+            }
+          </div>
+
+          <div className="mt-6 w-full flex justify-end items-center space-x-4 2xs:space-x-10 text-gray-500">
+            <span
+              className="text-xs 2xs:text-sm cursor-pointer hover:text-[#936efe]"
+              onClick={() => setMode("signup")}
             >
-              {passwordVisible ? (
-                <EyeSlashIcon className="w-6 h-6 text-gray-400" />
-              ) : (
-                <EyeIcon className="w-6 h-6 text-gray-400" />
-              )}
-            </div>
-          }
-        </div>
+              还没有账号？
+            </span>
+            <span
+              className="text-xs 2xs:text-sm cursor-pointer hover:text-[#936efe]"
+              onClick={() => setMode("reset")}
+            >
+              忘记密码？
+            </span>
+          </div>
 
-        <div className="mt-6 w-full flex justify-end items-center space-x-4 2xs:space-x-10 text-gray-500">
-          <span
-            className="text-xs 2xs:text-sm cursor-pointer hover:text-[#936efe]"
-            onClick={() => setMode("signup")}
-          >
-            还没有账号？
-          </span>
-          <span
-            className="text-xs 2xs:text-sm cursor-pointer hover:text-[#936efe]"
-            onClick={() => setMode("reset")}
-          >
-            忘记密码？
-          </span>
+          <button className="mt-10 w-full bg-[#936efe] py-2 rounded-full text-white">
+            登录
+          </button>
+        </form>
+      ) : socialLogin === "wechat" ? (
+        <div className="w-full h-full relative">
+          <WxLogin
+            appid={ssoWechatAppId}
+            redirect_uri={ssoWechatRedirectUri}
+            self_redirect={false}
+            state={generateState()}
+          />
+          <div className="absolute w-full -top-8 flex justify-center">
+            <button
+              onClick={() => setSocialLogin(null)}
+              className="rounded-full px-5 py-1.5 bg-gray-500 text-white text-xs"
+            >
+              返回
+            </button>
+          </div>
         </div>
-
-        <button className="mt-10 w-full bg-[#936efe] py-2 rounded-full text-white">
-          登录
-        </button>
-      </form>
+      ) : null}
       <div className="flex flex-col justify-between items-center w-full">
         <div className="relative w-2/3 border-t border-t-gray-200 flex justify-center items-center">
           <span className="absolute px-6 bg-white text-gray-400">OR</span>
         </div>
         <div className="flex justify-center items-center mt-12">
-          <WechatIcon className="w-9 h-9 text-[#00c800] border rounded-full p-2 border-[#c8d8f5]" />
+          <WechatIcon
+            onClick={() => setSocialLogin("wechat")}
+            className="w-9 h-9 text-[#00c800] border rounded-full p-2 border-[#c8d8f5]"
+          />
         </div>
       </div>
     </div>

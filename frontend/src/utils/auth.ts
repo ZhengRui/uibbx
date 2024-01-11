@@ -34,7 +34,8 @@ export const whoami = async (token?: string) => {
 
   const user = await response.json();
 
-  if (user.avatar) user.avatar = `${apiEndpoint}/static/avatars/${user.avatar}`;
+  if (user.avatar && !user.avatar.startsWith("http"))
+    user.avatar = `${apiEndpoint}/static/avatars/${user.avatar}`;
 
   return user;
 };
@@ -85,6 +86,22 @@ export const signinByEmail = requestTemplate(
     localStorage.setItem("token", data["access_token"]);
     return data;
   }
+);
+
+export const ssoByWechatCode = requestTemplate(
+  (code: string) => ({
+    url: apiEndpoint + "/token/wechat",
+    method: "POST",
+    body: formConstructor({ code }),
+  }),
+  async (res: Response) => {
+    const data = await responseHandlerTemplate(res);
+    localStorage.setItem("token", data["access_token"]);
+    return data;
+  },
+  null,
+  false,
+  true
 );
 
 export const verifyEmail = requestTemplate(

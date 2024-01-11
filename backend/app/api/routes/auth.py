@@ -21,6 +21,8 @@ from ...config import (
     MAILING_ENDPOINT,
     MAX_REWARDED_REFERS_PER_DAY,
     SECRET_KEY,
+    SSO_WeChat_APPID,
+    SSO_WeChat_SECRET,
 )
 from ...db.connect import get_db
 from ...db.core import (
@@ -168,7 +170,7 @@ async def sign_up_new_user(
     email: str,
     wxid: str,
     username: str,
-    name: str,
+    nickname: str,
     password: str,
     avatar: str,
 ):
@@ -209,6 +211,7 @@ async def sign_up_new_user(
             email=email,
             wxid=wxid,
             username=username,
+            nickname=nickname or None,
             hashed_password=get_password_hash(password) if password else "",
             disabled=False,
             verified=verified,
@@ -283,6 +286,34 @@ async def verify_email(
     return {"verificationPassed": True}
 
 
+async def rewared_referrer(refer_token: str, referent_uid: str, db: Database):
+    payload = verify_access_token(refer_token, f"{SECRET_KEY}/REFER")
+    referrer = await get_user_by_field(
+        db, field_name="uid", field_value=payload["referrer_uid"], only_check_existence=True
+    )
+    if referrer:
+        coins_gained = COINS_REWARDED_BY_REFER
+
+        refers_today = await get_refers_today(db, referrer.uid, "registration")
+        if len(refers_today) >= MAX_REWARDED_REFERS_PER_DAY:
+            coins_gained = 0
+
+        await create_refer(
+            db,
+            Refer(
+                referrer_uid=referrer.uid,
+                referent_uid=referent_uid,
+                bundle_id=payload.get("bundle_id", None),
+                refer_type="registration",
+                referred_at=datetime.now().replace(microsecond=0),
+                coins_gained=coins_gained,
+            ),
+        )
+
+        if coins_gained > 0:
+            await update_user_field_by_uid(db, referrer.uid, {"coins": referrer.coins + coins_gained})
+
+
 @r.post("/signup/email")
 async def signup_by_email(
     email: str = Form(...),
@@ -302,7 +333,7 @@ async def signup_by_email(
         email=email,
         wxid="",
         username="",
-        name="",
+        nickname="",
         password=password,
         avatar="",
     )
@@ -314,32 +345,7 @@ async def signup_by_email(
 
     if refer_token:
         try:
-            payload = verify_access_token(refer_token, f"{SECRET_KEY}/REFER")
-            referrer = await get_user_by_field(
-                db, field_name="uid", field_value=payload["referrer_uid"], only_check_existence=True
-            )
-            if referrer:
-                coins_gained = COINS_REWARDED_BY_REFER
-
-                refers_today = await get_refers_today(db, referrer.uid, "registration")
-                if len(refers_today) >= MAX_REWARDED_REFERS_PER_DAY:
-                    coins_gained = 0
-
-                await create_refer(
-                    db,
-                    Refer(
-                        referrer_uid=referrer.uid,
-                        referent_uid=user.uid,
-                        bundle_id=payload.get("bundle_id", None),
-                        refer_type="registration",
-                        referred_at=datetime.now().replace(microsecond=0),
-                        coins_gained=coins_gained,
-                    ),
-                )
-
-                if coins_gained > 0:
-                    await update_user_field_by_uid(db, referrer.uid, {"coins": referrer.coins + coins_gained})
-
+            await rewared_referrer(refer_token, user.uid, db)
         except Exception:
             pass
 
@@ -484,7 +490,7 @@ async def signup_by_cellnum(
         email="",
         wxid="",
         username="",
-        name="",
+        nickname="",
         password=password,
         avatar="",
     )
@@ -496,32 +502,7 @@ async def signup_by_cellnum(
 
     if refer_token:
         try:
-            payload = verify_access_token(refer_token, f"{SECRET_KEY}/REFER")
-            referrer = await get_user_by_field(
-                db, field_name="uid", field_value=payload["referrer_uid"], only_check_existence=True
-            )
-            if referrer:
-                coins_gained = COINS_REWARDED_BY_REFER
-
-                refers_today = await get_refers_today(db, referrer.uid, "registration")
-                if len(refers_today) >= MAX_REWARDED_REFERS_PER_DAY:
-                    coins_gained = 0
-
-                await create_refer(
-                    db,
-                    Refer(
-                        referrer_uid=referrer.uid,
-                        referent_uid=user.uid,
-                        bundle_id=payload.get("bundle_id", None),
-                        refer_type="registration",
-                        referred_at=datetime.now().replace(microsecond=0),
-                        coins_gained=coins_gained,
-                    ),
-                )
-
-                if coins_gained > 0:
-                    await update_user_field_by_uid(db, referrer.uid, {"coins": referrer.coins + coins_gained})
-
+            await rewared_referrer(refer_token, user.uid, db)
         except Exception:
             pass
 
@@ -643,3 +624,62 @@ async def update_user(
         shutil.move(f'{cache_avatar_fd}/{current_user.uid}.{ext}', f'{avatar_fd}/{current_user.uid}.{ext}')
 
     return await get_user_by_field(db, field_name="uid", field_value=current_user.uid)
+
+
+@r.post("/token/wechat")
+async def signin_wechat(code: str = Form(...), refer_token: str = Form(None), db: Database = Depends(get_db)):
+    async with httpx.AsyncClient() as wechat_client:
+        r = await wechat_client.get(
+            url="https://api.weixin.qq.com/sns/oauth2/access_token",
+            params={
+                "appid": SSO_WeChat_APPID,
+                "secret": SSO_WeChat_SECRET,
+                "code": code,
+                "grant_type": "authorization_code",
+            },
+        )
+
+        data = r.json()
+        wxid = data.get("unionid")
+
+        user = await get_user_by_field(db, field_name="wxid", field_value=wxid, only_check_existence=True)
+        if not user:
+            access_token = data.get("access_token")
+            openid = data.get("openid")
+
+            async with httpx.AsyncClient() as wechat_client:
+                r = await wechat_client.get(
+                    url="https://api.weixin.qq.com/sns/userinfo",
+                    params={"access_token": access_token, "openid": openid},
+                )
+
+                data = r.json()
+
+                nickname = data["nickname"]
+                avatar = data["headimgurl"]
+
+                user = await sign_up_new_user(
+                    db,
+                    usertype="wechat",
+                    cellnum="",
+                    email="",
+                    wxid=wxid,
+                    username="",
+                    nickname=nickname or None,
+                    password=uuid.uuid4().hex,
+                    avatar=avatar,
+                )
+
+            if refer_token:
+                try:
+                    await rewared_referrer(refer_token, user.uid, db)
+                except Exception:
+                    pass
+
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user.uid},
+            expires_delta=access_token_expires,
+        )
+
+    return {"access_token": access_token, "token_type": "bearer"}

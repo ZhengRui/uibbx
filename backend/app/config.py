@@ -21,3 +21,6 @@ SMS_REGIONID = config("SMS_REGIONID", cast=str)
 COINS_REWARDED_BY_REFER = config("COINS_REWARDED_BY_REFER", cast=int, default=1)
 MAX_REWARDED_REFERS_PER_DAY = config("MAX_REWARDED_REFERS_PER_DAY", cast=int, default=5)
 COINS_PRICE_PER_BUNDLE = config("COINS_PRICE_PER_BUNDLE", cast=int, default=1)
+
+SSO_WeChat_APPID = config("SSO_WeChat_APPID", cast=str)
+SSO_WeChat_SECRET = config("SSO_WeChat_SECRET", cast=str)

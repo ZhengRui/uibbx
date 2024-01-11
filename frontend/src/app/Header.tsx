@@ -44,10 +44,12 @@ export const Logo = () => (
 const User = () => {
   const { isPending, data: user } = useAuth();
   const setAuthPanelOpen = useSetAtom(authPanelOpenAtom);
+  const path = usePathname();
+  const isSSOSigning = path.startsWith("/sso/");
 
   return (
     <>
-      {isPending ? (
+      {isPending || isSSOSigning ? (
         <div className="w-11 h-11 rounded-full bg-gray-400 opacity-30 animate-pulse"></div>
       ) : user ? (
         <Link href="/account" className="h-full flex items-center">
