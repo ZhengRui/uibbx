@@ -37,7 +37,8 @@ const EditInfoForm = () => {
       formRef.current.nickname.value = user?.nickname;
       formRef.current.desc.value = user?.description;
       formRef.current.username.value = user?.username;
-      formRef.current.emailOrCell.value = user?.email || user?.cellnum;
+      formRef.current.emailOrCell.value =
+        user?.email || user?.cellnum || user?.wxid;
     }
   }, []);
 
@@ -174,7 +175,7 @@ const EditInfoForm = () => {
               htmlFor="emailOrCell"
               className="text-xs xs:text-sm font-medium leading-6"
             >
-              邮箱地址/手机号
+              邮箱地址/手机号/微信
             </label>
             <div className="mt-2">
               <input

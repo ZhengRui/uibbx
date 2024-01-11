@@ -641,6 +641,11 @@ async def signin_wechat(code: str = Form(...), refer_token: str = Form(None), db
 
         data = r.json()
         wxid = data.get("unionid")
+        if not wxid:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="微信登录失败",
+            )
 
         user = await get_user_by_field(db, field_name="wxid", field_value=wxid, only_check_existence=True)
         if not user:
