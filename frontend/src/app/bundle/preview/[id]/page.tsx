@@ -29,8 +29,6 @@ import DownloadPanel from "./DownloadPanel";
 import { UserCircleIcon } from "@/components/icons";
 import { useState, useEffect } from "react";
 import { useDownloadableByMe } from "@/hooks/useDownload";
-import { download } from "@/utils/download";
-import toast from "react-hot-toast";
 import Link from "next/link";
 
 const formatIcons = {
@@ -53,10 +51,8 @@ export default function BundlePreviewPage({
   const { isPending: isPendingLikedByMe, data: likedByMe } = useLikedByMe(id);
   const { isPending: isPendingBookmarkedByMe, data: bookmarkedByMe } =
     useBookmarkedByMe(id);
-  const {
-    isPending: isPendingDownloadableByMe,
-    data: downloadableOrBundleUrl,
-  } = useDownloadableByMe(id);
+  const { isPending: isPendingDownloadableByMe, data: downloadableByMe } =
+    useDownloadableByMe(id);
 
   const like = useLike();
   const unlike = useUnlike();
@@ -67,16 +63,6 @@ export default function BundlePreviewPage({
   const setDownloadPanelOpen = useSetAtom(downloadPanelOpenAtom);
 
   const [scrolled, setScrolled] = useState(false);
-
-  const handleDownload = async () => {
-    if (!user || !bundle) return;
-
-    try {
-      await download(bundle.id);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : (err as string));
-    }
-  };
 
   useEffect(() => {
     const scrollHandler = () => {
@@ -207,7 +193,7 @@ export default function BundlePreviewPage({
 
           <div className="absolute left-0 -bottom-12 w-full flex justify-start items-center px-8 sm:px-10">
             <div className="flex justify-end items-center">
-              {downloadableOrBundleUrl === false ? (
+              {!downloadableByMe ? (
                 <button
                   onClick={() =>
                     !user ? setAuthPanelOpen(true) : setDownloadPanelOpen(true)
@@ -220,14 +206,10 @@ export default function BundlePreviewPage({
                 <Link
                   rel="noopener noreferrer"
                   target="_blank"
-                  href={downloadableOrBundleUrl as unknown as string}
+                  href={`/bundle/download/${bundle.id}`}
+                  className="bg-emerald-600 py-2 px-4 rounded-full text-white text-xs"
                 >
-                  <button
-                    onClick={handleDownload}
-                    className="bg-emerald-600 py-2 px-4 rounded-full text-white text-xs"
-                  >
-                    下载
-                  </button>
+                  下载
                 </Link>
               )}
             </div>
@@ -235,7 +217,7 @@ export default function BundlePreviewPage({
         </div>
 
         <div className="mt-20 md:mt-0 w-full flex justify-start px-4 sm:px-6 md:px-10 lg:px-16 xl:px-24">
-          <div className="flex flex-col justify-center items-start 2xs:px-4 xs:px-8 sm:px-12 md:px-16 lg:px-24 xl:px-32">
+          <div className="flex flex-col justify-center items-start w-full 2xs:px-4 xs:px-8 sm:px-12 md:px-16 lg:px-24 xl:px-32">
             <span className="text-gray-800 font-semibold text-lg 2xs:text-xl xs:text-2xl">
               {bundle.title}
             </span>
@@ -296,7 +278,7 @@ export default function BundlePreviewPage({
 
       <div className="sticky h-full top-44 hidden md:block">
         <div className="w-24 h-full flex flex-col justify-start items-start">
-          {downloadableOrBundleUrl === false ? (
+          {!downloadableByMe ? (
             <button
               onClick={() =>
                 !user ? setAuthPanelOpen(true) : setDownloadPanelOpen(true)
@@ -309,14 +291,10 @@ export default function BundlePreviewPage({
             <Link
               rel="noopener noreferrer"
               target="_blank"
-              href={downloadableOrBundleUrl as unknown as string}
+              href={`/bundle/download/${bundle.id}`}
+              className="bg-emerald-600 py-2.5 px-6 rounded-full text-white text-sm font-light"
             >
-              <button
-                onClick={handleDownload}
-                className="bg-emerald-600 py-2.5 px-6 rounded-full text-white text-sm font-light"
-              >
-                下载
-              </button>
+              下载
             </Link>
           )}
 
