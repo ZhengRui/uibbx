@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
 
 class Purchase(BaseModel):
@@ -15,7 +15,7 @@ class Purchase(BaseModel):
     user_uid: str
 
 
-class PurchaseOrder(BaseModel):
+class PurchaseOrder(BaseModel, extra=Extra.allow):
     id: str
     created_at: datetime
     status: str

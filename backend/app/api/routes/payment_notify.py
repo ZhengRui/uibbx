@@ -1,9 +1,11 @@
+import json
 from datetime import datetime, timedelta
 from enum import Enum
 
 from databases import Database
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
+from starlette.requests import Request
 
 from ...config import SECRET_KEY
 from ...db.connect import get_db
@@ -21,6 +23,7 @@ from ...db.core import (
     update_user_field_by_uid,
 )
 from ...models import Purchase, Refer, Subscription
+from ...utils.pay.wechat import wxpay
 from .auth import verify_access_token
 from .subscription import tiers
 
@@ -32,12 +35,34 @@ class OrderType(str, Enum):
     purchase = 'purchase'
 
 
-@r.post("/payment_notify")
-async def payment_notify(
-    order_id: str, order_type: OrderType, succeed: bool, refer_token: str = None, db: Database = Depends(get_db)
+@r.post("/payment_notify/wechat")
+async def payment_notify(request: Request, db: Database = Depends(get_db)):
+    headers = {
+        'Wechatpay-Signature': request.headers.get('wechatpay-signature'),
+        'Wechatpay-Timestamp': request.headers.get('wechatpay-timestamp'),
+        'Wechatpay-Nonce': request.headers.get('wechatpay-nonce'),
+        'Wechatpay-Serial': request.headers.get('wechatpay-serial'),
+    }
+
+    result = wxpay.callback(headers=headers, body=await request.body())
+
+    if result and result.get('event_type') == 'TRANSACTION.SUCCESS':
+        res = result.get('resource')
+        order_id = res.get('out_trade_no')
+        amount = res.get('amount').get('total')  # 单位：分
+        attach = json.loads(res.get('attach'))
+        order_type = attach.get('type')
+        referrer_uid = attach.get('referrer_uid')
+
+        await notify(db, order_id, order_type, amount, referrer_uid)
+    else:
+        return JSONResponse(status_code=500, content={"detail": "微信支付回调失败"})
+
+
+async def notify(
+    db: Database, order_id: str, order_type: OrderType, amount: float, referrer_uid: str, referrer_bundle_id: str = None
 ):
-    # receive transaction result from different platforms
-    # succeed = True
+    succeed = True
 
     if order_type == 'subscription':
         order = await get_subscription_order(db, order_id)
@@ -48,6 +73,9 @@ async def payment_notify(
         if order.status == 'succeed':
             subscription = await get_subscription_by_order_id(db, order_id)
             return JSONResponse(status_code=200, content={"detail": "已订阅成功", "订阅订单号": order.id, "订阅号": subscription.id})
+
+        if order.amount != amount:
+            return JSONResponse(status_code=400, content={"detail": "订阅订单金额不匹配"})
 
         if succeed:
             now = datetime.now().replace(microsecond=0)
@@ -70,11 +98,10 @@ async def payment_notify(
             )
             await set_subscription_order_status(db, order_id, 'succeed')
 
-            if refer_token:
+            if referrer_uid:
                 try:
-                    payload = verify_access_token(refer_token, f"{SECRET_KEY}/REFER")
                     referrer = await get_user_by_field(
-                        db, field_name="uid", field_value=payload["referrer_uid"], only_check_existence=True
+                        db, field_name="uid", field_value=referrer_uid, only_check_existence=True
                     )
                     if referrer:
                         coins_gained = tiers[order.after]['refer_coins'] - (
@@ -86,7 +113,7 @@ async def payment_notify(
                             Refer(
                                 referrer_uid=referrer.uid,
                                 referent_uid=order.user_uid,
-                                bundle_id=payload.get("bundle_id", None),
+                                bundle_id=referrer_bundle_id,
                                 refer_type=f"subscription:{order.before}->{order.after}",
                                 referred_at=now,
                                 coins_gained=coins_gained,
@@ -112,6 +139,9 @@ async def payment_notify(
         if order.status == 'succeed':
             purchase = await get_purchase_by_order_id(db, order_id)
             return JSONResponse(status_code=200, content={"detail": "已购买成功", "购买订单号": order.id, "购买号": purchase.id})
+
+        if order.amount != amount:
+            return JSONResponse(status_code=400, content={"detail": "购买订单金额不匹配"})
 
         if succeed:
             now = datetime.now().replace(microsecond=0)

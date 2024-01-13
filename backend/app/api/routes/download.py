@@ -21,7 +21,10 @@ download_router = r = APIRouter()
 
 @r.get("/download")
 async def download(
-    bundle_id: uuid.UUID, db: Database = Depends(get_db), current_user: User = Depends(get_current_enabled_user)
+    bundle_id: uuid.UUID,
+    only_check_downloadable: bool = False,
+    db: Database = Depends(get_db),
+    current_user: User = Depends(get_current_enabled_user),
 ):
     passed = False
     purchased = False
@@ -46,10 +49,15 @@ async def download(
 
             downloaded_today = bundle_id in [download.bundle_id for download in downloads_today]
 
-            print(len(downloads_today), downloaded_today)
+            # print(len(downloads_today), downloaded_today)
 
             if downloaded_today or len(downloads_today) < limits:
                 passed = True
+
+    bundle = await get_bundle_by_id(db, bundle_id, False, True)
+
+    if only_check_downloadable:
+        return False if not passed else bundle.bundle_url
 
     if not passed:
         if subscribed:
@@ -62,8 +70,6 @@ async def download(
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail="请先购买或订阅后再下载", headers={"WWW-Authenticate": "Bearer"}
             )
-
-    bundle = await get_bundle_by_id(db, bundle_id, False, True)
 
     if not purchased and not downloaded_today:
         await create_download(db, bundle_id, current_user.uid)

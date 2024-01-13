@@ -206,3 +206,23 @@ export const getBundles = requestTemplate(
   (data: any) => data.map((bundle: any) => transformImageUrls(bundle)),
   true
 );
+
+export const getPurchaseQRCode = requestTemplate(
+  (id: string, option: string) => ({
+    url: apiEndpoint + `/purchase?bundle_id=${id}&option=${option}`,
+    method: "POST",
+  }),
+  responseHandlerTemplate,
+  null,
+  true
+);
+
+export const getPurchaseOrderStatus = requestTemplate(
+  (order_id: string) => ({
+    url: apiEndpoint + `/purchase/status?order_id=${order_id}`,
+    method: "GET",
+  }),
+  responseHandlerTemplate,
+  null,
+  true
+);

@@ -19,6 +19,7 @@ httpx = {extras = ["socks"], version = "^0.25.2"}
 python-jose = "^3.3.0"
 python-multipart = "^0.0.6"
 aliyun-python-sdk-core-v3 = "^2.13.33"
+wechatpayv3 = "^1.2.43"
 
 
 [tool.poetry.group.dev.dependencies]

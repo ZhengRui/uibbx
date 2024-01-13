@@ -24,3 +24,11 @@ COINS_PRICE_PER_BUNDLE = config("COINS_PRICE_PER_BUNDLE", cast=int, default=1)
 
 SSO_WeChat_APPID = config("SSO_WeChat_APPID", cast=str)
 SSO_WeChat_SECRET = config("SSO_WeChat_SECRET", cast=str)
+
+PAY_WeChat_MCHID = config("PAY_WeChat_MCHID", cast=str)
+PAY_WeChat_APICLIENT_KEY_PATH = config("PAY_WeChat_APICLIENT_KEY_PATH", cast=str)
+PAY_WeChat_CERT_SERIAL_NO = config("PAY_WeChat_CERT_SERIAL_NO", cast=str)
+PAY_WeChat_APIV3_KEY = config("PAY_WeChat_APIV3_KEY", cast=str)
+PAY_WeChat_APPID = config("PAY_WeChat_APPID", cast=str)
+PAY_WeChat_NOTIFY_URL = config("PAY_WeChat_NOTIFY_URL", cast=str)
+PAY_WeChat_CERT_DIR = config("PAY_WeChat_CERT_DIR", cast=str)

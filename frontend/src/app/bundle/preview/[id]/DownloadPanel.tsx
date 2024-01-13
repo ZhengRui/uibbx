@@ -1,21 +1,68 @@
 "use client";
 
 import { Transition, Popover } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState, useRef } from "react";
 import { useAtom } from "jotai";
 import { downloadPanelOpenAtom } from "@/atoms";
 import { WechatPayIcon, AliPayIcon, CoinIcon } from "@/components/icons";
 import Link from "next/link";
 import { BundleIF } from "@/interfaces";
 import { useSubscriptionOptions } from "@/hooks/useSubscription";
+import { getPurchaseQRCode, getPurchaseOrderStatus } from "@/utils/bundle";
+import toast from "react-hot-toast";
+import { QRCodeSVG } from "qrcode.react";
+import { SpinningIcon } from "@/components/icons";
+import { useQueryClient } from "@tanstack/react-query";
 
 const DownloadPanel = ({ bundle }: { bundle: BundleIF }) => {
   const [open, setOpen] = useAtom(downloadPanelOpenAtom);
 
   const [option, setOption] = useState<"wechat" | "alipay" | "coin">("wechat");
   const [tab, setTab] = useState<"purchase" | "subscription">("purchase");
+  const [qrCodeUrl, setQRCodeUrl] = useState<string | null>(null);
+  const intervalIdRef = useRef<number | null>(null);
 
   const { isPending, data: subcriptionOptions } = useSubscriptionOptions();
+
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (intervalIdRef.current !== null) clearInterval(intervalIdRef.current);
+
+    setQRCodeUrl(null);
+
+    if (!open) return;
+
+    if (option === "coin") return;
+
+    const getQRCode = async () => {
+      try {
+        const order = await getPurchaseQRCode(bundle.id, option);
+        setQRCodeUrl(order.code_url);
+
+        // Set up a new interval
+        intervalIdRef.current = setInterval(async () => {
+          const status = await getPurchaseOrderStatus(order.id);
+          if (status === "succeed" && intervalIdRef.current !== null) {
+            toast.success("支付成功");
+            clearInterval(intervalIdRef.current);
+            setOpen(false);
+            queryClient.invalidateQueries({
+              queryKey: ["user", "downloadable", bundle.id],
+            });
+          }
+        }, 1000 * 2) as unknown as number;
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : (err as string));
+      }
+    };
+
+    getQRCode();
+
+    return () => {
+      if (intervalIdRef.current !== null) clearInterval(intervalIdRef.current);
+    };
+  }, [open, option, bundle.id]);
 
   if (isPending) return null;
 
@@ -129,7 +176,20 @@ const DownloadPanel = ({ bundle }: { bundle: BundleIF }) => {
                         </div>
                       </div>
 
-                      <span>qr code</span>
+                      <div>
+                        {qrCodeUrl ? (
+                          <QRCodeSVG
+                            value={qrCodeUrl}
+                            size={200}
+                            bgColor="#fff"
+                            fgColor="#000"
+                            level="M"
+                            includeMargin={false}
+                          />
+                        ) : (
+                          "purchase by coin ui"
+                        )}
+                      </div>
 
                       <span className="w-full text-right text-xs xs:text-sm underline underline-offset-4 decoration-gray-400 cursor-pointer hover:decoration-indigo-600 hover:text-indigo-600">
                         已完成支付
@@ -230,7 +290,22 @@ const DownloadPanel = ({ bundle }: { bundle: BundleIF }) => {
                       </div>
                     </div>
                   </div>
-                  <span>qr code</span>
+                  <div>
+                    {qrCodeUrl ? (
+                      <QRCodeSVG
+                        value={qrCodeUrl}
+                        size={200}
+                        bgColor="#fff"
+                        fgColor="#000"
+                        level="M"
+                        includeMargin={false}
+                      />
+                    ) : option === "coin" ? (
+                      "purchase by coin ui"
+                    ) : (
+                      <SpinningIcon className="w-6 h-6 animate-spin text-gray-200 fill-purple-600" />
+                    )}
+                  </div>
 
                   <span className="w-full text-right text-sm underline underline-offset-4 decoration-gray-400 cursor-pointer hover:decoration-indigo-600 hover:text-indigo-600">
                     已完成支付
