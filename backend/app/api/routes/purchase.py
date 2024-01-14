@@ -2,12 +2,13 @@ import json
 import uuid
 from datetime import datetime
 
+import httpx
 from databases import Database
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from wechatpayv3 import WeChatPayType
 
-from ...config import COINS_PRICE_PER_BUNDLE
+from ...config import COINS_PRICE_PER_BUNDLE, PAY_AliPay_GATEWAY
 from ...db.connect import get_db
 from ...db.core import (
     create_purchase_by_coins,
@@ -18,6 +19,7 @@ from ...db.core import (
 )
 from ...models import PurchaseByCoins, PurchaseOrder, User
 from ...utils.order import generate_order_id
+from ...utils.pay.alipay import alipay
 from ...utils.pay.wechat import wxpay
 from .auth import get_current_enabled_user
 
@@ -53,6 +55,25 @@ async def purchase(
             )
 
         code_url = json.loads(message).get('code_url')
+
+    elif option == "alipay":
+        order_string = alipay.api_alipay_trade_page_pay(
+            subject=f'purchase_bundle_{bundle_id}',
+            out_trade_no=order_id,
+            total_amount=amount / 100,
+            body=json.dumps({'type': 'purchase', 'referrer_uid': None}),
+            qr_pay_mode=4,
+            qrcode_width=200,
+        )
+        code_url = f'{PAY_AliPay_GATEWAY}?{order_string}'
+
+        async with httpx.AsyncClient(follow_redirects=True) as alipay_client:
+            r = await alipay_client.get(code_url)
+
+        if r.status_code != 200:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="发起支付宝购买二维码请求失败")
+
+        code_url = str(r.url)
 
     order = await create_purchase_order(
         db,

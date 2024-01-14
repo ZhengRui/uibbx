@@ -17,7 +17,7 @@ import { useQueryClient } from "@tanstack/react-query";
 const DownloadPanel = ({ bundle }: { bundle: BundleIF }) => {
   const [open, setOpen] = useAtom(downloadPanelOpenAtom);
 
-  const [option, setOption] = useState<"wechat" | "alipay" | "coin">("wechat");
+  const [option, setOption] = useState<"wechat" | "alipay" | "coin">("alipay");
   const [tab, setTab] = useState<"purchase" | "subscription">("purchase");
   const [qrCodeUrl, setQRCodeUrl] = useState<string | null>(null);
   const intervalIdRef = useRef<number | null>(null);
@@ -204,16 +204,34 @@ const DownloadPanel = ({ bundle }: { bundle: BundleIF }) => {
 
                       <div>
                         {qrCodeUrl ? (
-                          <QRCodeSVG
-                            value={qrCodeUrl}
-                            size={200}
-                            bgColor="#fff"
-                            fgColor="#000"
-                            level="M"
-                            includeMargin={false}
-                          />
-                        ) : (
+                          qrCodeUrl.startsWith("weixin://") ? (
+                            <QRCodeSVG
+                              value={qrCodeUrl}
+                              size={200}
+                              bgColor="#fff"
+                              fgColor="#000"
+                              level="M"
+                              includeMargin={false}
+                              imageSettings={{
+                                src: "/wechat-pay.svg",
+                                x: undefined,
+                                y: undefined,
+                                height: 42,
+                                width: 42,
+                                excavate: true,
+                              }}
+                            />
+                          ) : (
+                            <iframe
+                              className="w-[200px] h-[240px] border-0 translate-y-5"
+                              src={qrCodeUrl}
+                              style={{ overflow: "hidden" }}
+                            ></iframe>
+                          )
+                        ) : option === "coin" ? (
                           "purchase by coin ui"
+                        ) : (
+                          <SpinningIcon className="w-6 h-6 animate-spin text-gray-200 fill-purple-600" />
                         )}
                       </div>
 
@@ -316,16 +334,32 @@ const DownloadPanel = ({ bundle }: { bundle: BundleIF }) => {
                       </div>
                     </div>
                   </div>
-                  <div>
+                  <div className="w-full h-full flex justify-center items-center">
                     {qrCodeUrl ? (
-                      <QRCodeSVG
-                        value={qrCodeUrl}
-                        size={200}
-                        bgColor="#fff"
-                        fgColor="#000"
-                        level="M"
-                        includeMargin={false}
-                      />
+                      qrCodeUrl.startsWith("weixin://") ? (
+                        <QRCodeSVG
+                          value={qrCodeUrl}
+                          size={200}
+                          bgColor="#fff"
+                          fgColor="#000"
+                          level="M"
+                          includeMargin={false}
+                          imageSettings={{
+                            src: "/wechat-pay.svg",
+                            x: undefined,
+                            y: undefined,
+                            height: 42,
+                            width: 42,
+                            excavate: true,
+                          }}
+                        />
+                      ) : (
+                        <iframe
+                          className="w-[200px] h-[240px] border-0 translate-y-5"
+                          src={qrCodeUrl}
+                          style={{ overflow: "hidden" }}
+                        ></iframe>
+                      )
                     ) : option === "coin" ? (
                       "purchase by coin ui"
                     ) : (

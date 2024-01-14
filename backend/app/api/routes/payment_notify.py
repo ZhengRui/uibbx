@@ -23,6 +23,7 @@ from ...db.core import (
     update_user_field_by_uid,
 )
 from ...models import Purchase, Refer, Subscription
+from ...utils.pay.alipay import alipay
 from ...utils.pay.wechat import wxpay
 from .auth import verify_access_token
 from .subscription import tiers
@@ -36,7 +37,7 @@ class OrderType(str, Enum):
 
 
 @r.post("/payment_notify/wechat")
-async def payment_notify(request: Request, db: Database = Depends(get_db)):
+async def payment_notify_wechat(request: Request, db: Database = Depends(get_db)):
     headers = {
         'Wechatpay-Signature': request.headers.get('wechatpay-signature'),
         'Wechatpay-Timestamp': request.headers.get('wechatpay-timestamp'),
@@ -57,6 +58,25 @@ async def payment_notify(request: Request, db: Database = Depends(get_db)):
         await notify(db, order_id, order_type, amount, referrer_uid)
     else:
         return JSONResponse(status_code=500, content={"detail": "微信支付回调失败"})
+
+
+@r.post("/payment_notify/alipay")
+async def payment_notify_alipay(request: Request, db: Database = Depends(get_db)):
+    async with request.form() as form:
+        data = dict(form)
+        signature = data.pop("sign")
+
+        success = alipay.verify(data, signature)
+        if success and data["trade_status"] in ("TRADE_SUCCESS", "TRADE_FINISHED"):
+            order_id = data["out_trade_no"]
+            amount = float(data["total_amount"]) * 100
+            body = json.loads(data["body"])
+            order_type = body['type']
+            referrer_uid = body['referrer_uid']
+
+            await notify(db, order_id, order_type, amount, referrer_uid)
+        else:
+            return JSONResponse(status_code=500, content={"detail": "微信支付回调失败"})
 
 
 async def notify(
