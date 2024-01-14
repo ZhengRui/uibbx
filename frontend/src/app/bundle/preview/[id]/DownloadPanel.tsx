@@ -21,6 +21,8 @@ const DownloadPanel = ({ bundle }: { bundle: BundleIF }) => {
   const [tab, setTab] = useState<"purchase" | "subscription">("purchase");
   const [qrCodeUrl, setQRCodeUrl] = useState<string | null>(null);
   const intervalIdRef = useRef<number | null>(null);
+  const intervalDurationRef = useRef<number>(2000); // Start with 2 seconds
+  const intervalCountRef = useRef<number>(0);
 
   const { isPending, data: subcriptionOptions } = useSubscriptionOptions();
 
@@ -28,6 +30,8 @@ const DownloadPanel = ({ bundle }: { bundle: BundleIF }) => {
 
   useEffect(() => {
     if (intervalIdRef.current !== null) clearInterval(intervalIdRef.current);
+    intervalDurationRef.current = 2000;
+    intervalCountRef.current = 0;
 
     setQRCodeUrl(null);
 
@@ -40,18 +44,40 @@ const DownloadPanel = ({ bundle }: { bundle: BundleIF }) => {
         const order = await getPurchaseQRCode(bundle.id, option);
         setQRCodeUrl(order.code_url);
 
-        // Set up a new interval
-        intervalIdRef.current = setInterval(async () => {
+        const checkOrderStatusWithExpBackoff = async () => {
           const status = await getPurchaseOrderStatus(order.id);
-          if (status === "succeed" && intervalIdRef.current !== null) {
+
+          if (status === "succeed") {
             toast.success("支付成功");
-            clearInterval(intervalIdRef.current);
+
+            if (intervalIdRef.current !== null)
+              clearInterval(intervalIdRef.current);
+            intervalIdRef.current = null;
+
             setOpen(false);
             queryClient.invalidateQueries({
               queryKey: ["user", "downloadable", bundle.id],
             });
+          } else {
+            if (intervalCountRef.current++ >= 45)
+              intervalDurationRef.current = Math.floor(
+                intervalDurationRef.current * 1.1
+              );
+
+            scheduleNextCheck();
           }
-        }, 1000 * 2) as unknown as number;
+        };
+
+        const scheduleNextCheck = () => {
+          if (intervalIdRef.current !== null)
+            clearInterval(intervalIdRef.current);
+          intervalIdRef.current = window.setTimeout(
+            checkOrderStatusWithExpBackoff,
+            intervalDurationRef.current
+          );
+        };
+
+        scheduleNextCheck();
       } catch (err) {
         toast.error(err instanceof Error ? err.message : (err as string));
       }
