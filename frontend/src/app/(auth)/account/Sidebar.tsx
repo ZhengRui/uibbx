@@ -8,6 +8,7 @@ import {
 
 import { useAtom } from "jotai";
 import { accountTabAtom } from "@/atoms";
+import { UserIF } from "@/interfaces";
 
 export const tabs = {
   likes: "我的喜欢",
@@ -17,10 +18,15 @@ export const tabs = {
   orders: "交易记录",
 };
 
+const adminSwitchedOn = process.env.NEXT_PUBLIC_ADMIN_SWITCH === "on";
+const adminUid = process.env.NEXT_PUBLIC_ADMIN_UID;
+const { publishes, ...tabsNonAdmin } = tabs;
+
 const Sidebar = () => {
   const [currentTab, setCurrentTab] = useAtom(accountTabAtom);
 
   const queryClient = useQueryClient();
+  const user = queryClient.getQueryData<UserIF>(["whoami"]);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -39,7 +45,9 @@ const Sidebar = () => {
 
   return (
     <div className="bg-white h-full flex flex-col justify-start items-center py-6 space-y-6 text-xs lg:text-sm">
-      {Object.entries(tabs).map(([tab, tabText], i) => (
+      {Object.entries(
+        adminSwitchedOn && adminUid !== user?.uid ? tabsNonAdmin : tabs
+      ).map(([tab, tabText], i) => (
         <span
           key={i}
           className={`${

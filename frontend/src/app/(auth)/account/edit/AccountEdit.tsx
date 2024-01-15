@@ -13,6 +13,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { UserCircleIcon } from "@/components/icons";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 
+const maxAvatarSize = process.env.NEXT_PUBLIC_MAX_AVATAR_SIZE;
+
 const EditInfoForm = () => {
   const queryClient = useQueryClient();
 
@@ -52,6 +54,11 @@ const EditInfoForm = () => {
     const description = target.desc.value || "";
     const username = target.username.value || "";
     const avatar = target.avatar.files[0] || "";
+
+    if (maxAvatarSize && parseInt(maxAvatarSize) < avatar.size) {
+      toast.error("头像图片大小不能超过 3MB");
+      return;
+    }
 
     try {
       const data = await updateUserInfo({
@@ -131,6 +138,8 @@ const EditInfoForm = () => {
                 id="nickname"
                 className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-xs xs:text-sm focus:outline-none"
                 required
+                minLength={1}
+                maxLength={8}
               />
             </div>
           </div>

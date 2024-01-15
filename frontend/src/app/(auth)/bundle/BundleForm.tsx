@@ -14,6 +14,8 @@ import { Modal } from "@/components/Modal";
 import { ExclamationCircleSolidIcon } from "@/components/icons";
 import Link from "next/link";
 
+const maxBundleImageSize = process.env.NEXT_PUBLIC_MAX_BUNDLE_IMAGE_SIZE;
+
 const BundleForm = ({
   init,
   newOrUpdate = "new",
@@ -97,6 +99,20 @@ const BundleForm = ({
     if (format.length === 0) {
       toast.error("请至少选择一个格式");
       return;
+    }
+
+    if (maxBundleImageSize) {
+      const tooLargeImages = images.filter(
+        (i) => i.file && i.file.size > parseInt(maxBundleImageSize)
+      );
+      if (tooLargeImages.length > 0) {
+        toast.error(
+          `图片 ${tooLargeImages
+            .map((i) => i.file!.name)
+            .join(", ")} 大小超过限制，图片大小不能超过 5Mb`
+        );
+        return;
+      }
     }
 
     await (newOrUpdate === "new" ? publishBundle : updateBundle)({

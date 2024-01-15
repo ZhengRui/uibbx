@@ -9,6 +9,7 @@ from databases import Database
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import JSONResponse
 
+from ...config import ADMIN_SWITCH, ADMIN_UID
 from ...db.connect import get_db
 from ...db.core import (
     bookmark_bundle,
@@ -54,6 +55,12 @@ async def upload_bundle(
     current_user: User = Depends(get_current_enabled_user),
 ):
     # TODO: check if current_user is admin/vip to gate uploading
+    if ADMIN_SWITCH and current_user.uid != ADMIN_UID:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="上传权限错误",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     while True:
         id = uuid.uuid4()

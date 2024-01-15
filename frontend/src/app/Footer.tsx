@@ -11,10 +11,13 @@ const Footer = () => (
             <span>联系客服QQ: 1533949286</span>
           </div>
         </div>
-        <span className="flex justify-center items-center pt-8">
-          本站素材图片均来源于网络用户分享，本站所有资源仅供学习研究与交流，不得用于任何商业用途的范围
-          ©2023 本站若侵犯了您的合法权益，请联系站长删除!
-        </span>
+        <div className="pt-8 flex flex-col justify-start items-center space-y-2">
+          <span>
+            本站素材图片均来源于网络用户分享，本站所有资源仅供学习研究与交流，不得用于任何商业用途的范围。
+            本站若侵犯了您的合法权益，请联系站长删除!
+          </span>
+          <span>©2024 腾云颜创设计工作室 | 粤ICP备2024161187号-1</span>
+        </div>
       </div>
     </div>
   </div>

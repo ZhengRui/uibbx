@@ -38,3 +38,6 @@ PAY_AliPay_APP_PRIVATE_KEY_PATH = config("PAY_AliPay_APP_PRIVATE_KEY_PATH", cast
 PAY_AliPay_PUBLIC_KEY_PATH = config("PAY_AliPay_PUBLIC_KEY_PATH", cast=str)
 PAY_AliPay_NOTIFY_URL = config("PAY_AliPay_NOTIFY_URL", cast=str)
 PAY_AliPay_GATEWAY = config("PAY_AliPay_GATEWAY", cast=str)
+
+ADMIN_UID = config("ADMIN_UID", cast=str)
+ADMIN_SWITCH = config("ADMIN_SWITCH", cast=bool, default=False)

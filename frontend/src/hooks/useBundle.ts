@@ -172,6 +172,9 @@ export const usePublishBundle = () => {
       toast.success("发布成功");
       router.push(`/bundle/preview/${data.id}`);
     },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : (err as string));
+    },
   });
 
   return (bundle: BundleIF) => publishBundleMutation.mutate(bundle);
