@@ -37,6 +37,30 @@ const formatIcons = {
   photoshop: PhotoShopIcon,
 };
 
+const SkeletonedImage = ({ src, alt }: { src: string; alt: string }) => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  return (
+    <div>
+      {isLoading && (
+        <div className="w-full h-96 animate-pulse bg-[#404040] rounded-3xl overflow-clip bg-opacity-50"></div>
+      )}
+      <Image
+        src={src}
+        alt={alt}
+        width={0}
+        height={0}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        className={`${
+          isLoading ? "hidden" : "block"
+        } w-full rounded-3xl overflow-clip`}
+        priority
+        onLoad={() => setIsLoading(false)}
+      />
+    </div>
+  );
+};
+
 export default function BundlePreviewPage({
   params,
 }: {
@@ -262,7 +286,7 @@ export default function BundlePreviewPage({
         <div className="mt-16 flex flex-col justify-center items-center w-full space-y-10 px-4 sm:px-6 md:px-10 lg:px-16 xl:px-24">
           {bundle.images.slice(1).map((image, i) => (
             <div key={i} className="w-full relative">
-              <Image
+              {/* <Image
                 src={image as string}
                 alt={`image-${i}`}
                 width={0}
@@ -270,7 +294,8 @@ export default function BundlePreviewPage({
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="w-full rounded-3xl overflow-clip"
                 priority
-              />
+              /> */}
+              <SkeletonedImage src={image as string} alt={`image-${i}`} />
             </div>
           ))}
         </div>
