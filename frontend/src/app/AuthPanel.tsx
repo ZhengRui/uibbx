@@ -275,109 +275,139 @@ const Signup = () => {
     }, 1000);
   }, [counterLife]);
 
+  const [socialLogin, setSocialLogin] = useState<string | null>(null);
+
+  const generateState = () => {
+    const state = Math.random().toString(36).slice(2, 15);
+    localStorage.setItem("ssoWechatState", state);
+    return state;
+  };
+
   return (
-    <div className="flex flex-col justify-end items-center w-full h-full space-y-10">
-      <form
-        className="flex flex-col justify-between items-center w-full"
-        ref={formRef}
-        onSubmit={handleSignup}
-      >
-        <div className="w-full">
-          <label className="hidden" htmlFor="cellOrEmail">
-            手机号/邮箱
-          </label>
-          <input
-            id="cellOrEmail"
-            name="cellOrEmail"
-            type="text"
-            placeholder="手机号/邮箱"
-            required
-            className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
-          />
-        </div>
+    <div className="flex flex-col justify-end items-center w-full h-full">
+      {!socialLogin ? (
+        <form
+          className="mb-10 flex flex-col justify-between items-center w-full"
+          ref={formRef}
+          onSubmit={handleSignup}
+        >
+          <div className="w-full">
+            <label className="hidden" htmlFor="cellOrEmail">
+              手机号/邮箱
+            </label>
+            <input
+              id="cellOrEmail"
+              name="cellOrEmail"
+              type="text"
+              placeholder="手机号/邮箱"
+              required
+              className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
+            />
+          </div>
 
-        <div className="mt-3 w-full relative">
-          <label className="hidden" htmlFor="password">
-            密码
-          </label>
-          <input
-            id="password"
-            name="password"
-            type={passwordVisible ? "text" : "password"}
-            placeholder="密码"
-            title="8-12个字符，数字、字母、特殊字符至少各有一个"
-            required
-            autoComplete="new-password"
-            className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
-          />
-          {
-            <div
-              className="absolute top-0 right-4 h-full flex items-center cursor-pointer"
-              onClick={() => setPasswordVisible(!passwordVisible)}
+          <div className="mt-3 w-full relative">
+            <label className="hidden" htmlFor="password">
+              密码
+            </label>
+            <input
+              id="password"
+              name="password"
+              type={passwordVisible ? "text" : "password"}
+              placeholder="密码"
+              title="8-12个字符，数字、字母、特殊字符至少各有一个"
+              required
+              autoComplete="new-password"
+              className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
+            />
+            {
+              <div
+                className="absolute top-0 right-4 h-full flex items-center cursor-pointer"
+                onClick={() => setPasswordVisible(!passwordVisible)}
+              >
+                {passwordVisible ? (
+                  <EyeSlashIcon className="w-6 h-6 text-gray-400" />
+                ) : (
+                  <EyeIcon className="w-6 h-6 text-gray-400" />
+                )}
+              </div>
+            }
+          </div>
+
+          <div className="mt-3 w-full relative">
+            <label className="hidden" htmlFor="code">
+              验证码
+            </label>
+            <input
+              id="code"
+              name="code"
+              type="text"
+              placeholder="验证码"
+              required
+              className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
+            />
+
+            {counterLife ? (
+              <div className="absolute top-0 right-1 h-full py-1">
+                <button
+                  className="px-8 h-full bg-[#936efe] rounded-full text-sm text-white"
+                  type="button"
+                >
+                  {counterLife}s
+                </button>
+              </div>
+            ) : (
+              <div className="absolute top-0 right-1 h-full py-1">
+                <button
+                  className="px-6 2xs:px-8 h-full bg-[#936efe] rounded-full text-sm text-white"
+                  type="button"
+                  onClick={handleVerification}
+                >
+                  <span>发送</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6 w-full flex justify-end items-center space-x-10 text-gray-500">
+            <span
+              className="text-xs 2xs:text-sm cursor-pointer hover:text-[#936efe]"
+              onClick={() => setMode("login")}
             >
-              {passwordVisible ? (
-                <EyeSlashIcon className="w-6 h-6 text-gray-400" />
-              ) : (
-                <EyeIcon className="w-6 h-6 text-gray-400" />
-              )}
-            </div>
-          }
-        </div>
+              返回登录
+            </span>
+          </div>
 
-        <div className="mt-3 w-full relative">
-          <label className="hidden" htmlFor="code">
-            验证码
-          </label>
-          <input
-            id="code"
-            name="code"
-            type="text"
-            placeholder="验证码"
-            required
-            className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
+          <button className="mt-10 w-full bg-[#936efe] py-2 rounded-full text-white">
+            注册
+          </button>
+        </form>
+      ) : socialLogin === "wechat" ? (
+        <div className="w-full h-full relative">
+          <WxLogin
+            appid={ssoWechatAppId}
+            redirect_uri={ssoWechatRedirectUri}
+            self_redirect={false}
+            state={generateState()}
           />
-
-          {counterLife ? (
-            <div className="absolute top-0 right-1 h-full py-1">
-              <button
-                className="px-8 h-full bg-[#936efe] rounded-full text-sm text-white"
-                type="button"
-              >
-                {counterLife}s
-              </button>
-            </div>
-          ) : (
-            <div className="absolute top-0 right-1 h-full py-1">
-              <button
-                className="px-6 2xs:px-8 h-full bg-[#936efe] rounded-full text-sm text-white"
-                type="button"
-                onClick={handleVerification}
-              >
-                <span>发送</span>
-              </button>
-            </div>
-          )}
+          <div className="absolute w-full -top-8 flex justify-center">
+            <button
+              onClick={() => setSocialLogin(null)}
+              className="rounded-full px-5 py-1.5 bg-gray-500 text-white text-xs"
+            >
+              返回
+            </button>
+          </div>
         </div>
-
-        <div className="mt-6 w-full flex justify-end items-center space-x-10 text-gray-500">
-          <span
-            className="text-xs 2xs:text-sm cursor-pointer hover:text-[#936efe]"
-            onClick={() => setMode("login")}
-          >
-            返回登录
-          </span>
-        </div>
-
-        <button className="mt-10 w-full bg-[#936efe] py-2 rounded-full text-white">
-          注册
-        </button>
-      </form>
+      ) : null}
       <div className="flex flex-col justify-between items-center w-full">
         <div className="relative w-2/3 border-t border-t-gray-200 flex justify-center items-center">
           <span className="absolute px-6 bg-white text-gray-400">OR</span>
         </div>
         <div className="flex justify-center items-center mt-12">
-          <WechatIcon className="w-9 h-9 text-[#00c800] border rounded-full p-2 border-[#c8d8f5]" />
+          <WechatIcon
+            onClick={() => setSocialLogin("wechat")}
+            className="w-9 h-9 text-[#00c800] border rounded-full p-2 border-[#c8d8f5]"
+          />
         </div>
       </div>
     </div>
@@ -505,147 +535,177 @@ const Reset = () => {
     }, 1000);
   }, [counterLife]);
 
+  const [socialLogin, setSocialLogin] = useState<string | null>(null);
+
+  const generateState = () => {
+    const state = Math.random().toString(36).slice(2, 15);
+    localStorage.setItem("ssoWechatState", state);
+    return state;
+  };
+
   return (
-    <div className="flex flex-col justify-end items-center w-full h-full space-y-16">
-      <form
-        className="flex flex-col justify-between items-center w-full"
-        onSubmit={verificationPassed ? handleReset : handleContinue}
-        ref={formRef}
-      >
-        <div className={`w-full ${verificationPassed ? "hidden" : ""}`}>
-          <label className="hidden" htmlFor="cellOrEmail">
-            手机号/邮箱
-          </label>
-          <input
-            id="cellOrEmail"
-            name="cellOrEmail"
-            type="text"
-            placeholder="手机号/邮箱"
-            required={!verificationPassed}
-            className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
-          />
-        </div>
-
-        <div
-          className={`mt-3 w-full relative ${
-            verificationPassed ? "hidden" : ""
-          }`}
+    <div className="flex flex-col justify-end items-center w-full h-full">
+      {!socialLogin ? (
+        <form
+          className="mb-16 flex flex-col justify-between items-center w-full"
+          onSubmit={verificationPassed ? handleReset : handleContinue}
+          ref={formRef}
         >
-          <label className="hidden" htmlFor="code">
-            验证码
-          </label>
-          <input
-            id="code"
-            name="code"
-            type="text"
-            placeholder="验证码"
-            required={!verificationPassed}
-            className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
-          />
+          <div className={`w-full ${verificationPassed ? "hidden" : ""}`}>
+            <label className="hidden" htmlFor="cellOrEmail">
+              手机号/邮箱
+            </label>
+            <input
+              id="cellOrEmail"
+              name="cellOrEmail"
+              type="text"
+              placeholder="手机号/邮箱"
+              required={!verificationPassed}
+              className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
+            />
+          </div>
 
-          {counterLife ? (
-            <div className="absolute top-0 right-1 h-full py-1">
-              <button
-                className="px-8 h-full bg-[#936efe] rounded-full text-sm text-white"
-                type="button"
-              >
-                {counterLife}s
-              </button>
-            </div>
-          ) : (
-            <div className="absolute top-0 right-1 h-full py-1">
-              <button
-                className="px-6 2xs:px-8 h-full bg-[#936efe] rounded-full text-sm text-white"
-                type="button"
-                onClick={handleVerification}
-              >
-                <span>发送</span>
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div
-          className={`relative w-full ${
-            verificationPassed ? "block" : "hidden"
-          }`}
-        >
-          <label className="hidden" htmlFor="password">
-            新密码
-          </label>
-          <input
-            id="password"
-            name="password"
-            type={passwordVisible ? "text" : "password"}
-            placeholder="新密码"
-            title="8-12个字符，数字、字母、特殊字符至少各有一个"
-            required={verificationPassed}
-            className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
-          />
-          {
-            <div
-              className="absolute top-0 right-4 h-full flex items-center cursor-pointer"
-              onClick={() => setPasswordVisible(!passwordVisible)}
-            >
-              {passwordVisible ? (
-                <EyeSlashIcon className="w-6 h-6 text-gray-400" />
-              ) : (
-                <EyeIcon className="w-6 h-6 text-gray-400" />
-              )}
-            </div>
-          }
-        </div>
-
-        <div
-          className={`relative mt-3 w-full ${
-            verificationPassed ? "block" : "hidden"
-          }`}
-        >
-          <label className="hidden" htmlFor="repeat">
-            重复新密码
-          </label>
-          <input
-            id="repeat"
-            name="repeat"
-            type={passwordVisible ? "text" : "password"}
-            placeholder="重复新密码"
-            title="与上面密码相同"
-            required={verificationPassed}
-            className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
-          />
-          {
-            <div
-              className="absolute top-0 right-4 h-full flex items-center cursor-pointer"
-              onClick={() => setPasswordVisible(!passwordVisible)}
-            >
-              {passwordVisible ? (
-                <EyeSlashIcon className="w-6 h-6 text-gray-400" />
-              ) : (
-                <EyeIcon className="w-6 h-6 text-gray-400" />
-              )}
-            </div>
-          }
-        </div>
-
-        <div className="mt-6 w-full flex justify-end items-center space-x-10 text-gray-500">
-          <span
-            className="text-xs 2xs:text-sm cursor-pointer hover:text-[#936efe]"
-            onClick={() => setMode("login")}
+          <div
+            className={`mt-3 w-full relative ${
+              verificationPassed ? "hidden" : ""
+            }`}
           >
-            返回登录
-          </span>
-        </div>
+            <label className="hidden" htmlFor="code">
+              验证码
+            </label>
+            <input
+              id="code"
+              name="code"
+              type="text"
+              placeholder="验证码"
+              required={!verificationPassed}
+              className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
+            />
 
-        <button className="mt-10 w-full bg-[#936efe] py-2 rounded-full text-white">
-          {verificationPassed ? "重置" : "继续"}
-        </button>
-      </form>
+            {counterLife ? (
+              <div className="absolute top-0 right-1 h-full py-1">
+                <button
+                  className="px-8 h-full bg-[#936efe] rounded-full text-sm text-white"
+                  type="button"
+                >
+                  {counterLife}s
+                </button>
+              </div>
+            ) : (
+              <div className="absolute top-0 right-1 h-full py-1">
+                <button
+                  className="px-6 2xs:px-8 h-full bg-[#936efe] rounded-full text-sm text-white"
+                  type="button"
+                  onClick={handleVerification}
+                >
+                  <span>发送</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div
+            className={`relative w-full ${
+              verificationPassed ? "block" : "hidden"
+            }`}
+          >
+            <label className="hidden" htmlFor="password">
+              新密码
+            </label>
+            <input
+              id="password"
+              name="password"
+              type={passwordVisible ? "text" : "password"}
+              placeholder="新密码"
+              title="8-12个字符，数字、字母、特殊字符至少各有一个"
+              required={verificationPassed}
+              className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
+            />
+            {
+              <div
+                className="absolute top-0 right-4 h-full flex items-center cursor-pointer"
+                onClick={() => setPasswordVisible(!passwordVisible)}
+              >
+                {passwordVisible ? (
+                  <EyeSlashIcon className="w-6 h-6 text-gray-400" />
+                ) : (
+                  <EyeIcon className="w-6 h-6 text-gray-400" />
+                )}
+              </div>
+            }
+          </div>
+
+          <div
+            className={`relative mt-3 w-full ${
+              verificationPassed ? "block" : "hidden"
+            }`}
+          >
+            <label className="hidden" htmlFor="repeat">
+              重复新密码
+            </label>
+            <input
+              id="repeat"
+              name="repeat"
+              type={passwordVisible ? "text" : "password"}
+              placeholder="重复新密码"
+              title="与上面密码相同"
+              required={verificationPassed}
+              className="w-full border py-3 px-6 rounded-full border-[#c8d8f5] focus:outline-none text-sm text-gray-600"
+            />
+            {
+              <div
+                className="absolute top-0 right-4 h-full flex items-center cursor-pointer"
+                onClick={() => setPasswordVisible(!passwordVisible)}
+              >
+                {passwordVisible ? (
+                  <EyeSlashIcon className="w-6 h-6 text-gray-400" />
+                ) : (
+                  <EyeIcon className="w-6 h-6 text-gray-400" />
+                )}
+              </div>
+            }
+          </div>
+
+          <div className="mt-6 w-full flex justify-end items-center space-x-10 text-gray-500">
+            <span
+              className="text-xs 2xs:text-sm cursor-pointer hover:text-[#936efe]"
+              onClick={() => setMode("login")}
+            >
+              返回登录
+            </span>
+          </div>
+
+          <button className="mt-10 w-full bg-[#936efe] py-2 rounded-full text-white">
+            {verificationPassed ? "重置" : "继续"}
+          </button>
+        </form>
+      ) : socialLogin === "wechat" ? (
+        <div className="w-full h-full relative">
+          <WxLogin
+            appid={ssoWechatAppId}
+            redirect_uri={ssoWechatRedirectUri}
+            self_redirect={false}
+            state={generateState()}
+          />
+          <div className="absolute w-full -top-8 flex justify-center">
+            <button
+              onClick={() => setSocialLogin(null)}
+              className="rounded-full px-5 py-1.5 bg-gray-500 text-white text-xs"
+            >
+              返回
+            </button>
+          </div>
+        </div>
+      ) : null}
       <div className="flex flex-col justify-between items-center w-full">
         <div className="relative w-2/3 border-t border-t-gray-200 flex justify-center items-center">
           <span className="absolute px-6 bg-white text-gray-400">OR</span>
         </div>
         <div className="flex justify-center items-center mt-12">
-          <WechatIcon className="w-9 h-9 text-[#00c800] border rounded-full p-2 border-[#c8d8f5]" />
+          <WechatIcon
+            onClick={() => setSocialLogin("wechat")}
+            className="w-9 h-9 text-[#00c800] border rounded-full p-2 border-[#c8d8f5]"
+          />
         </div>
       </div>
     </div>
