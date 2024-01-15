@@ -37,6 +37,7 @@ export interface SubscriptionOptionIF {
   title: string;
   subtitle: string;
   subsubtitle: string;
+  tier: string;
   price: number;
   subscribed: boolean;
   subscriptable: boolean;

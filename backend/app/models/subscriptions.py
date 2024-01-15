@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
 
 class Subscription(BaseModel):
@@ -15,7 +15,7 @@ class Subscription(BaseModel):
     user_uid: str
 
 
-class SubscriptionOrder(BaseModel):
+class SubscriptionOrder(BaseModel, extra=Extra.allow):
     id: str
     created_at: datetime
     status: str

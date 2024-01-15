@@ -3,10 +3,26 @@
 import { useSubscriptionOptions } from "@/hooks/useSubscription";
 import { SubscriptionOptionIF } from "@/interfaces";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
+import PaymentPanel from "./PaymentPanel";
+import { useSetAtom } from "jotai";
+import { paymentPanelOpenAtom } from "@/atoms";
+import { useState } from "react";
 
-const VIPCard = ({ option }: { option: SubscriptionOptionIF }) => {
+const VIPCard = ({
+  option,
+  setPaymentTitle,
+  setPaymentAmount,
+  setTier,
+}: {
+  option: SubscriptionOptionIF;
+  setPaymentTitle: Function;
+  setPaymentAmount: Function;
+  setTier: Function;
+}) => {
   const upgradable =
     option.subscribe_price !== 0 && option.subscribe_price !== option.price;
+
+  const setPaymentPanelOpen = useSetAtom(paymentPanelOpenAtom);
 
   return (
     <div
@@ -66,6 +82,15 @@ const VIPCard = ({ option }: { option: SubscriptionOptionIF }) => {
                 : "border border-gray-700 hover:bg-violet-600 hover:text-white"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}
+          disabled={!option.subscriptable}
+          onClick={() => {
+            setPaymentTitle(upgradable ? "升级VIP计划" : "订阅VIP计划");
+            setPaymentAmount(
+              upgradable ? option.subscribe_price : option.price
+            );
+            setTier(option.tier);
+            setPaymentPanelOpen(true);
+          }}
         >
           立即
           {upgradable ? "升级" : "订阅"}
@@ -78,6 +103,10 @@ const VIPCard = ({ option }: { option: SubscriptionOptionIF }) => {
 const Subscription = () => {
   const { isPending, data: options } = useSubscriptionOptions();
 
+  const [title, setTitle] = useState("升级VIP");
+  const [amount, setAmount] = useState(100.0);
+  const [tier, setTier] = useState<string>("month");
+
   if (isPending) return null;
 
   return (
@@ -89,10 +118,16 @@ const Subscription = () => {
       <div className="w-full mt-16 flex flex-col lg:flex-row justify-center items-center space-y-6 lg:space-y-0 lg:space-x-4">
         {options?.map((option, i: number) => (
           <div key={i} className="w-full flex justify-center px-2">
-            <VIPCard option={option} />
+            <VIPCard
+              option={option}
+              setPaymentTitle={setTitle}
+              setPaymentAmount={setAmount}
+              setTier={setTier}
+            />
           </div>
         ))}
       </div>
+      <PaymentPanel title={title} amount={amount} tier={tier} />
     </div>
   );
 };

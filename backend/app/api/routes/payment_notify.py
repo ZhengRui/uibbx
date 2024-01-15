@@ -25,7 +25,6 @@ from ...db.core import (
 from ...models import Purchase, Refer, Subscription
 from ...utils.pay.alipay import alipay
 from ...utils.pay.wechat import wxpay
-from .auth import verify_access_token
 from .subscription import tiers
 
 payment_notify_router = r = APIRouter()

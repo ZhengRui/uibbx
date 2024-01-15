@@ -4,20 +4,24 @@ import { Transition, Popover } from "@headlessui/react";
 import { Fragment, useEffect, useState, useRef } from "react";
 import { useAtom } from "jotai";
 import { downloadPanelOpenAtom } from "@/atoms";
-import { WechatPayIcon, AliPayIcon, CoinIcon } from "@/components/icons";
+import {
+  WechatPayIcon,
+  AliPayIcon,
+  CoinIcon,
+  SpinningIcon,
+} from "@/components/icons";
 import Link from "next/link";
 import { BundleIF } from "@/interfaces";
 import { useSubscriptionOptions } from "@/hooks/useSubscription";
 import { getPurchaseQRCode, getPurchaseOrderStatus } from "@/utils/bundle";
 import toast from "react-hot-toast";
 import { QRCodeSVG } from "qrcode.react";
-import { SpinningIcon } from "@/components/icons";
 import { useQueryClient } from "@tanstack/react-query";
 
 const DownloadPanel = ({ bundle }: { bundle: BundleIF }) => {
   const [open, setOpen] = useAtom(downloadPanelOpenAtom);
 
-  const [option, setOption] = useState<"wechat" | "alipay" | "coin">("alipay");
+  const [option, setOption] = useState<"wechat" | "alipay" | "coin">("wechat");
   const [tab, setTab] = useState<"purchase" | "subscription">("purchase");
   const [qrCodeUrl, setQRCodeUrl] = useState<string | null>(null);
   const intervalIdRef = useRef<number | null>(null);
@@ -235,7 +239,7 @@ const DownloadPanel = ({ bundle }: { bundle: BundleIF }) => {
                         )}
                       </div>
 
-                      <span className="w-full text-right text-xs xs:text-sm underline underline-offset-4 decoration-gray-400 cursor-pointer hover:decoration-indigo-600 hover:text-indigo-600">
+                      <span className="invisible w-full text-right text-xs xs:text-sm underline underline-offset-4 decoration-gray-400 cursor-pointer hover:decoration-indigo-600 hover:text-indigo-600">
                         已完成支付
                       </span>
                     </div>
@@ -367,7 +371,7 @@ const DownloadPanel = ({ bundle }: { bundle: BundleIF }) => {
                     )}
                   </div>
 
-                  <span className="w-full text-right text-sm underline underline-offset-4 decoration-gray-400 cursor-pointer hover:decoration-indigo-600 hover:text-indigo-600">
+                  <span className="invisible w-full text-right text-sm underline underline-offset-4 decoration-gray-400 cursor-pointer hover:decoration-indigo-600 hover:text-indigo-600">
                     已完成支付
                   </span>
                 </div>
