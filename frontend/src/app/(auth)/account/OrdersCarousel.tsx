@@ -58,7 +58,7 @@ const Carousel = () => {
       {tab === "purchases" && (
         <div className="mt-6 w-full grid grid-cols-1 @[768px]:grid-cols-2 @[1096px]:grid-cols-3 gap-x-4 gap-y-6">
           {bundles?.map((bundle, i) => (
-            <div key={bundle.id} className="w-full">
+            <div key={`${i}-${bundle.id}`} className="w-full">
               <CardOfPurchase bundle={bundle} />
             </div>
           ))}
