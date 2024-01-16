@@ -30,7 +30,7 @@ export const getSubscriptionQRCode = requestTemplate(
   (tier: string, option: string) => ({
     url: apiEndpoint + `/subscription?tier=${tier}&option=${option}`,
     method: "POST",
-    body: formConstructor({}),
+    body: formConstructor({ dummyField: "dummyField" }),
   }),
   responseHandlerTemplate,
   null,
