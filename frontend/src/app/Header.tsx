@@ -167,13 +167,22 @@ const Header = () => {
                 <span>搜索</span>
               </div>
 
-              <button
-                type="button"
-                className="font-bold rounded-full bg-violet-600 px-4 xs:px-7 py-3 text-xs xs:text-sm"
-                onClick={() => (!user ? setAuthPanelOpen(true) : null)}
-              >
-                升级VIP
-              </button>
+              {!user ? (
+                <button
+                  type="button"
+                  className="font-bold rounded-full bg-violet-600 px-4 xs:px-7 py-3 text-xs xs:text-sm"
+                  onClick={() => setAuthPanelOpen(true)}
+                >
+                  升级VIP
+                </button>
+              ) : (
+                <Link
+                  href="/subscription"
+                  className="font-bold rounded-full bg-violet-600 px-4 xs:px-7 py-3 text-xs xs:text-sm"
+                >
+                  升级VIP
+                </Link>
+              )}
 
               <User />
             </div>
