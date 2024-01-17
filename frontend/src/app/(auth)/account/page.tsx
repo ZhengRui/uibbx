@@ -6,6 +6,8 @@ import PublishesCarousel from "./PublishesCarousel";
 import OrdersCarousel from "./OrdersCarousel";
 import RefersTable from "./RefersTable";
 
+import { useQueryClient } from "@tanstack/react-query";
+import { UserIF } from "@/interfaces";
 import { useAtom } from "jotai";
 import { accountTabAtom } from "@/atoms";
 import {
@@ -76,8 +78,15 @@ const tabs = {
   },
 };
 
+const adminSwitchedOn = process.env.NEXT_PUBLIC_ADMIN_SWITCH === "on";
+const adminUid = process.env.NEXT_PUBLIC_ADMIN_UID;
+const { publishes, ...tabsNonAdmin } = tabs;
+
 export default function AccountPage() {
   const [currentTab, setCurrentTab] = useAtom(accountTabAtom);
+
+  const queryClient = useQueryClient();
+  const user = queryClient.getQueryData<UserIF>(["whoami"]);
 
   const { isPending: isNumOfLikedPending, data: numOfLiked } =
     useNumOfBundlesLiked();
@@ -111,54 +120,53 @@ export default function AccountPage() {
           {!isNumOfBookmarkedPending && !isNumOfLikedPending && (
             <div className="w-full overflow-x-auto py-6">
               <div className="flex justify-start items-center space-x-3">
-                {Object.entries(tabs).map(
-                  ([tab, { name, Icon, OutlineIcon, hlStyle }], i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      className={`isolate inline-flex shadow-sm rounded-full ${
-                        currentTab === tab
-                          ? hlStyle.text
-                          : "bg-white text-gray-500"
+                {Object.entries(
+                  adminSwitchedOn && adminUid !== user?.uid
+                    ? tabsNonAdmin
+                    : tabs
+                ).map(([tab, { name, Icon, OutlineIcon, hlStyle }], i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`isolate inline-flex shadow-sm rounded-full ${
+                      currentTab === tab
+                        ? hlStyle.text
+                        : "bg-white text-gray-500"
+                    }`}
+                    onClick={() => setCurrentTab(tab)}
+                  >
+                    <span
+                      className={`relative inline-flex items-center gap-x-1.5 ${
+                        i < 2 ? "rounded-l-full pr-2" : "rounded-full pr-4"
+                      } pl-4 py-2 text-xs ring-1 ring-inset ${
+                        currentTab === tab ? hlStyle.ring : "ring-gray-300"
                       }`}
-                      onClick={() => setCurrentTab(tab)}
                     >
+                      {currentTab === tab ? (
+                        <Icon className="-ml-0.5 h-4 w-4 " aria-hidden="true" />
+                      ) : (
+                        <OutlineIcon
+                          className="-ml-0.5 h-4 w-4 "
+                          aria-hidden="true"
+                        />
+                      )}
+                      <span className="w-12">{name}</span>
+                    </span>
+                    {i < 2 && (
                       <span
-                        className={`relative inline-flex items-center gap-x-1.5 ${
-                          i < 2 ? "rounded-l-full pr-2" : "rounded-full pr-4"
-                        } pl-4 py-2 text-xs ring-1 ring-inset ${
+                        className={`relative -ml-px inline-flex items-center rounded-r-full pl-2 pr-4 py-2 text-xs ring-1 ring-inset ${
                           currentTab === tab ? hlStyle.ring : "ring-gray-300"
                         }`}
                       >
-                        {currentTab === tab ? (
-                          <Icon
-                            className="-ml-0.5 h-4 w-4 "
-                            aria-hidden="true"
-                          />
-                        ) : (
-                          <OutlineIcon
-                            className="-ml-0.5 h-4 w-4 "
-                            aria-hidden="true"
-                          />
-                        )}
-                        <span className="w-12">{name}</span>
+                        {tab === "likes"
+                          ? numOfLiked
+                          : tab === "bookmarks"
+                          ? numOfBookmarked
+                          : " "}
                       </span>
-                      {i < 2 && (
-                        <span
-                          className={`relative -ml-px inline-flex items-center rounded-r-full pl-2 pr-4 py-2 text-xs ring-1 ring-inset ${
-                            currentTab === tab ? hlStyle.ring : "ring-gray-300"
-                          }`}
-                        >
-                          {tab === "likes"
-                            ? numOfLiked
-                            : tab === "bookmarks"
-                            ? numOfBookmarked
-                            : " "}
-                        </span>
-                      )}
-                    </button>
-                  )
-                )}
+                    )}
+                  </button>
+                ))}
               </div>
             </div>
           )}
