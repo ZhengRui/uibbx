@@ -18,6 +18,8 @@ import {
   FigmaIcon,
   SketchIcon,
   PhotoShopIcon,
+  AdobeIllustratorIcon,
+  AdobeXDIcon,
   LikeIcon,
   BookmarkIcon,
   ShareIcon,
@@ -35,6 +37,8 @@ const formatIcons = {
   figma: FigmaIcon,
   sketch: SketchIcon,
   photoshop: PhotoShopIcon,
+  ai: AdobeIllustratorIcon,
+  xd: AdobeXDIcon,
 };
 
 const SkeletonedImage = ({ src, alt }: { src: string; alt: string }) => {

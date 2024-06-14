@@ -439,6 +439,36 @@ const BundleForm = ({
                     Sketch
                   </label>
                 </div>
+                <div className="flex items-center gap-x-2">
+                  <input
+                    id="ai"
+                    name="format"
+                    type="checkbox"
+                    className="h-4 w-4 text-indigo-600"
+                    value="ai"
+                  />
+                  <label
+                    htmlFor="ai"
+                    className="block text-xs xs:text-sm font-medium leading-6"
+                  >
+                    Adobe Illustrator
+                  </label>
+                </div>
+                <div className="flex items-center gap-x-2">
+                  <input
+                    id="xd"
+                    name="format"
+                    type="checkbox"
+                    className="h-4 w-4 text-indigo-600"
+                    value="xd"
+                  />
+                  <label
+                    htmlFor="xd"
+                    className="block text-xs xs:text-sm font-medium leading-6"
+                  >
+                    Adobe XD
+                  </label>
+                </div>
               </div>
             </fieldset>
           </div>
