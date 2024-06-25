@@ -288,7 +288,7 @@ export default function BundlePreviewPage({
         </div>
 
         <div className="mt-16 flex flex-col justify-center items-center w-full space-y-10 px-4 sm:px-6 md:px-10 lg:px-16 xl:px-24">
-          {bundle.images.slice(1).map((image, i) => (
+          {bundle.images.map((image, i) => (
             <div key={i} className="w-full relative">
               {/* <Image
                 src={image as string}
