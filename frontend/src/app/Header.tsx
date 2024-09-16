@@ -21,11 +21,15 @@ import { Fragment } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 const cates = [
-  { name: "UI套件", href: "/ui" },
-  { name: "3D素材", href: "/3d" },
-  { name: "图标合集", href: "/icons" },
-  { name: "原型", href: "/prototypes" },
-  { name: "样机", href: "/apps" },
+  { name: "套件", href: "/ui" },
+  { name: "App", href: "/app" },
+  { name: "Web", href: "/web" },
+  { name: "3D", href: "/3d" },
+  { name: "图标", href: "/icon" },
+  { name: "原型", href: "/prototype" },
+  { name: "样机", href: "/sample" },
+  { name: "插画", href: "/illustration" },
+  { name: "海报", href: "/poster" },
   { name: "免费", href: "/free" },
 ];
 
@@ -136,7 +140,7 @@ const Header = () => {
           } max-w-screen-2xl w-full mx-auto px-8 lg:px-12 xl:px-16 py-6 grid grid-cols-7`}
         >
           <div className="col-span-full 3xs:col-span-2 sm:col-span-3 flex justify-between 3xs:justify-start items-center">
-            <div className="w-full hidden lg:flex justify-start items-center space-x-6 text-white text-sm">
+            <div className="w-full hidden xl:flex justify-start items-center space-x-6 text-white text-sm">
               {cates.map((cate, i) => (
                 <Link key={i} href={cate.href}>
                   {cate.name}
@@ -144,7 +148,7 @@ const Header = () => {
               ))}
             </div>
 
-            <div className="flex justify-start items-center lg:hidden">
+            <div className="flex justify-start items-center xl:hidden">
               <Popover.Button className="inline-flex items-center justify-center text-white">
                 <span className="sr-only">Open main menu</span>
                 <MenuIcon className="h-8 w-8" aria-hidden="true" />
@@ -200,7 +204,7 @@ const Header = () => {
         >
           <Popover.Panel
             focus
-            className="absolute z-20 top-0 inset-x-0 xs:w-72 p-2 transition transform origin-top-right lg:hidden"
+            className="absolute z-20 top-0 inset-x-0 xs:w-72 p-2 transition transform origin-top-right xl:hidden"
           >
             <div className="rounded-lg shadow-md bg-white ring-1 ring-black ring-opacity-5 overflow-hidden">
               <div className="mt-4 pl-2">

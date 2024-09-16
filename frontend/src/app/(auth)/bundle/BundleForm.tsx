@@ -16,6 +16,19 @@ import Link from "next/link";
 
 const maxBundleImageSize = process.env.NEXT_PUBLIC_MAX_BUNDLE_IMAGE_SIZE;
 
+const defaultTags = [
+  "UI套件",
+  "App",
+  "Web",
+  "3D",
+  "原型",
+  "图标",
+  "样机",
+  "插画",
+  "海报",
+  "免费",
+];
+
 const BundleForm = ({
   init,
   newOrUpdate = "new",
@@ -142,7 +155,14 @@ const BundleForm = ({
       ).forEach((f) => {
         if (init.format.includes(f.value)) f.checked = true;
       });
-      formRef.current.tags.value = init.tags.join(", ");
+      Array.from(
+        formRef.current.category as NodeListOf<HTMLInputElement>
+      ).forEach((f) => {
+        if (init.tags.includes(f.value)) f.checked = true;
+      });
+      formRef.current.tags.value = init.tags
+        .filter((t) => !defaultTags.includes(t))
+        .join(", ");
       formRef.current.purchasePrice.value = init.purchase_price;
     }
   }, []);
@@ -214,22 +234,58 @@ const BundleForm = ({
             >
               标签 <span className="text-gray-400">(选填)</span>
             </label>
+
+            <fieldset className="mt-2">
+              <legend className="sr-only">默认标签</legend>
+              {defaultTags.map((tag, index) => (
+                <label
+                  key={index}
+                  className="inline-flex items-center mr-6 gap-x-2"
+                  htmlFor="category"
+                >
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 text-indigo-600"
+                    name="category"
+                    value={tag}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const tagsOfDefault = defaultTags.filter(
+                          (t) => tags.includes(t) || t === tag
+                        );
+                        const tagsOfCustom = tags.filter(
+                          (t) => !defaultTags.includes(t)
+                        );
+                        setTags([...tagsOfDefault, ...tagsOfCustom]);
+                      } else {
+                        setTags(tags.filter((t) => t !== tag));
+                      }
+                    }}
+                  />
+                  <span>{tag}</span>
+                </label>
+              ))}
+            </fieldset>
+
             <div className="mt-2 flex flex-col space-y-2">
               <input
                 type="text"
                 name="tags"
                 id="tags"
                 className="w-full border py-1.5 px-3 rounded-md text-gray-600 text-xs xs:text-sm focus:outline-none"
-                placeholder="例子: 3D, 电影海报, 卡通, figma"
+                placeholder="自定义: 3D, 电影海报, 卡通, figma"
                 onChange={(e) => {
                   const value = e.target.value;
-                  setTags(
-                    value
-                      .replaceAll("，", ",")
-                      .split(",")
-                      .map((t) => t.trim())
-                      .filter((t) => t.length > 0)
+                  const tagsOfDefault = tags.filter((t) =>
+                    defaultTags.includes(t)
                   );
+                  const tagsOfCustom = value
+                    .replaceAll("，", ",")
+                    .split(",")
+                    .map((t) => t.trim())
+                    .filter((t) => t.length > 0 && !defaultTags.includes(t));
+
+                  setTags([...tagsOfDefault, ...tagsOfCustom]);
                 }}
               />
               {tags && (
