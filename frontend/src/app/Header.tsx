@@ -132,7 +132,7 @@ const Header = () => {
 
         <div
           className={`${
-            isAccountPage ? "absolute top-0" : ""
+            isAccountPage ? "absolute top-0 left-0 right-0" : ""
           } max-w-screen-2xl w-full mx-auto px-8 lg:px-12 xl:px-16 py-6 grid grid-cols-7`}
         >
           <div className="col-span-full 3xs:col-span-2 sm:col-span-3 flex justify-between 3xs:justify-start items-center">

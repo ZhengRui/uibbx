@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   useNumOfBundlesLiked,
   useNumOfBundlesBookmarked,
+  useNumOfBundlesPublished,
 } from "@/hooks/useBundle";
 
 import { useAtom } from "jotai";
@@ -40,8 +41,15 @@ const Sidebar = () => {
     useNumOfBundlesLiked();
   const { isPending: isNumOfBookmarkedPending, data: numOfBookmarked } =
     useNumOfBundlesBookmarked();
+  const { isPending: isNumOfPublishedPending, data: numOfPublished } =
+    useNumOfBundlesPublished();
 
-  if (isNumOfBookmarkedPending || isNumOfLikedPending) return null;
+  if (
+    isNumOfBookmarkedPending ||
+    isNumOfLikedPending ||
+    isNumOfPublishedPending
+  )
+    return null;
 
   return (
     <div className="bg-white h-full flex flex-col justify-start items-center py-6 space-y-6 text-xs lg:text-sm">
@@ -60,6 +68,8 @@ const Sidebar = () => {
             ? ` (${numOfLiked})`
             : tab === "bookmarks"
             ? ` (${numOfBookmarked})`
+            : tab === "publishes"
+            ? ` (${numOfPublished})`
             : ""}
         </span>
       ))}
