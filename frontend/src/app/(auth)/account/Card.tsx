@@ -53,7 +53,9 @@ const Card = ({
       <div className="w-full relative h-72 rounded-2xl overflow-clip">
         {isPendingLikedByMe ||
         isPendingBookmarkedByMe ||
-        isPendingNumOfLikes ? null : (
+        isPendingNumOfLikes ? (
+          <div className="w-full h-full animate-pulse bg-[#404040] bg-opacity-50"></div>
+        ) : (
           <Image
             src={bundle.images[0] as string}
             alt={bundle.title}
