@@ -9,7 +9,6 @@ from fastapi import HTTPException, status
 from sqlalchemy import delete, insert, select, update
 
 from ..models import (
-    Bundle,
     BundleInDB,
     Purchase,
     PurchaseByCoins,
@@ -191,7 +190,7 @@ async def get_bundle_by_id(
     id: uuid.UUID,
     only_check_existence: Optional[bool] = False,
     return_url: Optional[bool] = False,
-) -> Union[Bundle, bool]:
+) -> Union[BundleInDB, bool]:
     query = select([BundlesTable]).where(BundlesTable.id == id)
     bundle = await db.fetch_one(query)
 
@@ -208,21 +207,17 @@ async def get_bundle_by_id(
     # causing lots of stupid issues
 
     user = await get_user_by_field(db, field_name="uid", field_value=bundle.creator_uid)
+    bundle = BundleInDB(
+        **dict(zip(bundle.keys(), bundle.values())),
+        creator_username=user.username,
+        creator_nickname=user.nickname,
+        creator_avatar=user.avatar,
+    )
 
-    if return_url:
-        return BundleInDB(
-            **dict(zip(bundle.keys(), bundle.values())),
-            creator_username=user.username,
-            creator_nickname=user.nickname,
-            creator_avatar=user.avatar,
-        )
-    else:
-        return Bundle(
-            **dict(zip(bundle.keys(), bundle.values())),
-            creator_username=user.username,
-            creator_nickname=user.nickname,
-            creator_avatar=user.avatar,
-        )
+    if not return_url:
+        bundle.bundle_url = ""
+
+    return bundle
 
 
 async def like_bundle(db: Database, bundle_id: uuid.UUID, user_uid: str):
@@ -327,6 +322,9 @@ async def get_bundles_liked_by_user(
             )
             for bundle in bundles
         ]
+
+        for bundle in bundles:
+            bundle.bundle_url = ""
 
         if with_bookmarked:
             bookmarked = await check_bundles_bookmarked_by_user(db, bundles, user_uid)
@@ -532,6 +530,9 @@ async def get_bundles_bookmarked_by_user(
             )
             for bundle in bundles
         ]
+
+        for bundle in bundles:
+            bundle.bundle_url = ""
 
         if with_liked:
             liked = await check_bundles_liked_by_user(db, bundles, user_uid)
@@ -951,38 +952,24 @@ async def get_bundles_of_all_users(
         creators_ = await db.fetch_all(query)
         creators = {creator.uid: creator for creator in creators_}
 
-        if user_uid is None:
-            bundles = [
-                BundleInDB(
-                    **dict(zip(bundle.keys(), bundle.values())),
-                    creator_username=creators[bundle.creator_uid].username,
-                    creator_nickname=creators[bundle.creator_uid].nickname,
-                    creator_avatar=creators[bundle.creator_uid].avatar,
-                )
-                for bundle in bundles
-            ]
-        else:
-            if return_url:
-                bundles = [
-                    BundleInDB(
-                        **dict(zip(bundle.keys(), bundle.values())),
-                        creator_username=creators[bundle.creator_uid].username,
-                        creator_nickname=creators[bundle.creator_uid].nickname,
-                        creator_avatar=creators[bundle.creator_uid].avatar,
-                    )
-                    for bundle in bundles
-                ]
-            else:
-                bundles = [
-                    Bundle(
-                        **dict(zip(bundle.keys(), bundle.values())),
-                        creator_username=creators[bundle.creator_uid].username,
-                        creator_nickname=creators[bundle.creator_uid].nickname,
-                        creator_avatar=creators[bundle.creator_uid].avatar,
-                    )
-                    for bundle in bundles
-                ]
+        bundles = [
+            BundleInDB(
+                **dict(zip(bundle.keys(), bundle.values())),
+                creator_username=creators[bundle.creator_uid].username,
+                creator_nickname=creators[bundle.creator_uid].nickname,
+                creator_avatar=creators[bundle.creator_uid].avatar,
+            )
+            for bundle in bundles
+        ]
 
+        user_logged_in = user_uid is not None
+        return_url = user_logged_in and return_url
+
+        if not return_url:
+            for bundle in bundles:
+                bundle.bundle_url = ""
+
+        if user_logged_in:
             if with_liked:
                 liked = await check_bundles_liked_by_user(db, bundles, user_uid)
                 for i in range(len(bundles)):

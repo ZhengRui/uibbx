@@ -5,7 +5,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Extra
 
 
-class Bundle(BaseModel, extra=Extra.allow):
+class Bundle(BaseModel):
     id: Optional[uuid.UUID] = None
     creator_uid: str
     title: str
@@ -20,5 +20,5 @@ class Bundle(BaseModel, extra=Extra.allow):
     deleted: bool = False
 
 
-class BundleInDB(Bundle):
+class BundleInDB(Bundle, extra=Extra.allow):
     bundle_url: str
