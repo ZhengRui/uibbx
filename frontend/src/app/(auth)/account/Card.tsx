@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import { EyeIcon } from "@heroicons/react/24/solid";
 import { convertDateString } from "./RefersTable";
+import { SkeletonedImage } from "@/components/SkeletonImage";
 
 const Card = ({
   bundle,
@@ -56,13 +57,9 @@ const Card = ({
         isPendingNumOfLikes ? (
           <div className="w-full h-full animate-pulse bg-[#404040] bg-opacity-50"></div>
         ) : (
-          <Image
+          <SkeletonedImage
             src={bundle.images[0] as string}
             alt={bundle.title}
-            fill={true}
-            className="object-cover cursor-pointer"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            priority
           />
         )}
         <div className="absolute w-full h-full opacity-0 transition ease-in-out delay-50 duration-300 group-hover:opacity-100 group-hover:bg-opacity-80 bg-[#404040]">
