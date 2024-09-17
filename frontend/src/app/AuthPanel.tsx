@@ -719,7 +719,7 @@ const AuthPanel = () => {
   return (
     <Transition.Root show={open} as={Fragment}>
       <Popover className="fixed inset-0 z-40 overflow-y-auto">
-        <div className="flex justify-center items-center h-screen text-center">
+        <div className="flex justify-center items-center h-screen text-center px-4">
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -747,7 +747,7 @@ const AuthPanel = () => {
             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
-            <Popover.Panel className="relative mx-10 bg-white flex justify-center items-center rounded-3xl overflow-clip">
+            <Popover.Panel className="relative w-full max-w-[960px] bg-white flex justify-center items-center rounded-3xl overflow-clip">
               <div className="relative flex justify-center items-center h-[540px] w-[960px]">
                 <Image
                   src="/authpanel-bg.png"
