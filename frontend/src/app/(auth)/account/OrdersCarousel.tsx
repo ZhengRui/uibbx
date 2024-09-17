@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useBundlesPurchased } from "@/hooks/useBundle";
+import {
+  useBundlesPurchased,
+  useNumOfBundlesPurchased,
+} from "@/hooks/useBundle";
 import { useSubscriptions } from "@/hooks/useSubscription";
 import { CardOfPurchase } from "./Card";
 import { convertDateString } from "./RefersTable";
@@ -11,27 +14,25 @@ import {
   SubscriptionLevel3Icon,
 } from "@/components/icons";
 
+import { Pagination } from "@/components/Pagination";
+
+const step = Number(process.env.NEXT_PUBLIC_CAROUSEL_NUM_OF_CARDS);
+
 const Carousel = () => {
   const [tab, setTab] = useState<string>("subscriptions");
 
-  const {
-    isPending: isPurchasesLoading,
-    isFetching: isPurchasesFetching,
-    data: bundles,
-  } = useBundlesPurchased(0, 20);
-  const {
-    isPending: isSubscriptionsLoading,
-    isFetching: isSubscriptionsFetching,
-    data: subscriptions,
-  } = useSubscriptions(0, 20);
+  const [pos, setPos] = useState(0);
 
-  if (
-    isPurchasesLoading ||
-    isPurchasesFetching ||
-    isSubscriptionsLoading ||
-    isSubscriptionsFetching
-  )
-    return null;
+  const { isPending: isPendingTotal, data: total } = useNumOfBundlesPurchased();
+
+  const { isPending: isPendingBundles, data: bundles } = useBundlesPurchased(
+    pos,
+    step
+  );
+  const { isPending: isPendingSubscriptions, data: subscriptions } =
+    useSubscriptions(0, 20);
+
+  if (isPendingTotal || isPendingBundles || isPendingSubscriptions) return null;
 
   return (
     <div className="w-full flex flex-col justify-start items-center @container">
@@ -56,13 +57,25 @@ const Carousel = () => {
         </span>
       </div>
       {tab === "purchases" && (
-        <div className="mt-6 w-full grid grid-cols-1 @[768px]:grid-cols-2 @[1096px]:grid-cols-3 gap-x-4 gap-y-6">
-          {bundles?.map((bundle, i) => (
-            <div key={`${i}-${bundle.id}`} className="w-full">
-              <CardOfPurchase bundle={bundle} />
+        <>
+          {total! > step && (
+            <div className="mt-6 py-3 w-full bg-indigo-50 rounded-2xl overflow-clip">
+              <Pagination
+                pos={pos}
+                step={step}
+                total={total!}
+                setPos={setPos}
+              />
             </div>
-          ))}
-        </div>
+          )}
+          <div className="mt-6 w-full grid grid-cols-1 @[768px]:grid-cols-2 @[1096px]:grid-cols-3 gap-x-4 gap-y-6">
+            {bundles?.map((bundle, i) => (
+              <div key={`${i}-${bundle.id}`} className="w-full">
+                <CardOfPurchase bundle={bundle} />
+              </div>
+            ))}
+          </div>
+        </>
       )}
       {tab === "subscriptions" && (
         <>

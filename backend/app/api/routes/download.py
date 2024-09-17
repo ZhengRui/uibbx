@@ -26,6 +26,12 @@ async def download(
     db: Database = Depends(get_db),
     current_user: User = Depends(get_current_enabled_user),
 ):
+
+    bundle = await get_bundle_by_id(db, bundle_id, False, True)
+    owned = bundle.creator_uid == current_user.uid
+    if owned:
+        return bundle.bundle_url
+
     passed = False
     purchased = False
     subscribed = False
@@ -66,10 +72,10 @@ async def download(
             )
         elif not purchased:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="请先购买或订阅后再下载", headers={"WWW-Authenticate": "Bearer"}
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="请先购买或订阅后再下载",
+                headers={"WWW-Authenticate": "Bearer"},
             )
-
-    bundle = await get_bundle_by_id(db, bundle_id, False, True)
 
     if not purchased and not downloaded_today:
         await create_download(db, bundle_id, current_user.uid)

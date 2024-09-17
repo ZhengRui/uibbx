@@ -9,9 +9,11 @@ import {
   getBundle,
   getBundles,
   getBundlesPublic,
+  getNumOfBundlesPublic,
   getNumOfBundlesBookmarked,
   getNumOfBundlesPublished,
   getNumOfBundlesLiked,
+  getNumOfBundlesPurchased,
   getBundlesPublished,
   getBundlesLiked,
   getBundlesBookmarked,
@@ -48,6 +50,14 @@ export const useBundlesPublic = (offset: number, limit: number) =>
     refetchOnWindowFocus: false,
   });
 
+export const useNumOfBundlesPublic = () =>
+  useQuery<number>({
+    queryKey: ["bundles", "numOfPublic"],
+    queryFn: getNumOfBundlesPublic,
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
+  });
+
 export const useBundles = (offset: number, limit: number) =>
   useQuery<BundleIF[]>({
     queryKey: ["bundles", offset, limit],
@@ -76,6 +86,14 @@ export const useNumOfBundlesBookmarked = () =>
   useQuery<number>({
     queryKey: ["user", "numOfBundlesBookmarked"],
     queryFn: getNumOfBundlesBookmarked,
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
+  });
+
+export const useNumOfBundlesPurchased = () =>
+  useQuery<number>({
+    queryKey: ["user", "numOfBundlesPurchased"],
+    queryFn: getNumOfBundlesPurchased,
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
   });

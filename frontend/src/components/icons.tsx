@@ -162,7 +162,7 @@ export const AdobeIllustratorIcon = (props: React.ComponentProps<"svg">) => (
     fill="currentColor"
     {...props}
   >
-    <g clip-path="url(#clip0_548_2)">
+    <g clipPath="url(#clip0_548_2)">
       <path
         d="M106.75 0H21.25C9.51395 0 0 9.74228 0 21.76V106.035C0 118.053 9.51395 127.795 21.25 127.795H106.75C118.486 127.795 128 118.053 128 106.035V21.76C128 9.74228 118.486 0 106.75 0Z"
         fill="#330000"
@@ -187,7 +187,7 @@ export const AdobeXDIcon = (props: React.ComponentProps<"svg">) => (
     fill="none"
     {...props}
   >
-    <g clip-path="url(#clip0_548_6)">
+    <g clipPath="url(#clip0_548_6)">
       <path
         d="M106.75 0H21.25C9.51395 0 0 9.74228 0 21.76V106.035C0 118.053 9.51395 127.795 21.25 127.795H106.75C118.486 127.795 128 118.053 128 106.035V21.76C128 9.74228 118.486 0 106.75 0Z"
         fill="#470137"

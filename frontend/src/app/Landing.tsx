@@ -64,7 +64,7 @@ const Landing = () => (
     <Search />
     <HotSearch />
     <Carousel />
-    <ViewMore />
+    {/* <ViewMore /> */}
   </div>
 );
 

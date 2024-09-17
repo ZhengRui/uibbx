@@ -889,6 +889,20 @@ async def get_bundles_purchased_by_user(
     return bundles
 
 
+async def get_num_of_bundles_purchased_by_user(db: Database, user_uid: str):
+    try:
+        query = "SELECT COUNT(*) FROM purchases WHERE user_uid = :user_uid"
+        values = {"user_uid": user_uid}
+        count = await db.execute(query=query, values=values)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取用户所有购买素材数失败: {e}",
+        )
+
+    return count
+
+
 async def get_refers_rewarded_of_user(
     db: Database,
     user_uid: str,
@@ -926,6 +940,19 @@ async def get_refers_rewarded_of_user(
         )
 
     return refers
+
+
+async def get_num_of_bundles_of_all_users(db: Database):
+    try:
+        query = "SELECT COUNT(*) FROM bundles WHERE deleted = FALSE"
+        count = await db.execute(query=query)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"获取所有素材数失败: {e}",
+        )
+
+    return count
 
 
 async def get_bundles_of_all_users(

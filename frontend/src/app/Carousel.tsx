@@ -1,14 +1,21 @@
 "use client";
 
-import { useBundlesPublic } from "@/hooks/useBundle";
+import { useBundlesPublic, useNumOfBundlesPublic } from "@/hooks/useBundle";
 import { useAuth } from "@/hooks/useAuth";
 import BundleCard from "./Card";
 import AuthedBundleCard from "@/app/(auth)/account/Card";
+import { useState } from "react";
+import { Pagination } from "@/components/Pagination";
+
+const step = Number(process.env.NEXT_PUBLIC_CAROUSEL_NUM_OF_CARDS);
 
 const Carousel = () => {
+  const [pos, setPos] = useState(0);
+
+  const { isPending: isPendingTotal, data: total } = useNumOfBundlesPublic();
   const { isPending: isPendingBundles, data: bundles } = useBundlesPublic(
-    0,
-    20
+    pos,
+    step
   );
   const { isPending: isPendingAuth, data: user } = useAuth();
 
@@ -32,6 +39,12 @@ const Carousel = () => {
               </div>
             ))}
       </div>
+
+      {!isPendingTotal && total! > step && (
+        <div className="mt-3 py-3 w-full bg-indigo-50 rounded-2xl overflow-clip">
+          <Pagination pos={pos} step={step} total={total!} setPos={setPos} />
+        </div>
+      )}
     </div>
   );
 };

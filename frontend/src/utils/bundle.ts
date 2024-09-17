@@ -164,6 +164,16 @@ export const getBundlesBookmarked = requestTemplate(
   true
 );
 
+export const getNumOfBundlesPurchased = requestTemplate(
+  () => ({
+    url: apiEndpoint + "/bundle/num_of_all_purchased",
+    method: "GET",
+  }),
+  responseHandlerTemplate,
+  null,
+  true
+);
+
 export const getBundlesPurchased = requestTemplate(
   (
     offset: number,
@@ -183,11 +193,19 @@ export const getBundlesPurchased = requestTemplate(
 
 export const getBundlesPublic = requestTemplate(
   (offset: number, limit: number) => ({
-    url: apiEndpoint + `/bundle/all/public?offset=${offset}&limit=${limit}`,
+    url: apiEndpoint + `/bundle/all_public?offset=${offset}&limit=${limit}`,
     method: "GET",
   }),
   responseHandlerTemplate,
   (data: any) => data.map((bundle: any) => transformImageUrls(bundle))
+);
+
+export const getNumOfBundlesPublic = requestTemplate(
+  () => ({
+    url: apiEndpoint + "/bundle/num_of_all_public",
+    method: "GET",
+  }),
+  responseHandlerTemplate
 );
 
 export const getBundles = requestTemplate(

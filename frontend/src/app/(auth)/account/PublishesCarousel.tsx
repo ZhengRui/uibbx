@@ -1,14 +1,29 @@
 "use client";
 
-import { useBundlesPublished } from "@/hooks/useBundle";
+import {
+  useBundlesPublished,
+  useNumOfBundlesPublished,
+} from "@/hooks/useBundle";
 import BundleCard from "./Card";
 import Link from "next/link";
 import { ImageGalleryPlusIcon } from "@/components/icons";
 
-const Carousel = () => {
-  const { isPending, isFetching, data: bundles } = useBundlesPublished(0, 20);
+import { useState } from "react";
+import { Pagination } from "@/components/Pagination";
 
-  if (isPending || isFetching) return null;
+const step = Number(process.env.NEXT_PUBLIC_CAROUSEL_NUM_OF_CARDS);
+
+const Carousel = () => {
+  const [pos, setPos] = useState(0);
+
+  const { isPending: isPendingTotal, data: total } = useNumOfBundlesPublished();
+
+  const { isPending: isPendingBundles, data: bundles } = useBundlesPublished(
+    pos,
+    step
+  );
+
+  if (isPendingTotal || isPendingBundles) return null;
 
   return (
     <div className="w-full flex flex-col justify-start items-center @container">
@@ -27,6 +42,13 @@ const Carousel = () => {
           添加项目
         </Link>
       </div>
+
+      {total! > step && (
+        <div className="mt-6 py-3 w-full bg-indigo-50 rounded-2xl overflow-clip">
+          <Pagination pos={pos} step={step} total={total!} setPos={setPos} />
+        </div>
+      )}
+
       <div className="mt-6 w-full grid grid-cols-1 @[768px]:grid-cols-2 @[1096px]:grid-cols-3 gap-x-4 gap-y-6">
         {bundles?.map((bundle, i) => (
           <div key={bundle.id} className="w-full">
